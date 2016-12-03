@@ -8,13 +8,13 @@ Initialize a new file with the specified AST contents
 
 **Properties**
 
--   `variables` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;variable>** A list of [variables](VARIABLE.md) in current scope
--   `defines` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;define>** A list of [defined](DEFINE.md) constants
--   `functions` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)>** 
--   `classes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;class>** 
--   `interfaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;interface>** 
--   `traits` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;trait>** 
--   `uses` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;use>** 
+-   `variables` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;variable>** [:link:](VARIABLE.md) A list of variables in current scope
+-   `defines` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;define>** [:link:](DEFINE.md) A list of defined constants
+-   `functions` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)>** [:link:](FUNCTION.md)
+-   `classes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;class>** [:link:](CLASS.md)
+-   `interfaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;interface>** [:link:](INTERFACE.md)
+-   `traits` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;trait>** [:link:](TRAIT.md)
+-   `uses` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;use>** [:link:](USE.md)
 
 ## getASTType
 
