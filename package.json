@@ -2,7 +2,7 @@
   "name": "php-reflection",
   "version": "1.0.0",
   "description": "Enables to parse php files and from AST extracts code informations (namespaces, classes, functions ...)",
-  "main": "main.js",
+  "main": "src/repository.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -25,5 +25,9 @@
   "homepage": "https://github.com/glayzzle/php-reflection#readme",
   "dependencies": {
     "php-parser": "^0.1.2"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-documentation": "^1.2.1"
   }
 }
