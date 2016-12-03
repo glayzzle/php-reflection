@@ -1,6 +1,6 @@
-# php-reflection
+# PHP Reflection
 
-Nodejs Reflection API for PHP files based on the (php-parser)[https://github.com/glayzzle/php-parser]
+Nodejs Reflection API for PHP files based on the [php-parser](https://github.com/glayzzle/php-parser)
 
 # Install
 
@@ -12,14 +12,15 @@ npm install php-reflection --save
 
 ```
 var repository = require('php-reflection');
+var workspace = new repository();
 var workers = [
-    repository.parse('some-file.php'),
-    repository.parse('another-file.php'),
-    repository.parse('test-file.php')
+    workspace.parse('some-file.php'),
+    workspace.parse('another-file.php'),
+    workspace.parse('test-file.php')
 ];
 Promise.all(workers).then(function() {
     console.log('-- list of functions :');
-    repository.each(function(file) {
+    workspace.each(function(file) {
         // @todo
     });
 });

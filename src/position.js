@@ -1,7 +1,8 @@
 /**
  * Defines a position object
+ * @constructor
  */
-module.exports = function(node, file) {
+var position = function(node) {
     if (this.node[0] !== 'position') {
         throw new Error('Bad node type');
     }
@@ -19,3 +20,17 @@ module.exports = function(node, file) {
         end: node[2][2]
     };
 };
+
+/**
+ * Check if the specified offset is inside the current position
+ * @param {int} offset
+ * @return {boolean}
+ */
+position.prototype.hit = function(offset) {
+    return offset >= this.offset.start && offset <= this.offset.end;
+}
+
+/**
+ * @export {position}
+ */
+module.exports = position;
