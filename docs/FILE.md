@@ -10,6 +10,7 @@ Initialize a new file with the specified AST contents
 
 -   `repository` **repository** The repository instance
 -   `version` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Last time when the file was parsed
+-   `size` **integer** The total file size
 -   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The filename
 -   `namespaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;namespace>** List of namespaces
 -   `declares` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;declare>** List of declare nodes

@@ -12,14 +12,20 @@ Generic node object (inherited by all objects)
 **Properties**
 
 -   `parent` **[node](#node)** Parent node instance
--   `position` **(position | null)** Current node [position](POSITION.md)
--   `doc` **([comment](https://developer.mozilla.org/en-US/docs/Web/API/Comment/Comment) | null)** Current node [comment](COMMENT.md)
+-   `position` **(position | null)** [:link:](POSITION.md) Current node position
+-   `doc` **([comment](https://developer.mozilla.org/en-US/docs/Web/API/Comment/Comment) | null)** [:link:](COMMENT.md) Node attached commebnt
 
 ## getFile
 
 Gets the file node
 
-Returns **file** 
+Returns **file** [:link:](FILE.md)
+
+## getNamespace
+
+Gets the current namespace
+
+Returns **namespace** [:link:](NAMESPACE.md)
 
 ## import
 
@@ -28,3 +34,38 @@ Node helper for importing data
 ## export
 
 Node helper for exporting data
+
+## extends
+
+Use this function to extend a node into a specific object.
+
+In order to make the cache wording automatically, the class
+name must be the same as the filename `foo` class into `./foo.js`
+
+_WARNING_ : It you pass a constructor, make sur it's named in order to
+automatically retrieve it's classname (used by the caching system)
+
+**Parameters**
+
+-   `ctor` **([constructor](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/constructor) \| [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String))** Define the named constructor, or the class name
+
+**Examples**
+
+```javascript
+Create with a constructor
+var block = require('./block');
+var child = block.extends(function className(parent, ast) {
+  block.apply(this, [parent, ast]);
+  // customized init code
+});
+child.prototype.foo = function() ...
+```
+
+```javascript
+Create with a generic class name
+var block = require('./block');
+var child = block.extends('className');
+child.prototype.foo = function() ...
+```
+
+Returns **[constructor](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/constructor)** 

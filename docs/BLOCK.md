@@ -6,44 +6,15 @@
 
 Initialize a new file with the specified AST contents
 
-**Parameters**
-
--   `parent`  
--   `ast`  
-
 **Properties**
 
--   `variables` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;variable>** A list of variables in current scope
--   `defines` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;define>** 
--   `functions` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;variable>** 
+-   `variables` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;variable>** A list of [variables](VARIABLE.md) in current scope
+-   `defines` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;define>** A list of [defined](DEFINE.md) constants
+-   `functions` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)>** 
 -   `classes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;class>** 
 -   `interfaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;interface>** 
 -   `traits` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;trait>** 
 -   `uses` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;use>** 
-
-## getNamespace
-
-Gets the current namespace
-
-## extends
-
-Inheritance helper
-
-**Parameters**
-
--   `ctor`  
-
-**Examples**
-
-```javascript
-var block = require('./block');
-var child = block.extends(function(parent, ast) {
-  block.apply(this, [parent, ast]);
-});
-child.prototype.foo = function() ...
-```
-
-Returns **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** 
 
 ## getASTType
 
