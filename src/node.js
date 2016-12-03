@@ -4,16 +4,19 @@
  * @url http://glayzzle.com
  */
 
-/** @private */
 var position = require('./position');
-/** @private */
 var comment = require('./comment');
 
 /**
  * Generic node object (inherited by all objects)
+ * 
+ * @public @constructor {node}
  * @param {node} parent The parent node
  * @param {array} ast The current AST node
- * @public @constructor {node}
+ * 
+ * @property {node} parent Parent node instance
+ * @property {position|null} position Current node [position](POSITION.md)
+ * @property {comment|null} doc Current node [comment](COMMENT.md)
  */
 var node = function(parent, ast) {
     this.parent = parent;

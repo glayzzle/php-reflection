@@ -9,6 +9,12 @@ Generic node object (inherited by all objects)
 -   `parent` **[node](#node)** The parent node
 -   `ast` **[array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** The current AST node
 
+**Properties**
+
+-   `parent` **[node](#node)** Parent node instance
+-   `position` **(position | null)** Current node [position](POSITION.md)
+-   `doc` **([comment](https://developer.mozilla.org/en-US/docs/Web/API/Comment/Comment) | null)** Current node [comment](COMMENT.md)
+
 ## getFile
 
 Gets the file node

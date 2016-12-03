@@ -14,6 +14,9 @@ var block = require('./block');
  * names colision.
  * 
  * @constructor {namespace}
+ * 
+ * @property {String} name The namespace full name
+ * @property {constant[]} constants An array of constants
  */
 var namespace = block.extends();
 
@@ -35,7 +38,7 @@ namespace.prototype.consume = function(ast) {
 
 
 /**
- * Gets the current namespace
+ * @protected Gets the current namespace
  */
 namespace.prototype.getNamespace = function() {
     return this;

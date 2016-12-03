@@ -8,6 +8,7 @@ The namespace is an organisational unit that stores
 inner nodes and use the namespace prefix to avoid
 names colision.
 
-## getNamespace
+**Properties**
 
-Gets the current namespace
+-   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The namespace full name
+-   `constants` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;constant>** An array of constants
