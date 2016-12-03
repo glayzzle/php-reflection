@@ -12,3 +12,7 @@ names colision.
 
 -   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The namespace full name
 -   `constants` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;constant>** An array of constants
+
+# forEach
+
+Iterator over each namespace item

@@ -3,10 +3,9 @@
  * @constructor
  */
 var position = function(node) {
-    if (this.node[0] !== 'position') {
+    if (node[0] !== 'position') {
         throw new Error('Bad node type');
     }
-    this.file = file;
     this.start = {
         line: node[1][0],
         column: node[1][1]
@@ -19,7 +18,6 @@ var position = function(node) {
         start: node[1][2],
         end: node[2][2]
     };
-    console.log(this);
 };
 
 /**

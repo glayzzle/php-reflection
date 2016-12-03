@@ -5,74 +5,65 @@
  */
 
 var node = require('./node');
-var util = require('util');
 
 /**
- * **Extends from [node](NODE.md)**
+ * **Extends from {@link NODE.md|:link: node}**
  * 
  * Initialize a new file with the specified AST contents
  * 
- * @constructor {block}
- * @property {variable[]} variables A list of variables in current scope
- * @property {define[]} defines
- * @property {variable[]} functions
- * @property {class[]} classes
- * @property {interface[]} interfaces
- * @property {trait[]} traits
- * @property {use[]} uses
+ * @public @constructor block
+ * @property {variable[]} variables {@link VARIABLE.md|:link:} A list of variables in current scope
+ * @property {define[]} defines {@link DEFINE.md|:link:} A list of defined constants
+ * @property {function[]} functions {@link FUNCTION.md|:link:} 
+ * @property {class[]} classes {@link CLASS.md|:link:} 
+ * @property {interface[]} interfaces {@link INTERFACE.md|:link:} 
+ * @property {trait[]} traits {@link TRAIT.md|:link:} 
+ * @property {use[]} uses {@link USE.md|:link:} 
  */
-var block = function(parent, ast) {
+var block = node.extends(function block(parent, ast) {
     node.apply(this, arguments);
-    this.variables = {};
-    this.defines = {};
-    this.functions = {};
-    this.classes = {};
-    this.interfaces = {};
-    this.traits = {};
-    this.uses = {};
-};
-util.inherits(block, node);
+    this.variables = [];
+    this.defines = [];
+    this.functions = [];
+    this.classes = [];
+    this.interfaces = [];
+    this.traits = [];
+    this.uses = [];
+});
 
 /**
- * Gets the current namespace
+ * @protected Gets the current block
  */
-block.prototype.getNamespace = function() {
-    if (this.parent) {
-        return this.parent.getNamespace();
-    } else {
-        return null;
-    }
+block.prototype.getBlock = function() {
+    return this;
 };
 
+
 /**
- * Inheritance helper
- * @return {function}
+ * Generic consumer of a list of nodes
+ * @abstract @protected 
+ * @param {Array} node The AST node to eat
+ * @return void
+ */
+block.prototype.consumeChild = function(node) {};
+
+/**
+ * Static helper that resolves the AST type of the specified node.
+ * 
+ * This function will strip position node, or comment node to read
+ * directly the AST node
+ *
+ * @public
+ * @param {Array} node
+ * @return {String}
+ * 
  * @example
  * var block = require('./block');
- * var child = block.extends(function(parent, ast) {
- *   block.apply(this, [parent, ast]);
- * });
- * child.prototype.foo = function() ...
- */
-block.extends = function(ctor) {
-    if (!ctor) {
-        ctor = function(parent, ast) {
-            block.apply(this, arguments);
-        };
-    }
-    util.inherits(ctor, block);
-    return ctor;
-};
-
-block.prototype.consomeNodes = function(nodes) {
-    //if (nodes)
-};
-
-
-/**
- * Resolves the AST type of the specified node
- * @param {array} node
- * @return {string}
+ * var type = block.getASTType([
+ *   'position', [..start..], [..end..], [
+ *     'innerNode'
+ *   ]
+ * ]); // type = 'innerNode'
  */
 block.getASTType = function(ast) {
     var type = null;

@@ -18,6 +18,7 @@ var comment = require('./comment');
  * @constructor {file}
  * @property {repository} repository The repository instance
  * @property {Date} version Last time when the file was parsed
+ * @property {integer} size The total file size
  * @property {String} name The filename
  * @property {namespace[]} namespaces List of namespaces
  * @property {declare[]} declares List of declare nodes
@@ -26,15 +27,10 @@ var comment = require('./comment');
  * @property {block[]} scopes List of scopes
  * @property {error} error Error node
  */
-var file = block.extends(function(repository, name, ast) {
-
-    // check the AST structure
-    if (ast[0] !== 'program' || !Array.isArray(ast[1])) {
-        throw new Error('Bad AST node');
-    }
-
+var file = block.extends(function file(repository, name, ast) {
     this.repository = repository;
     this.version = new Date();
+    this.size = 0;
     this.name = name;
     this.namespaces = [];
     this.declares = [];
@@ -43,6 +39,20 @@ var file = block.extends(function(repository, name, ast) {
     this.scopes = [];
     this.error = null;
 
+    // super constructor
+    block.apply(this, [this, ast]);
+});
+
+/**
+ * @protected Consumes the current ast node
+ */
+file.prototype.consume = function(ast) {
+
+    // check the AST structure
+    if (ast[0] !== 'program' || !Array.isArray(ast[1])) {
+        throw new Error('Bad AST node');
+    }
+
     // last docBlock node
     var doc = null;
 
@@ -50,7 +60,6 @@ var file = block.extends(function(repository, name, ast) {
     var root = [];
 
     // scan each document node
-    console.log(ast[1]);
     ast[1].forEach(function(item) {
         var type = block.getASTType(item);
         if (type) {
@@ -82,10 +91,9 @@ var file = block.extends(function(repository, name, ast) {
             'namespace', [''], root
         ]);
     }
+};
 
-    // super constructor
-    block.apply(this, [this, []]);
-});
+
 
 /**
  * Gets the current file instance

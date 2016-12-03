@@ -4,13 +4,39 @@
  * @url http://glayzzle.com
  */
 
-/** @private */
-var block = require('./block');
+
+var node = require('./node');
 
 /**
- * @public
- * @constructor {class}
+ * ** Extends from {@link NODE.md|:link: node} **
+ * 
+ * Represents a class
+ * 
+ * @public @constructor class
+ * @property {string} name 
+ * @property {string} fullName
+ * @property {boolean} isAbstract
+ * @property {boolean} isFinal
+ * @property {reference<class>[]} extends {@link CLASS.md|:link:}
+ * @property {interface[]} implements {@link INTERFACE.md|:link:}
+ * @property {property[]} properties {@link PROPERTY.md|:link:}
+ * @property {method[]} methods {@link METHOD.md|:link:}
+ * @property {trait[]} traits {@link TRAIT.md|:link:}
  */
-var aClass = block.extends();
+var _class = node.extends('class');
 
-module.exports = aClass;
+/**
+ * @protected Consumes the current ast node
+ */
+_class.prototype.consume = function(ast) {
+
+    // registers at the leve
+    this.getFile().classes.push(this);
+    this.getNamespace().classes.push(this);
+
+    this.name = ast[1];
+    this.fullName = this.getNamespace().name + '/' + this.name;
+
+};
+
+module.exports = _class;

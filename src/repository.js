@@ -39,11 +39,15 @@ repository.prototype.parse = function(filename, encoding) {
             fs.readFile(filename, encoding, function(err, data) {
                 if (!err)  {
                     try {
-                        var ast = parser.parseCode(data.toString(), {
-                            locations: true,
-                            extractDoc: true,
-                            suppressErrors: true
+                        var reader = new parser({
+                            parser: {
+                                locations: true,
+                                extractDoc: true,
+                                suppressErrors: true
+                            }
                         });
+                        data = data.toString(encoding);
+                        var ast = reader.parseCode(data);
                     } catch(e) {
                         err = e;
                     }
@@ -54,6 +58,7 @@ repository.prototype.parse = function(filename, encoding) {
                 } else {
                     try {
                         self.files[filename] = new file(this, filename, ast);
+                        self.files[filename].size = data.length;
                         return done(self.files[filename]);
                     } catch(e) {
                         delete self.files[filename];

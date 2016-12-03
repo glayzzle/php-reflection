@@ -5,6 +5,7 @@
  */
 
 var block = require('./block');
+var _const = require('./constant');
 
 /**
  * **Extends from [block](BLOCK.md)**
@@ -18,7 +19,7 @@ var block = require('./block');
  * @property {String} name The namespace full name
  * @property {constant[]} constants An array of constants
  */
-var namespace = block.extends();
+var namespace = block.extends('namespace');
 
 
 /**
@@ -26,12 +27,23 @@ var namespace = block.extends();
  */
 namespace.prototype.consume = function(ast) {
 
+    var self = this;
     this.getFile().namespaces.push(this);
     this.name = ast[1].join('/');
-    this.constants = {};
+    this.constants = [];
 
+    /**
+     * Iterator over each namespace item
+     */
     ast[2].forEach(function(item) {
-        
+        var type = block.getASTType(item);
+        if (type === 'const') {
+            self.constants = self.constants.concat(
+                _const.fromAST(self, item)
+            );
+        } else {
+            self.consumeChild(item);
+        }
     });
 };
 

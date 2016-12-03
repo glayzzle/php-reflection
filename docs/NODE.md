@@ -27,13 +27,21 @@ Gets the current namespace
 
 Returns **namespace** [:link:](NAMESPACE.md)
 
+## getBlock
+
+Gets the parent block
+
+Returns **block** [:link:](BLOCK.md)
+
 ## import
 
 Node helper for importing data
 
 ## export
 
-Node helper for exporting data
+Gets a POJO representation of the current node that can be serialized / [unserialized](#import)
+
+Returns **([Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) | null)** 
 
 ## extends
 

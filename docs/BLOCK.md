@@ -2,7 +2,7 @@
 
 # block
 
-**Extends from [node](NODE.md)**
+**Extends from [:link: node](NODE.md)**
 
 Initialize a new file with the specified AST contents
 
@@ -16,13 +16,37 @@ Initialize a new file with the specified AST contents
 -   `traits` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;trait>** [:link:](TRAIT.md)
 -   `uses` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;use>** [:link:](USE.md)
 
-## getASTType
+## consumeChild
 
-Resolves the AST type of the specified node
+Generic consumer of a list of nodes
 
 **Parameters**
 
--   `node` **[array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** 
+-   `node` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** The AST node to eat
+
+Returns **any** void
+
+## getASTType
+
+Static helper that resolves the AST type of the specified node.
+
+This function will strip position node, or comment node to read
+directly the AST node
+
+**Parameters**
+
+-   `node` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** 
 -   `ast`  
 
-Returns **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+**Examples**
+
+```javascript
+var block = require('./block');
+var type = block.getASTType([
+  'position', [..start..], [..end..], [
+    'innerNode'
+  ]
+]); // type = 'innerNode'
+```
+
+Returns **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 

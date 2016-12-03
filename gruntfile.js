@@ -12,6 +12,7 @@ module.exports = function(grunt) {
             shallow: true
         }
     };
+    var watch = {};
 
     /**
      * scan files to generate documentation
@@ -25,14 +26,21 @@ module.exports = function(grunt) {
                     filename: key.toUpperCase() + '.md'
                 }
             }
+            watch[key] = {
+                files: ['src/' + file],
+                tasks: ['documentation:' + key]
+            };
         }
     });
 
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        documentation: doc
+        documentation: doc,
+        watch: watch
     });
+
+    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-documentation');
 
     // Default task(s).

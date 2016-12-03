@@ -6,9 +6,9 @@
 var block = require('./block');
 
 /**
- * @constructor {declare}
+ * @constructor declare
  */
-var declare = block.extends();
+var declare = block.extends('declare');
 
 /**
  * @protected Consumes the current ast node
