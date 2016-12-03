@@ -6,6 +6,18 @@
 
 Initialize a new file with the specified AST contents
 
+**Properties**
+
+-   `repository` **repository** The repository instance
+-   `version` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Last time when the file was parsed
+-   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The filename
+-   `namespaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;namespace>** List of namespaces
+-   `declares` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;declare>** List of declare nodes
+-   `requires` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[require](https://nodejs.org/api/globals.html#globals_require)>** List of required statements
+-   `includes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;include>** List of included files
+-   `scopes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;block>** List of scopes
+-   `error` **[error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)** Error node
+
 ## getFile
 
 Gets the current file instance
@@ -31,57 +43,3 @@ Removes the current file from the parser (need to clean external references)
 ## refresh
 
 Refreshing symbols
-
-# repository
-
-**Properties**
-
--   `repository` **[repository](#repository)** The repository instance
-
-# version
-
-**Properties**
-
--   `version` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Last time when the file was parsed
-
-# name
-
-**Properties**
-
--   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The filename
-
-# namespaces
-
-**Properties**
-
--   `namespaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;namespace>** List of namespaces
-
-# declares
-
-**Properties**
-
--   `declares` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;declare>** List of declare nodes
-
-# requires
-
-**Properties**
-
--   `requires` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[require](https://nodejs.org/api/globals.html#globals_require)>** List of required statements
-
-# includes
-
-**Properties**
-
--   `includes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;include>** List of included files
-
-# scopes
-
-**Properties**
-
--   `scopes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;block>** List of scopes
-
-# error
-
-**Properties**
-
--   `error` **[error](#error)** Error node

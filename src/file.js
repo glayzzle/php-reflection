@@ -16,6 +16,15 @@ var comment = require('./comment');
  * Initialize a new file with the specified AST contents
  * 
  * @constructor {file}
+ * @property {repository} repository The repository instance
+ * @property {Date} version Last time when the file was parsed
+ * @property {String} name The filename
+ * @property {namespace[]} namespaces List of namespaces
+ * @property {declare[]} declares List of declare nodes
+ * @property {require[]} requires List of required statements
+ * @property {include[]} includes List of included files
+ * @property {block[]} scopes List of scopes
+ * @property {error} error Error node
  */
 var file = block.extends(function(repository, name, ast) {
 
@@ -24,49 +33,14 @@ var file = block.extends(function(repository, name, ast) {
         throw new Error('Bad AST node');
     }
 
-    /**
-     * @property {repository} repository The repository instance
-     */
     this.repository = repository;
-
-    /**
-     * @property {Date} version Last time when the file was parsed
-     */
     this.version = new Date();
-
-    /**
-     * @property {String} name The filename
-     */
     this.name = name;
-
-    /**
-     * @property {namespace[]} namespaces List of namespaces
-     */
     this.namespaces = [];
-
-    /**
-     * @property {declare[]} declares List of declare nodes
-     */
     this.declares = [];
-
-    /**
-     * @property {require[]} requires List of required statements
-     */
     this.requires = [];
-
-    /**
-     * @property {include[]} includes List of included files
-     */
     this.includes = [];
-
-    /**
-     * @property {block[]} scopes List of scopes
-     */
     this.scopes = [];
-
-    /**
-     * @property {error} error Error node
-     */
     this.error = null;
 
     // last docBlock node

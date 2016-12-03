@@ -13,36 +13,22 @@ var util = require('util');
  * Initialize a new file with the specified AST contents
  * 
  * @constructor {block}
+ * @property {variable[]} variables A list of variables in current scope
+ * @property {define[]} defines
+ * @property {variable[]} functions
+ * @property {class[]} classes
+ * @property {interface[]} interfaces
+ * @property {trait[]} traits
+ * @property {use[]} uses
  */
 var block = function(parent, ast) {
     node.apply(this, arguments);
-    /**
-      * @property {variable[]} variables A list of variables in current scope
-     */
     this.variables = {};
-    /**
-      * @property {define[]} defines
-     */
     this.defines = {};
-    /**
-      * @property {variable[]} functions
-     */
     this.functions = {};
-    /**
-      * @property {class[]} classes
-     */
     this.classes = {};
-    /**
-      * @property {interface[]} interfaces
-     */
     this.interfaces = {};
-    /**
-      * @property {trait[]} traits
-     */
     this.traits = {};
-    /**
-      * @property {use[]} uses
-     */
     this.uses = {};
 };
 util.inherits(block, node);

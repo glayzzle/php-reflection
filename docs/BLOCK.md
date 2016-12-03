@@ -11,46 +11,14 @@ Initialize a new file with the specified AST contents
 -   `parent`  
 -   `ast`  
 
-## variables
-
 **Properties**
 
 -   `variables` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;variable>** A list of variables in current scope
-
-## defines
-
-**Properties**
-
 -   `defines` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;define>** 
-
-## functions
-
-**Properties**
-
 -   `functions` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;variable>** 
-
-## classes
-
-**Properties**
-
 -   `classes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;class>** 
-
-## interfaces
-
-**Properties**
-
 -   `interfaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;interface>** 
-
-## traits
-
-**Properties**
-
 -   `traits` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;trait>** 
-
-## uses
-
-**Properties**
-
 -   `uses` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;use>** 
 
 ## getNamespace
