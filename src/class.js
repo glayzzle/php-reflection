@@ -4,11 +4,12 @@
  * @url http://glayzzle.com
  */
 
+/** @private */
 var block = require('./block');
 
 /**
- * @class class
- * @constructor
+ * @public
+ * @constructor {class}
  */
 var aClass = block.extends();
 

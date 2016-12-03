@@ -8,7 +8,10 @@ var node = require('./node');
 var util = require('util');
 
 /**
+ * **Extends from [node](NODE.md)**
+ * 
  * Initialize a new file with the specified AST contents
+ * 
  * @constructor {block}
  */
 var block = function(parent, ast) {

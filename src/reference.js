@@ -6,8 +6,7 @@
 
 /**
  * Defines a reference to another node
- * @class reference
- * @constructor
+ * @public @constructor {reference}
  * @param {node} from Related from node
  * @param {node|null} to Relating to node 
  */

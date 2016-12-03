@@ -4,13 +4,27 @@
  * @url http://glayzzle.com
  */
 
+/** @private */
 var parser = require('php-parser');
+
+/** @private */
 var fs = require('fs');
+
+/** @private */
 var file = require('./file');
 
 /**
- * @class repository
- * @constructor
+ * 
+ * The repository stores a list of files with their symbols
+ * and acts like a database. 
+ * 
+ * You can request it to retrieve
+ * [nodes](NODE.md) like [namespaces](NAMESPACE.md], functions or classes.
+ * 
+ * You can also use it to retrieve scope context from a specific
+ * offset (usefull for an editor).
+ * 
+ * @public @constructor {repository}
  */
 var repository = function() {
     this.files = {};
@@ -18,6 +32,7 @@ var repository = function() {
 
 /**
  * Parsing a file
+ * @public
  * @param {string} filename 
  * @param {string} encoding The encoding (by default utf8)
  * @return {Promise}
@@ -60,6 +75,7 @@ repository.prototype.parse = function(filename, encoding) {
 
 /**
  * Clean all the cache
+ * @public
  * @return {repository}
  */
 repository.prototype.cleanAll = function() {
@@ -69,6 +85,7 @@ repository.prototype.cleanAll = function() {
 
 /**
  * Removes a file
+ * @public
  * @return {repository}
  */
 repository.prototype.remove = function(filename) {
@@ -83,6 +100,7 @@ repository.prototype.remove = function(filename) {
 
 /**
  * Iterate over each file
+ * @public
  * @param {function} cb A closure : `function(file, name)`
  * @return {repository}
  */
@@ -97,6 +115,7 @@ repository.prototype.each = function(cb) {
 
 /**
  * Gets the scope for the specified offset
+ * @public
  * @return {scope}
  */
 repository.prototype.scope = function(filename, offset) {
@@ -109,6 +128,7 @@ repository.prototype.scope = function(filename, offset) {
 
 /**
  * Retrieves a file object
+ * @public
  * @param {String} filename The filename to retrieve
  * @return {file|null} Returns the file if exists, or null if not defined
  */
@@ -123,6 +143,7 @@ repository.prototype.get = function(filename) {
 
 /**
  * Gets/Sets the files repository
+ * @public
  * @param {object} data Sets the specified data
  * @return {repository|object} Retrieves the cache (if data not set)
  */
@@ -155,6 +176,7 @@ repository.prototype.cache = function(data) {
 
 /**
  * Rename a file
+ * @public
  * @param {string} oldName The original filename
  * @param {string} newName The new filename
  * @return {repository}
@@ -171,6 +193,7 @@ repository.prototype.rename = function(oldName, newName) {
 
 /**
  * Refresh the file contents
+ * @public
  * @return {Promise}
  */
 repository.prototype.refresh = function(filename, encoding) {

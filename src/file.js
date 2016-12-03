@@ -11,7 +11,10 @@ var declare = require('./declare');
 var comment = require('./comment');
 
 /**
+ * **Extends from [block](BLOCK.md)**
+ * 
  * Initialize a new file with the specified AST contents
+ * 
  * @constructor {file}
  */
 var file = block.extends(function(repository, name, ast) {
@@ -22,47 +25,56 @@ var file = block.extends(function(repository, name, ast) {
     }
 
     /**
-     * @property {Object} The repository instance
+     * The repository instance
+     * @member {Object} 
      */
     this.repository = repository;
 
     /**
-     * @property {Date} Last time when the file was parsed
+     * Last time when the file was parsed
+     * @member {Date} 
      */
     this.version = new Date();
 
     /**
-     * @property {String} The filename
+     * The filename
+     * @member {String} 
      */
     this.name = name;
 
     /**
-     * @property {namespace[]} List of namespaces
+     * List of namespaces
+     * @member {namespace[]} 
      */
     this.namespaces = [];
 
     /**
-     * @property {declare[]} List of declare nodes
+     * List of declare nodes
+     * @member {declare[]} 
      */
     this.declares = [];
 
     /**
-     * @property {require[]} List of required statements
+     * List of required statements
+     * @member {require[]} 
      */
     this.requires = [];
 
     /**
-     * @property {include[]} List of included files
+     * List of included files
+     * @member {include[]} 
      */
     this.includes = [];
 
     /**
-     * @property {block[]} List of scopes
+     * List of scopes
+     * @member {block[]} 
      */
     this.scopes = [];
 
     /**
-     * @property {error} Error node
+     * Error node
+     * @member {error} 
      */
     this.error = null;
 
