@@ -50,3 +50,28 @@ var type = block.getASTType([
 ```
 
 Returns **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+
+## getAST
+
+Static helper that resolves the AST type of the specified node.
+
+This function will strip position node, or comment node to read
+directly the AST node
+
+**Parameters**
+
+-   `node` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** 
+-   `ast`  
+
+**Examples**
+
+```javascript
+var block = require('./block');
+var ast = block.getAST([
+  'position', [..start..], [..end..], [
+    'innerNode'
+  ]
+]); // ast = ['innerNode'...]
+```
+
+Returns **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 

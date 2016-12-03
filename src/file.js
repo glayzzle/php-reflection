@@ -59,9 +59,11 @@ file.prototype.consume = function(ast) {
     // empty namespace
     var root = [];
 
+
     // scan each document node
     ast[1].forEach(function(item) {
         var type = block.getASTType(item);
+        
         if (type) {
             if (type === 'declare') {
                 this.declares.push(

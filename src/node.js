@@ -200,6 +200,13 @@ node.prototype.export = function() {
  */
 node.extends = declareExtends(node);
 
+
+/**
+ * List of node builders
+ * @public
+ */
+node.builders = {};
+
 /** @private recursive extends */ 
 function declareExtends(base) {
     return function(ctor) {
@@ -209,6 +216,9 @@ function declareExtends(base) {
                 this.type = ctor;
                 base.apply(this, arguments);
             };
+            node.builders[ctor] = _super;
+        } else {
+            node.builders[_super.name] = _super;
         }
         // recursive extends
         _super.extends = declareExtends(_super);

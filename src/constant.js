@@ -36,7 +36,7 @@ _const.prototype.consume = function(ast) {
     }
 
     if (ast.length === 2) {
-        this.value = new expr(this, ast[1]);
+        this.value = expr.resolve(this, ast[1]);
     }
 };
 

@@ -15,3 +15,12 @@ Defines a generic AST expression
 Converts back AST nodes to PHP code
 
 Returns **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+
+## resolve
+
+**Parameters**
+
+-   `parent`  
+-   `ast`  
+
+Returns **([expr](#expr) \| [Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean) \| [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number))** 

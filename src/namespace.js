@@ -17,7 +17,6 @@ var _const = require('./constant');
  * @constructor {namespace}
  * 
  * @property {String} name The namespace full name
- * @property {constant[]} constants An array of constants
  */
 var namespace = block.extends('namespace');
 

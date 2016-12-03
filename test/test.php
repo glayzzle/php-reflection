@@ -11,6 +11,7 @@ namespace foobar {
 
     if ($something) {
         class foo {
+            const baz = 123;
             /**
              * @var bar
              */
@@ -29,10 +30,9 @@ namespace foobar {
 namespace {
     $a = true;
     $b = $a;
-
-    function something() use($b) {
+    $something = function() use($b) {
         $c = $b;
         return $c * 10;
-    }
+    };
 
 }

@@ -11,7 +11,7 @@ var block = require('./block');
  * 
  * Defines a generic AST expression
  * 
- * @constructor expr
+ * @public @constructor expr
  * @property {Array} ast List of AST nodes (as plain arrays)
  */
 var expr = block.extends('expr');
@@ -33,5 +33,27 @@ expr.prototype.toPHP = function() {
     return null;
 };
 
+/**
+ * @return {expr|Boolean|String|Number}
+ */
+expr.resolve = function(parent, ast) {
+    var item = block.getAST(ast);
+    if (item[0] === 'string') {
+        return item[1];
+    } else if (item[0] === 'constant') {
+        var cVal = item[1].toLowerCase();
+        if (cVal === 'true') {
+            return true;
+        } else if (cVal === 'false') {
+            return false;
+        } else {
+            return new expr(parent, ast);
+        }
+    } else if (item[0] === 'number') {
+        return item[1];
+    } else {
+        return new expr(parent, ast);
+    }
+};
 
 module.exports = expr;

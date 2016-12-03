@@ -45,7 +45,39 @@ block.prototype.getBlock = function() {
  * @param {Array} node The AST node to eat
  * @return void
  */
-block.prototype.consumeChild = function(node) {};
+block.prototype.consumeChild = function(node) {
+    var ast = block.getAST(node);
+    var type = ast[0];
+/*
+    if (type === 'class') {
+        this.classes.push(
+            new node.builders['class'](this, node)
+        );
+    } else if (type === 'interface') {
+        this.interfaces.push(
+            new node.builders['interface'](this, node)
+        );
+    } else if (type === 'trait') {
+        this.traits.push(
+            new node.builders['trait'](this, node)
+        );
+    } else if (type === 'function') {
+        this.functions.push(
+            new node.builders['function'](this, node)
+        );
+    } else if (type === 'call') {
+        if (
+            ast[1][0] === 'ns' && 
+            ast[1][1].length === 1 && 
+            ast[1][1][0] === 'define'
+        ) {
+            this.defines.push(
+                new node.builders['define'](this, node)
+            );
+        }
+    }
+    // @todo use, var */
+};
 
 /**
  * Static helper that resolves the AST type of the specified node.
@@ -66,24 +98,43 @@ block.prototype.consumeChild = function(node) {};
  * ]); // type = 'innerNode'
  */
 block.getASTType = function(ast) {
-    var type = null;
-    if (ast) {
-        if (typeof ast[0] === 'string') {
-            if (ast[0] === 'position') {
-                ast = ast[3];
+    return block.getAST(ast)[0];
+};
+
+/**
+ * Static helper that resolves the AST type of the specified node.
+ * 
+ * This function will strip position node, or comment node to read
+ * directly the AST node
+ *
+ * @public
+ * @param {Array} node
+ * @return {String}
+ * 
+ * @example
+ * var block = require('./block');
+ * var ast = block.getAST([
+ *   'position', [..start..], [..end..], [
+ *     'innerNode'
+ *   ]
+ * ]); // ast = ['innerNode'...]
+ */
+block.getAST = function(ast) {
+    var result = ast;
+    if (result) {
+        if (typeof result[0] === 'string') {
+            if (result[0] === 'position') {
+                result = result[3];
             }
-            if (ast[0] === 'doc' && ast.length === 3) {
-                ast = ast[2];
-                if (ast[0] === 'position') {
-                    ast = ast[3];
+            if (result[0] === 'doc' && result.length === 3) {
+                result = result[2];
+                if (result[0] === 'position') {
+                    result = result[3];
                 }
             }
-            type = ast[0];
-        } else {
-            type = 'body';
         }
     }
-    return type;
+    return result;
 };
 
 module.exports = block;

@@ -9,7 +9,7 @@ var parser = require('./doc/parser');
 
 /**
  * Initialize a comment declaration
- * @constructor {comment}
+ * @public @constructor comment
  */
 var comment = function(file, ast) {
     var ast = parser.parse(ast[1]);
