@@ -28,38 +28,60 @@ Gets the current namespace
 
 Removes the current file from the parser (need to clean external references)
 
+## refresh
+
+Refreshing symbols
+
 # repository
 
-The repository instance
+**Properties**
+
+-   `repository` **[repository](#repository)** The repository instance
 
 # version
 
-Last time when the file was parsed
+**Properties**
+
+-   `version` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Last time when the file was parsed
 
 # name
 
-The filename
+**Properties**
+
+-   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The filename
 
 # namespaces
 
-List of namespaces
+**Properties**
+
+-   `namespaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;namespace>** List of namespaces
 
 # declares
 
-List of declare nodes
+**Properties**
+
+-   `declares` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;declare>** List of declare nodes
 
 # requires
 
-List of required statements
+**Properties**
+
+-   `requires` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[require](https://nodejs.org/api/globals.html#globals_require)>** List of required statements
 
 # includes
 
-List of included files
+**Properties**
+
+-   `includes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;include>** List of included files
 
 # scopes
 
-List of scopes
+**Properties**
+
+-   `scopes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;block>** List of scopes
 
 # error
 
-Error node
+**Properties**
+
+-   `error` **[error](#error)** Error node

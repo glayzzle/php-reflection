@@ -22,19 +22,3 @@ Node helper for importing data
 ## export
 
 Node helper for exporting data
-
-# node
-
-## getFile
-
-Gets the file node
-
-Returns **file** 
-
-## import
-
-Node helper for importing data
-
-## export
-
-Node helper for exporting data

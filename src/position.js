@@ -19,6 +19,7 @@ var position = function(node) {
         start: node[1][2],
         end: node[2][2]
     };
+    console.log(this);
 };
 
 /**
@@ -30,7 +31,4 @@ position.prototype.hit = function(offset) {
     return offset >= this.offset.start && offset <= this.offset.end;
 }
 
-/**
- * @export {position}
- */
 module.exports = position;

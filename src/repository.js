@@ -4,13 +4,8 @@
  * @url http://glayzzle.com
  */
 
-/** @private */
-var parser = require('php-parser');
-
-/** @private */
 var fs = require('fs');
-
-/** @private */
+var parser = require('php-parser');
 var file = require('./file');
 
 /**
@@ -44,7 +39,7 @@ repository.prototype.parse = function(filename, encoding) {
             fs.readFile(filename, encoding, function(err, data) {
                 if (!err)  {
                     try {
-                        var ast = parser.parseCode(data, {
+                        var ast = parser.parseCode(data.toString(), {
                             locations: true,
                             extractDoc: true,
                             suppressErrors: true
@@ -59,8 +54,9 @@ repository.prototype.parse = function(filename, encoding) {
                 } else {
                     try {
                         self.files[filename] = new file(this, filename, ast);
+                        return done(self.files[filename]);
                     } catch(e) {
-                        delete files[filename];
+                        delete self.files[filename];
                         return reject(e);
                     }
                     
@@ -212,7 +208,4 @@ repository.prototype.refresh = function(filename, encoding) {
     }
 };
 
-/**
- * @exports {repository}
- */
 module.exports = repository;

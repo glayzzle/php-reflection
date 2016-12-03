@@ -37,6 +37,7 @@ var node = function(parent, ast) {
             }
         }
     }
+    this.consume(ast);
     // registers a scop
     if (this.position) {
         this.getFile().scopes.push(this);
@@ -53,6 +54,11 @@ node.prototype.getFile = function() {
     }
     return null;
 };
+
+/**
+ * @protected Consumes the current ast node
+ */
+node.prototype.consume = function(ast) {};
 
 /**
  * @private
@@ -97,7 +103,4 @@ node.prototype.export = function() {
     return object;
 };
 
-/**
- * @exports {node}
- */
 module.exports = node;

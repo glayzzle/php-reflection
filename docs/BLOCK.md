@@ -11,42 +11,47 @@ Initialize a new file with the specified AST contents
 -   `parent`  
 -   `ast`  
 
-## getNamespace
+## variables
 
-Gets the current namespace
+**Properties**
 
-## extends
+-   `variables` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;variable>** A list of variables in current scope
 
-Inheritance helper
+## defines
 
-**Parameters**
+**Properties**
 
--   `ctor`  
+-   `defines` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;define>** 
 
-**Examples**
+## functions
 
-```javascript
-var block = require('./block');
-var child = block.extends(function(parent, ast) {
-  block.apply(this, [parent, ast]);
-});
-child.prototype.foo = function() ...
-```
+**Properties**
 
-Returns **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** 
+-   `functions` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;variable>** 
 
-## getASTType
+## classes
 
-Resolves the AST type of the specified node
+**Properties**
 
-**Parameters**
+-   `classes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;class>** 
 
--   `node` **[array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** 
--   `ast`  
+## interfaces
 
-Returns **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+**Properties**
 
-# block
+-   `interfaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;interface>** 
+
+## traits
+
+**Properties**
+
+-   `traits` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;trait>** 
+
+## uses
+
+**Properties**
+
+-   `uses` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;use>** 
 
 ## getNamespace
 

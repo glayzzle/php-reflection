@@ -29,9 +29,4 @@ var type = function() {
     
 };
 
-
-
-/**
- * @exports {comment}
- */
 module.exports = comment;

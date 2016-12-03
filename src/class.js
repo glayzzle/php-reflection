@@ -13,7 +13,4 @@ var block = require('./block');
  */
 var aClass = block.extends();
 
-/**
- * @exports {class}
- */
 module.exports = aClass;

@@ -59,7 +59,4 @@ scope.prototype.getVariables = function() {
     return null;
 };
 
-/**
- * @exports {scope}
- */
 module.exports = scope;

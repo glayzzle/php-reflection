@@ -25,56 +25,47 @@ var file = block.extends(function(repository, name, ast) {
     }
 
     /**
-     * The repository instance
-     * @member {Object} 
+     * @property {repository} repository The repository instance
      */
     this.repository = repository;
 
     /**
-     * Last time when the file was parsed
-     * @member {Date} 
+     * @property {Date} version Last time when the file was parsed
      */
     this.version = new Date();
 
     /**
-     * The filename
-     * @member {String} 
+     * @property {String} name The filename
      */
     this.name = name;
 
     /**
-     * List of namespaces
-     * @member {namespace[]} 
+     * @property {namespace[]} namespaces List of namespaces
      */
     this.namespaces = [];
 
     /**
-     * List of declare nodes
-     * @member {declare[]} 
+     * @property {declare[]} declares List of declare nodes
      */
     this.declares = [];
 
     /**
-     * List of required statements
-     * @member {require[]} 
+     * @property {require[]} requires List of required statements
      */
     this.requires = [];
 
     /**
-     * List of included files
-     * @member {include[]} 
+     * @property {include[]} includes List of included files
      */
     this.includes = [];
 
     /**
-     * List of scopes
-     * @member {block[]} 
+     * @property {block[]} scopes List of scopes
      */
     this.scopes = [];
 
     /**
-     * Error node
-     * @member {error} 
+     * @property {error} error Error node
      */
     this.error = null;
 
@@ -85,6 +76,7 @@ var file = block.extends(function(repository, name, ast) {
     var root = [];
 
     // scan each document node
+    console.log(ast[1]);
     ast[1].forEach(function(item) {
         var type = block.getASTType(item);
         if (type) {
@@ -154,9 +146,11 @@ file.prototype.remove = function() {
 
 };
 
+/**
+ * Refreshing symbols
+ */
 file.prototype.refresh = function() {
 
 };
 
-// exports the class
 module.exports = file;

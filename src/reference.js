@@ -50,7 +50,4 @@ reference.prototype.get = function() {
     return this.to;
 };
 
-/**
- * @exports {reference}
- */
 module.exports = reference;

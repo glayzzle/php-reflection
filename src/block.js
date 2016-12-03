@@ -16,12 +16,34 @@ var util = require('util');
  */
 var block = function(parent, ast) {
     node.apply(this, arguments);
+    /**
+      * @property {variable[]} variables A list of variables in current scope
+     */
     this.variables = {};
+    /**
+      * @property {define[]} defines
+     */
     this.defines = {};
+    /**
+      * @property {variable[]} functions
+     */
     this.functions = {};
+    /**
+      * @property {class[]} classes
+     */
     this.classes = {};
+    /**
+      * @property {interface[]} interfaces
+     */
     this.interfaces = {};
+    /**
+      * @property {trait[]} traits
+     */
     this.traits = {};
+    /**
+      * @property {use[]} uses
+     */
+    this.uses = {};
 };
 util.inherits(block, node);
 
@@ -56,6 +78,10 @@ block.extends = function(ctor) {
     return ctor;
 };
 
+block.prototype.consomeNodes = function(nodes) {
+    //if (nodes)
+};
+
 
 /**
  * Resolves the AST type of the specified node
@@ -83,7 +109,4 @@ block.getASTType = function(ast) {
     return type;
 };
 
-/**
- * @exports {block}
- */
 module.exports = block;

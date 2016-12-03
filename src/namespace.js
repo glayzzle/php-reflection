@@ -15,12 +15,24 @@ var block = require('./block');
  * 
  * @constructor {namespace}
  */
-var namespace = block.extends(function(parent, ast) {
-    block.apply(this, [parent, ast]);
+var namespace = block.extends();
+
+
+/**
+ * @protected Consumes the current ast node
+ */
+namespace.prototype.consume = function(ast) {
+
+    this.getFile().namespaces.push(this);
     this.name = ast[1].join('/');
     this.constants = {};
-    
-});
+
+    ast[2].forEach(function(item) {
+        
+    });
+};
+
+
 
 /**
  * Gets the current namespace
