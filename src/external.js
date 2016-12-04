@@ -15,7 +15,7 @@ var expr = require('./expr');
  * 
  * @public
  * @constructor external
- * @property {String|expr} target The target file to be included
+ * @property {String|expr} target {@link EXPR.md|:link:} The target file to be included
  * @property {Boolean} once If true it's a include_once or require_once statement
  * @property {Boolean} strict If true then it's a require statement
  */
@@ -29,6 +29,15 @@ _ext.prototype.consume = function(ast) {
     this.strict = ast[1].substring(0, 7) === 'require';
     this.once = ast[1].substring(ast[1].length - 5) === '_once';
     this.target = expr.resolve(this, ast[2]);
+};
+
+/**
+ * Try to resolve the target statement and retrive the file
+ * @todo
+ * @return {file} {@link FILE.md|:link:}
+ */
+_ext.prototype.getTargetFile = function() {
+
 };
 
 module.exports = _ext;

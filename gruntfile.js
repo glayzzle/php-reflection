@@ -3,7 +3,7 @@ module.exports = function(grunt) {
     var fs = require('fs');
     var doc = {
         options: {
-            destination: "docs",
+            destination: "docs/src",
             access: ['public', 'undefined'],
             format: "md",
             version: "<%= pkg.version %>",

@@ -6,8 +6,8 @@ Defines a reference to another node
 
 **Parameters**
 
--   `from` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** Related from node
--   `to` **([node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling) | null)** Relating to node
+-   `from` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** [:link:](NODE.md) Related from node
+-   `to` **([node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling) | null)** [:link:](NODE.md) Relating to node
 
 ## get
 

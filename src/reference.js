@@ -6,9 +6,10 @@
 
 /**
  * Defines a reference to another node
- * @public @constructor {reference}
- * @param {node} from Related from node
- * @param {node|null} to Relating to node 
+ * @public
+ * @constructor {reference}
+ * @param {node} from {@link NODE.md|:link:} Related from node
+ * @param {node|null} to {@link NODE.md|:link:} Relating to node 
  */
 var reference = function(from, to) {
     this.from = from;
