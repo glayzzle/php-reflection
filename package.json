@@ -4,7 +4,7 @@
   "description": "Enables to parse php files and from AST extracts code informations (namespaces, classes, functions ...)",
   "main": "src/repository.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --stack-size=5000 node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- test/*"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,9 @@
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-contrib-watch": "^1.0.0",
-    "grunt-documentation": "^1.2.1"
+    "grunt-documentation": "^1.2.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "should": "^11.1.1"
   }
 }

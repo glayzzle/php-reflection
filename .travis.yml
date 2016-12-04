@@ -1,0 +1,7 @@
+language: node_js
+node_js:
+  - '0.12'
+notifications:
+  email: false
+script: npm run test
+after_success: cat /home/travis/build/glayzzle/php-reflection/coverage/lcov.info | /home/travis/build/glayzzle/php-reflection/node_modules/coveralls/bin/coveralls.js

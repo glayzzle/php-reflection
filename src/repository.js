@@ -5,6 +5,7 @@
  */
 
 var fs = require('fs');
+var path = require('path');
 var parser = require('php-parser');
 var file = require('./file');
 
@@ -22,8 +23,9 @@ var file = require('./file');
  * 
  * @public @constructor {repository}
  */
-var repository = function() {
+var repository = function(directory) {
     this.files = {};
+    this.directory = path.resolve(directory);
 };
 
 /**
@@ -37,7 +39,9 @@ repository.prototype.parse = function(filename, encoding) {
     if (!this.files.hasOwnProperty(filename)) {
         var self = this;
         this.files[filename] = new Promise(function(done, reject) {
-            fs.readFile(filename, encoding, function(err, data) {
+            fs.readFile(
+                path.join(self.directory, filename), 
+                encoding, function(err, data) {
                 if (!err)  {
                     try {
                         var reader = new parser({
@@ -154,22 +158,26 @@ repository.prototype.cache = function(data) {
         // sets the data
         this.files = {};
         if (data) {
+            this.directory = data.directory;
             // creating files from structure
-            for(var name in data) {
+            for(var name in data.files) {
                 this.files[name] = file.import(data[name]);
             }
             // update object links
-            for(var name in files) {
+            for(var name in this.files) {
                 this.files[name].import();
             }
         }
         return this;
     } else {
         // gets the data
-        var result = {};
+        var result = {
+            directory: this.directory,
+            files: {}
+        };
         for(var name in this.files) {
             if (this.files[name] instanceof file) {
-                result[name] = this.files[name].export();
+                result.files[name] = this.files[name].export();
             }
         }
         return result;
@@ -206,7 +214,9 @@ repository.prototype.refresh = function(filename, encoding) {
             return this.files[name];
         }
         this.files[filename] = new Promise(function(done, reject) {
-            fs.readFile(filename, encoding, function(err, data) {
+            fs.readFile(
+                path.join(self.directory, filename), 
+                encoding, function(err, data) {
                 // @todo
             });
         });

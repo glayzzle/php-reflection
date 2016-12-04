@@ -20,10 +20,7 @@ var comment = require('./comment');
  * @property {Date} version Last time when the file was parsed
  * @property {integer} size The total file size
  * @property {String} name The filename
- * @property {namespace[]} namespaces {@link NAMESPACE.md|:link:} List of namespaces
- * @property {declare[]} declares {@link DECLARE.md|:link:} List of declare nodes
- * @property {reference[]} links {@link REFERENCE.md|:link:} List of references (constants, classes, interfaces...)
- * @property {external[]} externals {@link EXTERNAL.md|:link:} List of external references
+ * @property {node[]} nodes {@link NODE.md|:link:} List of nodes
  * @property {error} error Error node
  */
 var file = block.extends(function file(repository, name, ast) {
@@ -31,16 +28,121 @@ var file = block.extends(function file(repository, name, ast) {
     this.version = new Date();
     this.size = 0;
     this.name = name;
-    this.namespaces = [];
-    this.declares = [];
-    this.links = [];
-    this.externals = [];
+    this.nodes = [];
     this.error = null;
-    this._scopes = [];
 
     // super constructor
     block.apply(this, [this, ast]);
 });
+
+/**
+ * Generic lookup by node type
+ * @return {node[]}
+ */
+file.prototype.getByType = function(type) {
+    // build type index
+    if (!this._indexNodeType) {
+        this._indexNodeType = {};
+        var result = [];
+        for(var i = 0; i < this.nodes.length; i++) {
+            var item = this.nodes[i];
+            if (!this._indexNodeType.hasOwnProperty(item.type)) {
+                this._indexNodeType[item.type] = [];
+            }
+            this._indexNodeType[item.type].push(item);
+        }
+    }
+    return this._indexNodeType.hasOwnProperty(type) ? 
+        this._indexNodeType[type] : []
+    ;
+};
+
+/**
+ * Generic lookup by node name
+ * @return {node[]}
+ */
+file.prototype.getByName = function(type, name) {
+    if (!this._indexNodeName) {
+        this._indexNodeName = {};
+    }
+
+    // build names index
+    if (!this._indexNodeName.hasOwnProperty(type)) {
+        var nodes = this.getByType(type);
+        var cache = {};
+        for(var i = 0; i < nodes.length; i++) {
+            var item = nodes[i];
+            var index = null;
+            if (item.hasOwnProperty('fullName')) {
+                index = item.fullName;
+            } else if (item.hasOwnProperty('name')) {
+                index = item.name;
+            }
+            if (index) {
+                if (!cache.hasOwnProperty(index)) {
+                    cache[index] = [];
+                }
+                cache[index].push(item);
+            }
+        }
+        this._indexNodeName[type] = cache;
+    }
+
+    return this._indexNodeType[type].hasOwnProperty(name) ? 
+        this._indexNodeType[type][name] : []
+    ;
+};
+
+/**
+ * Generic lookup by node name
+ * @return {node|null}
+ */
+file.prototype.getFirstByName = function(type, name) {
+    var result = this.getByName(type, name);
+    return result.length > 0 ? result[0] : null;
+};
+
+/**
+ * @return {namespace[]}
+ */
+file.prototype.getNamespaces = function() {
+    return this.getByType('namespace');
+};
+
+/**
+ * @return {class[]}
+ */
+file.prototype.getClasses = function() {
+    return this.getByType('class');
+};
+
+/**
+ * @return {interfaces[]}
+ */
+file.prototype.getInterfaces = function() {
+    return this.getByType('class');
+};
+
+/**
+ * @return {external[]}
+ */
+file.prototype.getIncludes = function() {
+    return this.getByType('external');
+};
+
+/**
+ * @return {class}
+ */
+file.prototype.getClass = function(name) {
+    return this.getFirstByName('class', name);
+};
+
+/**
+ * @return {class}
+ */
+file.prototype.getNamespace = function(name) {
+    return this.getFirstByName('namespace', name);
+};
 
 /**
  * @protected Consumes the current ast node
@@ -63,7 +165,7 @@ file.prototype.consume = function(ast) {
     ast[1].forEach(function(item) {
         var type = block.getASTType(item);
         
-        if (type) {
+        if (type) {/*
             if (type === 'declare') {
                 this.declares.push(
                     new declare(this, item)
@@ -82,15 +184,15 @@ file.prototype.consume = function(ast) {
                     root.push(doc);
                 }
                 root.push(item);
-            }
+            }*/
         }
     }.bind(this));
 
     // create an empty namespace
     if (root.length > 0) {
-        new namespace(this, [
+        /*new namespace(this, [
             'namespace', [''], root
-        ]);
+        ]);*/
     }
 };
 
