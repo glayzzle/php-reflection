@@ -20,6 +20,10 @@ Retrieves the related node
 
 Returns **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** 
 
+## export
+
+Serialize the pointer
+
 ## create
 
 Creates a ptr instance for the specified node
@@ -27,5 +31,8 @@ Creates a ptr instance for the specified node
 **Parameters**
 
 -   `node` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** [:link:](NODE.md)
+-   `type`  
+-   `parent`  
+-   `ast`  
 
 Returns **[ptr](#ptr)** 

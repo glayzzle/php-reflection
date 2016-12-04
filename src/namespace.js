@@ -27,7 +27,6 @@ var namespace = block.extends('namespace');
 namespace.prototype.consume = function(ast) {
 
     var self = this;
-    this.getFile().namespaces.push(this);
     this.name = ast[1].join('/');
     this.constants = [];
 
@@ -46,13 +45,5 @@ namespace.prototype.consume = function(ast) {
     });
 };
 
-
-
-/**
- * @protected Gets the current namespace
- */
-namespace.prototype.getNamespace = function() {
-    return this;
-};
 
 module.exports = namespace;

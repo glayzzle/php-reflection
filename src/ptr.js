@@ -4,6 +4,8 @@
  * @url http://glayzzle.com
  */
 
+var node = require('./node');
+
 /**
  * This class handles hierarchical links between the document nodes
  * @constructor ptr
@@ -24,13 +26,19 @@ ptr.prototype.get = function() {
 };
 
 /**
+ * Serialize the pointer 
+ */
+ptr.prototype.export = function() {
+    return this.index;
+};
+
+/**
  * Creates a ptr instance for the specified node
  * @param {node} node {@link NODE.md|:link:}
  * @return {ptr}
  */
-ptr.create = function(node) {
-    var file = node.getFile();
-    file.nodes.push(node);
+ptr.create = function(type, parent, ast) {
+    var file = node.create(type, parent, ast).getFile();
     return new ptr(file, file.nodes.length - 1);
 };
 

@@ -16,6 +16,7 @@ In order to maintain the tree document structure, each node can contain properti
  * [block](src/BLOCK.md) - This class represents a list of statements
  * [ptr](src/PTR.md) - This class handles hierarchical links between the document nodes
  * [reference](src/REFERENCE.md) - This class handles cross-files references between nodes (a class and it's instanciation)
+ * [scope](src/SCOPE.md) - This class defines a list of nodes available at the specified file offset (usage `repository.getFile('filename').getScope(offset)`)
  * [position](src/POSITION.md) - Meta informations about the position of a node
  * [comment](src/COMMENT.md) - Comment informations
 

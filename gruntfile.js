@@ -45,7 +45,7 @@ module.exports = function(grunt) {
         watch: watch,
         shell: {
             runTests: {
-                command: 'echo "\\n\\nrun tests\\n\\n" && npm run test'
+                command: 'clear && echo "\\n\\nrun tests\\n\\n" && npm run test'
             }
         }
     });

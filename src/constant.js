@@ -7,6 +7,7 @@
 
 var node = require('./node');
 var expr = require('./expr');
+var ptr = require('./ptr');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **
@@ -49,7 +50,7 @@ _const.fromAST = function(parent, ast) {
     if (ast[0] === 'const' && ast.length === 2) {
         ast[1].forEach(function(item) {
             result.push(
-                new _const(parent, item)
+                ptr.create('constant', parent, item)
             );
         });
     }

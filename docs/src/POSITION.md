@@ -8,6 +8,8 @@ Defines a position object
 
 -   `node`  
 
+## export
+
 ## hit
 
 Check if the specified offset is inside the current position

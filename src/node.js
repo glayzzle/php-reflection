@@ -7,7 +7,6 @@
 var inherits = require('util').inherits;
 var position = require('./position');
 var comment = require('./comment');
-var scopedTypes = ['namespace', 'class', 'interface', 'trait'];
 
 /**
  * Generic node object (inherited by all objects)
@@ -47,12 +46,12 @@ var node = function(parent, ast) {
             }
         }
     }
-    this.consume(ast);
 
-    // registers a scope
-    if (this.position && scopedTypes.indexOf(this.type) !== 1) {
-        this.getFile()._scopes.push(this);
+    if (this.type !== 'file') {
+        // automatic reference
+        this.getFile().nodes.push(this);
     }
+    this.consume(ast);
 };
 
 
@@ -61,10 +60,14 @@ var node = function(parent, ast) {
  * @return {file} {@link FILE.md|:link:}
  */
 node.prototype.getFile = function() {
-    if (this.parent) {
-        return this.parent.getFile();
+    if (!this._file) {
+        if (this.type === 'file') {
+            this._file = this;
+        } else {
+            this._file = this.parent.getFile();
+        }
     }
-    return null;
+    return this._file;
 };
 
 /**
@@ -72,10 +75,13 @@ node.prototype.getFile = function() {
  * @return {namespace} {@link NAMESPACE.md|:link:}
  */
 node.prototype.getNamespace = function() {
-    if (this.parent) {
-        return this.parent.getNamespace();
+    if (this.type === 'namespace') {
+        return this;
     }
-    return null;
+    if (!this._namespace) {
+        this._namespace = this.parent.getNamespace();
+    }
+    return this._namespace;
 };
 
 /**
@@ -124,6 +130,15 @@ var deshydate = function(self) {
         return result.length > 0 ? result : null;
     }
 
+    // objects filter
+    if (typeof self === 'object' && !(self instanceof node)) {
+        if (typeof self.export === 'function') {
+            return self.export();
+        } else {
+            return null;
+        }
+    }
+
     // try to export object
     result = {};
     for(var k in self) {
@@ -134,8 +149,6 @@ var deshydate = function(self) {
             if (!result[k]) {
                 delete result[k];
             }
-        } else if (n instanceof position || n instanceof comment) {
-            result[k] = n;
         } else if (Array.isArray(n)) {
             if (n.length > 0) {
                 result[k] = [];
@@ -149,7 +162,7 @@ var deshydate = function(self) {
                     delete result[k];
                 }
             }
-        } else if (typeof n !== 'function' && typeof n !== 'object') {
+        } else if (typeof n !== 'function') {
             var item = deshydate(n);
             if (item) result[k] = item;
         } 

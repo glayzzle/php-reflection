@@ -21,6 +21,13 @@ var position = function(node) {
 };
 
 /**
+ * @todo
+ */
+position.prototype.export = function() {
+    return this;
+};
+
+/**
  * Check if the specified offset is inside the current position
  * @param {int} offset
  * @return {boolean}

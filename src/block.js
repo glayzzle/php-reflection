@@ -5,13 +5,15 @@
  */
 
 var node = require('./node');
+var ptr = require('./ptr');
 
 /**
  * **Extends from {@link NODE.md|:link: node}**
  * 
  * Initialize a new file with the specified AST contents
  * 
- * @public @constructor block
+ * @public 
+ * @constructor block
  * @property {variable[]} variables {@link VARIABLE.md|:link:} A list of variables in current scope
  * @property {define[]} defines {@link DEFINE.md|:link:} A list of defined constants
  * @property {function[]} functions {@link FUNCTION.md|:link:} List of declared functions
@@ -72,6 +74,7 @@ block.prototype.scanForChilds = function(ast) {
  * @return void
  */
 block.prototype.consumeChild = function(ast) {
+
     if (!Array.isArray(ast)) return;
     if (ast.length === 0) return;
     if (Array.isArray(ast[0])) return this.scanForChilds(ast);
@@ -83,7 +86,7 @@ block.prototype.consumeChild = function(ast) {
     // handle class definition
     if (type === 'class') {
         this.classes.push(
-            node.create('class', this, ast)
+            ptr.create('class', this, ast)
         );
     }
 
@@ -96,9 +99,7 @@ block.prototype.consumeChild = function(ast) {
             cmd === 'require' ||
             cmd === 'require_once'
         ) {
-            this.getFile().externals.push(
-                node.create('external', this, ast)
-            );
+            ptr.create('external', this, ast);
         }
     }
 
@@ -108,13 +109,13 @@ block.prototype.consumeChild = function(ast) {
         // IF BODY
         if (Array.isArray(item[2]) && item[2].length > 0) {
             this.blocks.push(
-                node.create('block', this, item[2])
+                ptr.create('block', this, item[2])
             );
         }
         // ELSE STATEMENT
         if (Array.isArray(item[3]) && item[3].length > 0) {
             this.blocks.push(
-                node.create('block', this, item[3])
+                ptr.create('block', this, item[3])
             );
         }
     }

@@ -12,7 +12,8 @@ var node = require('./node');
  * 
  * Represents a class
  * 
- * @public @constructor class
+ * @public
+ * @constructor class
  * @property {string} name 
  * @property {string} fullName
  * @property {boolean} isAbstract
@@ -31,9 +32,6 @@ var _class = node.extends('class');
 _class.prototype.consume = function(ast) {
 
     // registers at the leve
-    this.getFile().classes.push(this);
-    this.getNamespace().classes.push(this);
-
     this.name = ast[1];
     this.fullName = this.getNamespace().name + '/' + this.name;
 

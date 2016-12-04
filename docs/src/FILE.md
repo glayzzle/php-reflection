@@ -2,7 +2,7 @@
 
 # file
 
-**Extends from [block](BLOCK.md)**
+**Extends from [node](NODE.md)**
 
 Initialize a new file with the specified AST contents
 
@@ -13,7 +13,7 @@ Initialize a new file with the specified AST contents
 -   `size` **integer** The total file size
 -   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The filename
 -   `nodes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)>** [:link:](NODE.md) List of nodes
--   `error` **[error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)** Error node
+-   `error` **[error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)** [:link:](ERROR.md) Error node
 
 ## getByType
 
@@ -79,14 +79,6 @@ Returns **class**
 
 Returns **class** 
 
-## getNamespace
-
-Gets the current namespace
-
-## getFile
-
-Gets the current file instance
-
 ## getScope
 
 Gets a scope reader
@@ -95,7 +87,7 @@ Gets a scope reader
 
 -   `offset`  
 
-Returns **scope** 
+Returns **scope** [:link:](SCOPE.md)
 
 ## remove
 
