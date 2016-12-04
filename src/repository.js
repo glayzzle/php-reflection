@@ -8,6 +8,7 @@ var fs = require('fs');
 var parser = require('php-parser');
 var file = require('./file');
 
+
 /**
  * 
  * The repository stores a list of files with their symbols

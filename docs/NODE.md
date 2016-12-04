@@ -81,3 +81,18 @@ Returns **[constructor](https://developer.mozilla.org/en-US/docs/Web/JavaScript/
 ## builders
 
 List of node builders
+
+## create
+
+Helper for creating a new node
+
+**Parameters**
+
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `parent` **[Node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** 
+-   `ast` **([Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) | null)** 
+
+
+-   Throws **[Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)** if the specified type is not fond
+
+Returns **[node](#node)** 

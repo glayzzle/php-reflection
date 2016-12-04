@@ -14,14 +14,14 @@ var node = require('./node');
  * @public @constructor block
  * @property {variable[]} variables {@link VARIABLE.md|:link:} A list of variables in current scope
  * @property {define[]} defines {@link DEFINE.md|:link:} A list of defined constants
- * @property {function[]} functions {@link FUNCTION.md|:link:} 
- * @property {class[]} classes {@link CLASS.md|:link:} 
- * @property {interface[]} interfaces {@link INTERFACE.md|:link:} 
- * @property {trait[]} traits {@link TRAIT.md|:link:} 
- * @property {use[]} uses {@link USE.md|:link:} 
+ * @property {function[]} functions {@link FUNCTION.md|:link:} List of declared functions
+ * @property {class[]} classes {@link CLASS.md|:link:} List of classes
+ * @property {interface[]} interfaces {@link INTERFACE.md|:link:} List of interfaces
+ * @property {trait[]} traits {@link TRAIT.md|:link:} List of defined traits
+ * @property {use[]} uses {@link USE.md|:link:} List of imported (or used namespaces)
+ * @property {block[]} blocks {@link BLOCK.md|:link:} List of variable scoped blocks
  */
 var block = node.extends(function block(parent, ast) {
-    node.apply(this, arguments);
     this.variables = [];
     this.defines = [];
     this.functions = [];
@@ -29,6 +29,8 @@ var block = node.extends(function block(parent, ast) {
     this.interfaces = [];
     this.traits = [];
     this.uses = [];
+    this.blocks = [];
+    node.apply(this, arguments);
 });
 
 /**
@@ -38,22 +40,91 @@ block.prototype.getBlock = function() {
     return this;
 };
 
+/**
+ * @protected Consumes the current ast node
+ */
+block.prototype.consume = function(ast) {
+    this.scanForChilds(ast);
+};
+
+/**
+ * @protected Scan for inner childs
+ */
+block.prototype.scanForChilds = function(ast) {
+    if (!Array.isArray(ast)) return;
+    if (ast.length === 0) return;
+    for(var i = 0; i < ast.length; i++) {
+        var item = ast[i];
+        if (Array.isArray(item) && item.length > 0) {
+            if (Array.isArray(item[0])) {
+                this.scanForChilds(item);
+            } else {
+                this.consumeChild(item);
+            }
+        }
+    }
+};
 
 /**
  * Generic consumer of a list of nodes
  * @abstract @protected 
- * @param {Array} node The AST node to eat
+ * @param {Array} ast The AST node to eat
  * @return void
  */
-block.prototype.consumeChild = function(node) {
-    var ast = block.getAST(node);
-    var type = ast[0];
-/*
+block.prototype.consumeChild = function(ast) {
+    if (!Array.isArray(ast)) return;
+    if (ast.length === 0) return;
+    if (Array.isArray(ast[0])) return this.scanForChilds(ast);
+
+    // reads the current node
+    var item = block.getAST(ast);
+    var type = item[0];
+
+    // handle class definition
     if (type === 'class') {
         this.classes.push(
-            new node.builders['class'](this, node)
+            node.create('class', this, ast)
         );
-    } else if (type === 'interface') {
+    }
+
+    // consome system statements
+    if (type === 'sys') {
+        var cmd = item[1];
+        if (
+            cmd === 'include' ||
+            cmd === 'include_once' ||
+            cmd === 'require' ||
+            cmd === 'require_once'
+        ) {
+            this.getFile().externals.push(
+                node.create('external', this, ast)
+            );
+        }
+    }
+
+
+    // consume IF nodes
+    else if (type === 'if') {
+        // IF BODY
+        if (Array.isArray(item[2]) && item[2].length > 0) {
+            this.blocks.push(
+                node.create('block', this, item[2])
+            );
+        }
+        // ELSE STATEMENT
+        if (Array.isArray(item[3]) && item[3].length > 0) {
+            this.blocks.push(
+                node.create('block', this, item[3])
+            );
+        }
+    }
+
+    // try nodes
+    else if (type === 'try') {
+        // todo
+    }
+
+    /*else if (type === 'interface') {
         this.interfaces.push(
             new node.builders['interface'](this, node)
         );

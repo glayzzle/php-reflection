@@ -51,7 +51,7 @@ var node = function(parent, ast) {
 
     // registers a scope
     if (this.position && scopedTypes.indexOf(this.type) !== 1) {
-        this.getFile().scopes.push(this);
+        this.getFile()._scopes.push(this);
     }
 };
 
@@ -110,38 +110,52 @@ var deshydate = function(self) {
     if (typeof self === 'boolean') return self;
     if (typeof self === 'number') return self;
 
+    var result = null;
+
+    // try to export array
+    if (Array.isArray(self)) {
+        result = [];
+        for(var i = 0; i < self.length; i++) {
+            var n = deshydate(self[i]);
+            if (n) {
+                result.push(n);
+            }
+        }
+        return result.length > 0 ? result : null;
+    }
+
     // try to export object
-    var object = {};
+    result = {};
     for(var k in self) {
-        if (k === 'parent') continue;
+        if (k === 'parent' || k[0] === '_') continue;
         var n = self[k];
         if (n instanceof node) {
-            object[k] = n.export();
-            if (!object[k]) {
-                delete object[k];
+            result[k] = n.export();
+            if (!result[k]) {
+                delete result[k];
             }
         } else if (n instanceof position || n instanceof comment) {
-            object[k] = n;
+            result[k] = n;
         } else if (Array.isArray(n)) {
             if (n.length > 0) {
-                object[k] = [];
+                result[k] = [];
                 n.forEach(function(item) {
                     item = deshydate(item);
                     if (item) {
-                        object[k].push(item);
+                        result[k].push(item);
                     }
                 });
-                if (object[k].length === 0) {
-                    delete object[k];
+                if (result[k].length === 0) {
+                    delete result[k];
                 }
             }
         } else if (typeof n !== 'function' && typeof n !== 'object') {
             var item = deshydate(n);
-            if (item) object[k] = item;
+            if (item) result[k] = item;
         } 
     }
-    if (Object.keys(object).length > 0) {
-        return object;
+    if (Object.keys(result).length > 0) {
+        return result;
     }
     return null;
 };
@@ -200,12 +214,29 @@ node.prototype.export = function() {
  */
 node.extends = declareExtends(node);
 
-
 /**
  * List of node builders
  * @public
  */
 node.builders = {};
+
+/**
+ * Helper for creating a new node
+ * @param {String} type
+ * @param {Node} parent
+ * @param {Array|null} ast
+ * @return {node}
+ * @throws {Error} if the specified type is not fond
+ */
+node.create = function(type, parent, ast) {
+    if (!node.builders.hasOwnProperty(type)) {
+        require('./' + type);
+    }
+    if (!node.builders.hasOwnProperty(type)) {
+        throw new Error('"'+type+'" is not found');
+    }
+    return new node.builders[type](parent, ast);
+};
 
 /** @private recursive extends */ 
 function declareExtends(base) {

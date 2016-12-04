@@ -2,11 +2,26 @@
 
 # scope
 
+This class contains the state at a specified offset into a file
+
 **Parameters**
 
 -   `file`  
 -   `offset`  
 
+**Properties**
+
+-   `file` **file** [:link:](FILE.md)
+-   `offset` **Integer** 
+-   `namespace` **namespace** [:link:](NAMESPACE.md)
+-   `class` **(class | null)** [:link:](CLASS.md)
+-   `trait` **(trait | null)** [:link:](TRAIT.md)
+-   `trait` **(interface | null)** [:link:](INTERFACE.md)
+-   `method` **(method | null)** [:link:](METHOD.md)
+-   `function` **([function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function) | null)** [:link:](FUNCTION.md)
+
 ## getVariables
 
 Gets variables depending on current state
+
+Returns **([Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;variable> | null)** [:link:](VARIABLE.md)

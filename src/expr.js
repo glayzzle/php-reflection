@@ -22,7 +22,9 @@ var expr = block.extends('expr');
  */
 expr.prototype.consume = function(ast) {
     this.ast = ast;
+    this.scanForChilds(ast);
 };
+
 
 /**
  * Converts back AST nodes to PHP code

@@ -12,11 +12,10 @@ Initialize a new file with the specified AST contents
 -   `version` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Last time when the file was parsed
 -   `size` **integer** The total file size
 -   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The filename
--   `namespaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;namespace>** List of namespaces
--   `declares` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;declare>** List of declare nodes
--   `requires` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[require](https://nodejs.org/api/globals.html#globals_require)>** List of required statements
--   `includes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;include>** List of included files
--   `scopes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;block>** List of scopes
+-   `namespaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;namespace>** [:link:](NAMESPACE.md) List of namespaces
+-   `declares` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;declare>** [:link:](DECLARE.md) List of declare nodes
+-   `links` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;reference>** [:link:](REFERENCE.md) List of references (constants, classes, interfaces...)
+-   `externals` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;external>** [:link:](EXTERNAL.md) List of external references
 -   `error` **[error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)** Error node
 
 ## getFile

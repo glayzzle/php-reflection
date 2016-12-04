@@ -4,15 +4,17 @@
  * @url http://glayzzle.com
  */
 
-var aNamespace      = require('./namespace');
-var aMethod         = require('./method');
-var aFunction       = require('./function');
-var aClass          = require('./class');
-var aInterface      = require('./interface');
-var aTrait          = require('./trait');
-
 /**
- * @constructor {scope}
+ * This class contains the state at a specified offset into a file
+ * @public @constructor scope
+ * @property {file} file {@link FILE.md|:link:} 
+ * @property {Integer} offset
+ * @property {namespace} namespace {@link NAMESPACE.md|:link:} 
+ * @property {class|null} class {@link CLASS.md|:link:} 
+ * @property {trait|null} trait {@link TRAIT.md|:link:} 
+ * @property {interface|null} trait {@link INTERFACE.md|:link:} 
+ * @property {method|null} method {@link METHOD.md|:link:} 
+ * @property {function|null} function {@link FUNCTION.md|:link:} 
  */
 var scope = function(file, offset) {
 
@@ -23,22 +25,23 @@ var scope = function(file, offset) {
     this.trait = null;
     this.interface = null;
     this.method = null;
+    this.function = null;
 
     // scanning file scope
-    for(var i = 0; i < file.scopes.length; i++)  {
-        var node = file.scopes[i];
+    for(var i = 0; i < file._scopes.length; i++)  {
+        var node = file._scopes[i];
         if (node.position.hit(offset)) {
-            if (node instanceof aNamespace) {
+            if (node.type === 'namespace') {
                 this.namespace = node;
-            } else if (node instanceof aClass) {
+            } else if (node.type === 'class') {
                 this.class = node;
-            } else if (node instanceof aInterface) {
+            } else if (node.type === 'interface') {
                 this.interface = node;
-            } else if (node instanceof aTrait) {
+            } else if (node.type === 'trait') {
                 this.trait = node;
-            } else if (node instanceof aFunction) {
+            } else if (node.type === 'function') {
                 this.function = node;
-            } else if (node instanceof aMethod) {
+            } else if (node.type === 'method') {
                 this.method = node;
             }
         }
@@ -47,6 +50,7 @@ var scope = function(file, offset) {
 
 /**
  * Gets variables depending on current state
+ * @return {variable[]|null} {@link VARIABLE.md|:link:} 
  */
 scope.prototype.getVariables = function() {
     if (this.method) {

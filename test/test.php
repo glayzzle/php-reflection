@@ -9,6 +9,9 @@ namespace foobar {
 
     const BAR = 123;
 
+    include __DIR__ . '/some-file.php';
+    require_once 'another-file.php';
+
     if ($something) {
         class foo {
             const baz = 123;

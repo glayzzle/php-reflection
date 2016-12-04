@@ -10,11 +10,12 @@ Initialize a new file with the specified AST contents
 
 -   `variables` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;variable>** [:link:](VARIABLE.md) A list of variables in current scope
 -   `defines` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;define>** [:link:](DEFINE.md) A list of defined constants
--   `functions` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)>** [:link:](FUNCTION.md)
--   `classes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;class>** [:link:](CLASS.md)
--   `interfaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;interface>** [:link:](INTERFACE.md)
--   `traits` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;trait>** [:link:](TRAIT.md)
--   `uses` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;use>** [:link:](USE.md)
+-   `functions` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)>** [:link:](FUNCTION.md) List of declared functions
+-   `classes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;class>** [:link:](CLASS.md) List of classes
+-   `interfaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;interface>** [:link:](INTERFACE.md) List of interfaces
+-   `traits` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;trait>** [:link:](TRAIT.md) List of defined traits
+-   `uses` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;use>** [:link:](USE.md) List of imported (or used namespaces)
+-   `blocks` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[block](#block)>** [:link:](BLOCK.md) List of variable scoped blocks
 
 ## consumeChild
 
@@ -22,7 +23,7 @@ Generic consumer of a list of nodes
 
 **Parameters**
 
--   `node` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** The AST node to eat
+-   `ast` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** The AST node to eat
 
 Returns **any** void
 

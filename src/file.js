@@ -20,11 +20,10 @@ var comment = require('./comment');
  * @property {Date} version Last time when the file was parsed
  * @property {integer} size The total file size
  * @property {String} name The filename
- * @property {namespace[]} namespaces List of namespaces
- * @property {declare[]} declares List of declare nodes
- * @property {require[]} requires List of required statements
- * @property {include[]} includes List of included files
- * @property {block[]} scopes List of scopes
+ * @property {namespace[]} namespaces {@link NAMESPACE.md|:link:} List of namespaces
+ * @property {declare[]} declares {@link DECLARE.md|:link:} List of declare nodes
+ * @property {reference[]} links {@link REFERENCE.md|:link:} List of references (constants, classes, interfaces...)
+ * @property {external[]} externals {@link EXTERNAL.md|:link:} List of external references
  * @property {error} error Error node
  */
 var file = block.extends(function file(repository, name, ast) {
@@ -34,10 +33,10 @@ var file = block.extends(function file(repository, name, ast) {
     this.name = name;
     this.namespaces = [];
     this.declares = [];
-    this.requires = [];
-    this.includes = [];
-    this.scopes = [];
+    this.links = [];
+    this.externals = [];
     this.error = null;
+    this._scopes = [];
 
     // super constructor
     block.apply(this, [this, ast]);

@@ -19,21 +19,19 @@ var block = require('./block');
 var declare = block.extends('declare');
 
 /**
- * @protected Consumes the current ast node
+ * @protected reads each declared option
  */
 declare.prototype.consume = function(ast) {
 
-    // reads each declared option
-    var options = {};
+    // @fixme object are not exported as cache
+    var options = {}; 
     ast[1].forEach(function(item) {
         options[item[0]] = item[1];
     });
     this.options = options;
     
     // Iterator over each namespace item
-    if (ast.length > 2 && Array.isArray(ast[2]) && ast[2].length > 0) {
-        ast[2].forEach(this.consumeChild.bind(this));
-    }
+    this.scanForChilds(ast[2]);
 };
 
 module.exports = declare;
