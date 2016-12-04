@@ -12,7 +12,12 @@ module.exports = function(grunt) {
             shallow: true
         }
     };
-    var watch = {};
+    var watch = {
+        tests: {
+            files: ['test/*.js'],
+            tasks: ['shell:runTests']
+        }
+    };
 
     /**
      * scan files to generate documentation
@@ -28,7 +33,7 @@ module.exports = function(grunt) {
             }
             watch[key] = {
                 files: ['src/' + file],
-                tasks: ['documentation:' + key]
+                tasks: ['documentation:' + key, 'shell:runTests']
             };
         }
     });
@@ -37,12 +42,19 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         documentation: doc,
-        watch: watch
+        watch: watch,
+        shell: {
+            runTests: {
+                command: 'echo "\\n\\nrun tests\\n\\n" && npm run test'
+            }
+        }
     });
 
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-documentation');
+    grunt.loadNpmTasks('grunt-shell');
 
     // Default task(s).
-    grunt.registerTask('default', ['documentation:*']);
+    grunt.registerTask('default', ['watch']);
+    grunt.registerTask('doc', ['documentation']);
 };
