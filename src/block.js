@@ -85,9 +85,11 @@ block.prototype.consumeChild = function(ast) {
 
     // handle class definition
     if (type === 'class') {
-        this.classes.push(
-            ptr.create('class', this, ast)
-        );
+        var cls = ptr.create('class', this, ast);
+        this.classes.push(cls);
+        if (this.type !== 'namespace') {
+            this.getNamespace().classes.push(cls);
+        }
     }
 
     // consome system statements
@@ -102,7 +104,6 @@ block.prototype.consumeChild = function(ast) {
             ptr.create('external', this, ast);
         }
     }
-
 
     // consume IF nodes
     else if (type === 'if') {
@@ -122,7 +123,45 @@ block.prototype.consumeChild = function(ast) {
 
     // try nodes
     else if (type === 'try') {
-        // todo
+        // BODY
+        this.blocks.push(
+            ptr.create('block', this, item[1])
+        );
+        // CATCH
+        item[2].forEach(function(item) {
+            this.blocks.push(
+                ptr.create('block', this, item.body)
+            );
+        }.bind(this));
+        // FINALLY
+        if (item[3]) {
+            this.blocks.push(
+                ptr.create('block', this, item[3])
+            );
+        }
+    }
+    
+    // functions
+    else if (type === 'function') {
+        var fn = ptr.create('function', this, item);
+        this.functions.push(fn);
+        if (this.type !== 'namespace') {
+            this.getNamespace().functions.push(fn);
+        }
+    }
+
+    // variables
+    else if (type === 'set') {
+        if (item[1][0] === 'var') {
+            this.variables.push(
+                ptr.create('variable', this, ast)
+            );
+        }
+    }
+
+    // nested childs
+    else {
+        this.scanForChilds(item);
     }
 
     /*else if (type === 'interface') {
@@ -133,11 +172,7 @@ block.prototype.consumeChild = function(ast) {
         this.traits.push(
             new node.builders['trait'](this, node)
         );
-    } else if (type === 'function') {
-        this.functions.push(
-            new node.builders['function'](this, node)
-        );
-    } else if (type === 'call') {
+    }  else if (type === 'call') {
         if (
             ast[1][0] === 'ns' && 
             ast[1][1].length === 1 && 

@@ -34,7 +34,9 @@ ptr.prototype.export = function() {
 
 /**
  * Creates a ptr instance for the specified node
- * @param {node} node {@link NODE.md|:link:}
+ * @param {String} type
+ * @param {node} parent {@link NODE.md|:link:}
+ * @param {Array} ast
  * @return {ptr}
  */
 ptr.create = function(type, parent, ast) {

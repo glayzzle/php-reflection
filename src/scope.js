@@ -26,13 +26,15 @@ var scope = function(file, offset) {
     this.interface = null;
     this.method = null;
     this.function = null;
+    this.variables = [];
 
     // scanning file scope
-    for(var i = 0; i < file._scopes.length; i++)  {
-        var node = file._scopes[i];
-        if (node.position.hit(offset)) {
+    for(var i = 0; i < file.nodes.length; i++)  {
+        var node = file.nodes[i];
+        if (node.position && node.position.hit(offset)) {
             if (node.type === 'namespace') {
                 this.namespace = node;
+                this.variables = this.variables.concat(node.variables);
             } else if (node.type === 'class') {
                 this.class = node;
             } else if (node.type === 'interface') {
@@ -43,6 +45,8 @@ var scope = function(file, offset) {
                 this.function = node;
             } else if (node.type === 'method') {
                 this.method = node;
+            } else if (node.variables) {
+                this.variables = this.variables.concat(node.variables);
             }
         }
     }
@@ -53,14 +57,14 @@ var scope = function(file, offset) {
  * @return {variable[]|null} {@link VARIABLE.md|:link:} 
  */
 scope.prototype.getVariables = function() {
+    // scope restricted
     if (this.method) {
         return this.method.variables;
     } else if (this.function) {
         return this.function.variables;
-    } else if (this.namespace) {
-        return this.namespace.variables;
     }
-    return null;
+    // global scope
+    return this.variables;
 };
 
 module.exports = scope;
