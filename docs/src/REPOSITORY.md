@@ -11,6 +11,10 @@ You can request it to retrieve
 You can also use it to retrieve scope context from a specific
 offset (usefull for an editor).
 
+**Parameters**
+
+-   `directory`  
+
 ## parse
 
 Parsing a file
@@ -21,6 +25,41 @@ Parsing a file
 -   `encoding` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The encoding (by default utf8)
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+## getByType
+
+Lookup at each file and retrieves specified nodes
+
+**Parameters**
+
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `limit` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)>** [:link:](NODE.md)
+
+## getByName
+
+Lookup at each file and retrieves named elements
+
+**Parameters**
+
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `limit` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `name`  
+
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)>** [:link:](NODE.md)
+
+## getFirstByName
+
+Lookup at each file and retrieves named elements
+
+**Parameters**
+
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `limit` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `name`  
+
+Returns **([node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling) | null)** [:link:](NODE.md)
 
 ## cleanAll
 

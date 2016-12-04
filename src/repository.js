@@ -80,6 +80,55 @@ repository.prototype.parse = function(filename, encoding) {
 };
 
 /**
+ * Lookup at each file and retrieves specified nodes
+ * @param {String} type
+ * @param {Number} limit
+ * @return {node[]} {@link NODE.md|:link:}
+ */
+repository.prototype.getByType = function(type, limit) {
+    if (!limit) limit = 100;
+    var result = [];
+    for(var k in this.files) {
+        result = result.concat(this.files[k].getByType(type));
+        if (result.length > limit) {
+            result = result.slice(0, limit);
+            break;
+        }
+    }
+    return result;
+}
+
+/**
+ * Lookup at each file and retrieves named elements
+ * @param {String} type
+ * @param {Number} limit
+ * @return {node[]} {@link NODE.md|:link:}
+ */
+repository.prototype.getByName = function(type, name) {
+    var result = [];
+    for(var k in this.files) {
+        result = result.concat(this.files[k].getByName(type, name));
+    }
+    return result;
+};
+
+/**
+ * Lookup at each file and retrieves named elements
+ * @param {String} type
+ * @param {Number} limit
+ * @return {node|null} {@link NODE.md|:link:}
+ */
+repository.prototype.getFirstByName = function(type, name) {
+    var result = null;
+    for(var k in this.files) {
+        result = this.files[k].getFirstByName(type, name);
+        if (result) return result;
+    }
+    return null;
+};
+
+
+/**
  * Clean all the cache
  * @public
  * @return {repository}

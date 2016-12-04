@@ -23,8 +23,12 @@ var workers = [
 ];
 Promise.all(workers).then(function() {
     console.log('-- list of functions :');
-    workspace.each(function(file) {
-        // @todo
+    workspace.getByType('function').each(function(fn) {
+        console.log('Function Name : ', fn.name);
+        console.log('Located into : ', fn.getFile().name);
+        console.log('At line : ', fn.position.start.line);
     });
 });
 ```
+
+Read the [API docs](https://github.com/glayzzle/php-reflection/tree/master/docs) for more details.

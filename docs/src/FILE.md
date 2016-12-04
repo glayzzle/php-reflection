@@ -12,11 +12,76 @@ Initialize a new file with the specified AST contents
 -   `version` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Last time when the file was parsed
 -   `size` **integer** The total file size
 -   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The filename
--   `namespaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;namespace>** [:link:](NAMESPACE.md) List of namespaces
--   `declares` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;declare>** [:link:](DECLARE.md) List of declare nodes
--   `links` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;reference>** [:link:](REFERENCE.md) List of references (constants, classes, interfaces...)
--   `externals` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;external>** [:link:](EXTERNAL.md) List of external references
+-   `nodes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)>** [:link:](NODE.md) List of nodes
 -   `error` **[error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)** Error node
+
+## getByType
+
+Generic lookup by node type
+
+**Parameters**
+
+-   `type`  
+
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)>** 
+
+## getByName
+
+Generic lookup by node name
+
+**Parameters**
+
+-   `type`  
+-   `name`  
+
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)>** 
+
+## getFirstByName
+
+Generic lookup by node name
+
+**Parameters**
+
+-   `type`  
+-   `name`  
+
+Returns **([node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling) | null)** 
+
+## getNamespaces
+
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;namespace>** 
+
+## getClasses
+
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;class>** 
+
+## getInterfaces
+
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;interfaces>** 
+
+## getIncludes
+
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;external>** 
+
+## getClass
+
+**Parameters**
+
+-   `name`  
+
+Returns **class** 
+
+## getNamespace
+
+**Parameters**
+
+-   `name`  
+
+Returns **class** 
+
+## getNamespace
+
+Gets the current namespace
 
 ## getFile
 
@@ -31,10 +96,6 @@ Gets a scope reader
 -   `offset`  
 
 Returns **scope** 
-
-## getNamespace
-
-Gets the current namespace
 
 ## remove
 
