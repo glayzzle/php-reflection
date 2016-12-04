@@ -13,7 +13,8 @@ var expr = require('./expr');
  * 
  * Represents an external link (require or include)
  * 
- * @public @constructor external
+ * @public
+ * @constructor external
  * @property {String|expr} target The target file to be included
  * @property {Boolean} once If true it's a include_once or require_once statement
  * @property {Boolean} strict If true then it's a require statement
