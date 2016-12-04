@@ -1,5 +1,8 @@
 # PHP Reflection
 
+[![Build Status](https://travis-ci.org/glayzzle/php-reflection.svg?branch=master)](https://travis-ci.org/glayzzle/php-reflection)
+[![Coverage Status](https://coveralls.io/repos/github/glayzzle/php-reflection/badge.svg?branch=master)](https://coveralls.io/github/glayzzle/php-reflection?branch=master)
+
 Nodejs Reflection API for PHP files based on the [php-parser](https://github.com/glayzzle/php-parser)
 
 # Install
