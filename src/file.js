@@ -171,7 +171,7 @@ file.prototype.consume = function(ast) {
             } else if (type === 'namespace') {
                 var ns = node.create('namespace', self, item);
                 if (doc) {
-                    ns.doc = new comment(doc);
+                    ns.doc = new comment(this, doc);
                     doc = null;
                 }
             } else if (type === 'doc' || type === 'comment') {

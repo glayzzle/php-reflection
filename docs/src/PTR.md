@@ -32,6 +32,6 @@ Creates a ptr instance for the specified node
 
 -   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 -   `parent` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** [:link:](NODE.md)
--   `ast` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `ast` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** 
 
 Returns **[ptr](#ptr)** 

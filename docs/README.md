@@ -22,10 +22,12 @@ In order to maintain the tree document structure, each node can contain properti
 
 ## Nodes classes
 
- * [class](src/CLASS.md)
- * [constant](src/CONSTANT.md)
  * [define](src/DEFINE.md)
  * [external](src/EXTERNAL.md)
+ * [class](src/CLASS.md)
+ * [constant](src/CONSTANT.md)
+ * [property](src/PROPERTY.md)
+ * [method](src/METHOD.md)
 
 ## Blocks classes
 

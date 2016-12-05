@@ -7,38 +7,45 @@
 var lexer = require('./lexer');
 var EOF = lexer.tokens.T_EOF;
 
-
 /**
  * docBlock parser
+ * @constructor parser
  */
-module.exports = {
-    token: null,
-    parse: function(input) {
-        lexer.init(input);
-        var doc = [];
-        while(this.token != EOF) {
-            var node = this.read_start();
-            if (node !== null) {
-                if (typeof node[0] !== 'string') {
-                    node.forEach(function(item) {
-                        doc.push(item);
-                    });
-                } else {
-                    doc.push(node);
-                }
+var parser = function() {
+    this.lexer = new lexer();
+};
+
+parser.prototype.parse = function(input) {
+    this.lexer.init(input);
+    this.token = null;
+    var doc = [];
+    while(this.token != EOF) {
+        var node = this.read_start();
+        if (node !== null) {
+            if (typeof node[0] !== 'string') {
+                node.forEach(function(item) {
+                    doc.push(item);
+                });
+            } else {
+                doc.push(node);
             }
         }
-        return doc;
-    },
-    next: function() {
-        this.token = lexer.next();
-        return this;
-    },
-    text: function() {
-        return lexer.text;
-    },
-    read_start: function() {
-        this.next().token;
-        // @todo
     }
+    return doc;
 };
+
+parser.prototype.next = function() {
+    this.token = this.lexer.next();
+    return this;
+};
+
+parser.prototype.text = function() {
+    return this.lexer.text;
+};
+
+parser.prototype.read_start = function() {
+    this.next().token;
+    // @todo
+};
+
+module.exports = parser;

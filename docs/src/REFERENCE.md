@@ -7,7 +7,8 @@ Defines a reference to another node
 **Parameters**
 
 -   `from` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** [:link:](NODE.md) Related from node
--   `to` **([node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling) | null)** [:link:](NODE.md) Relating to node
+-   `to` **([node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling) \| [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String))** [:link:](NODE.md) Relating to node
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The relation type
 
 ## get
 
@@ -15,15 +16,27 @@ Gets the related object
 
 Returns **([node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling) | null)** 
 
-## create
+## toClass
 
-Creates a lazy loading reference (from static informations)
+Creates a reference to the classe name
 
 **Parameters**
 
--   `from`  
--   `filename`  
--   `type`  
--   `id`  
+-   `from` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** The object that uses the specified class
+-   `className` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** The full classname
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The relation type (new, extends, type)
+
+Returns **[reference](#reference)** 
+
+## toNode
+
+Creates a reference to the classe name
+
+**Parameters**
+
+-   `from` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** The object that uses the specified class
+-   `nodeName` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** The full nodename
+-   `nodeType` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The node type
+-   `referenceType` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The relation type (new, extends, type)
 
 Returns **[reference](#reference)** 
