@@ -6,6 +6,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var globToRegExp = require('glob-to-regexp');
 var parser = require('php-parser');
 var file = require('./file');
 
@@ -23,9 +24,123 @@ var file = require('./file');
  * 
  * @public @constructor {repository}
  */
-var repository = function(directory) {
+var repository = function(directory, options) {
+    // direct function call
+    if (typeof this === 'function') {
+        return new this(directory, options);
+    }
     this.files = {};
+    // options
+    this.options = {
+        exclude: ['.git', '.svn'],
+        include: ['./'],
+        ext: [
+            '*.php','*.php3','*.php5','*.phtml',
+            '*.inc','*.class','*.req'
+        ],
+        scanVars: true,
+        scanExpr: true,
+        encoding: 'utf8',
+        cacheByFileSize: true
+    };
+    // extends options
+    if (options && typeof options === 'object') {
+        for(var k in options) {
+            this.options[k] = options[k];
+        }
+    }
+
+    // prepare extension filters
+    this._regex = [];
+    for(var i = 0; i < this.options.ext.length; i++) {
+        this._regex.push(
+            globToRegExp(
+                this.options.ext[i]
+            )
+        );
+    }
+
+    // counting things
+    this.counter = {
+        total: 0,
+        loading: 0,
+        error: 0
+    };
     this.directory = path.resolve(directory);
+};
+
+/**
+/**
+ * Scan the current directory to add PHP files to parser
+ * @public
+ * @param {String|Array} directory Path to scan, relative to repository root
+ * @return {Promise}
+ */
+repository.prototype.scan = function(directory) {
+    var pending = [];
+    var self = this;
+    if (!directory) {
+        directory = this.options.include;
+    }
+    if (Array.isArray(directory)) {
+        directory.forEach(function(dir) {
+            if (dir) {
+                pending.push(self.scan(dir));
+            }
+        });
+        return Promise.all(pending);
+    }
+    var root = path.resolve(this.directory, directory);
+    return new Promise(function(done, reject) {
+        fs.readdir(root, function(err, files) {
+            if (err) return reject(err);
+            files.forEach(function(file) {
+                pending.push(new Promise(function(done, reject) {
+                    fs.stat(path.resolve(root, file), function(err, stat) {
+                        if (err) reject(err);
+                        var filename = path.join(directory, file);
+                        
+                        if (stat.isDirectory()) {
+                            if (
+                                self.options.exclude.indexOf(file) > -1 ||
+                                self.options.exclude.indexOf(filename) > -1
+                            ) {
+                                return done(); // ignore path
+                            } else {
+                                self.scan(filename).then(done, reject);
+                            }
+                        } else {
+                            var matched = false;
+                            for(var i = 0; i < self._regex.length; i++) {
+                                if (self._regex[i].test(file)) {
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                            // ignore file (due to pattern)
+                            if (!matched) return done();
+                            // handle in-memory cache
+                            if (self.files.hasOwnProperty(filename)) {
+                                // check if need to parse again
+                                if (self.files[filename].version > stat.mtime) {
+                                    return done(self.files[filename]);
+                                }
+                                // same size and 
+                                if (
+                                    self.options.cacheByFileSize && 
+                                    stat.size === self.files[filename].size
+                                ) {
+                                    return done(self.files[filename]);
+                                }
+                            }
+                            self.parse(filename).then(done, reject);
+                        }
+                    });
+                }));
+            });
+            Promise.all(pending).then(done, reject);
+        });
+    });
 };
 
 /**
@@ -39,9 +154,12 @@ repository.prototype.parse = function(filename, encoding) {
     if (!this.files.hasOwnProperty(filename)) {
         var self = this;
         this.files[filename] = new Promise(function(done, reject) {
+            self.counter.total ++;
+            self.counter.loading ++;
             fs.readFile(
-                path.join(self.directory, filename), 
+                path.resolve(self.directory, filename), 
                 encoding, function(err, data) {
+                self.counter.loading --;
                 if (!err)  {
                     try {
                         var reader = new parser({
@@ -58,14 +176,17 @@ repository.prototype.parse = function(filename, encoding) {
                     }
                 }
                 if (err) {
+                    self.counter.total --;
                     delete self.files[filename];
                     return reject(err);
                 } else {
                     try {
-                        self.files[filename] = new file(this, filename, ast);
+                        self.files[filename] = new file(self, filename, ast);
                         self.files[filename].size = data.length;
                         return done(self.files[filename]);
                     } catch(e) {
+                        self.counter.total --;
+                        self.counter.error ++;
                         delete self.files[filename];
                         return reject(e);
                     }
