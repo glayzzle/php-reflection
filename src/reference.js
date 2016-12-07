@@ -62,14 +62,14 @@ reference.toClass = function(from, className, type) {
  * @return {reference}
  */
 reference.toNode = function(from, nodeName, nodeType, referenceType) {
-    if (Array.isArray(className)) {
-        if (className[0] === 'ns') {
-            className = className[1].join('/');
+    if (Array.isArray(nodeName)) {
+        if (nodeName[0] === 'ns') {
+            nodeName = nodeName[1].join('/');
         } else {
-            className = className.join('/');
+            nodeName = nodeName.join('/');
         }
     }
-    var result = new reference(from, className, referenceType);
+    var result = new reference(from, nodeName, referenceType);
     result.nodeType = nodeType;
     return result;
 };
