@@ -17,6 +17,8 @@ var _const = require('./constant');
  * @constructor {namespace}
  * 
  * @property {String} name The namespace full name
+ * @property {use[]} uses {@link USE.md|:link:} List of imported (or used namespaces)
+ * @property {constant[]} constants {@link CONSTANT.md|:link:} List of constants
  */
 var namespace = block.extends('namespace');
 
@@ -28,6 +30,8 @@ namespace.prototype.consume = function(ast) {
 
     var self = this;
     this.name = ast[1].join('/');
+
+    this.uses = [];
     this.constants = [];
 
     /**
@@ -39,11 +43,22 @@ namespace.prototype.consume = function(ast) {
             self.constants = self.constants.concat(
                 _const.fromAST(self, item)
             );
+        } else if (type === 'use') {
+            // @todo
         } else {
             self.consumeChild(item);
         }
     });
 };
 
+/**
+ * Resolves a class name if it's relative, using aliases
+ * or adding current namespace prefix.
+ * @param {String|Array} name
+ * @return {String}
+ */
+namespace.prototype.resolveClassName = function(name) {
+    // @todo
+};
 
 module.exports = namespace;

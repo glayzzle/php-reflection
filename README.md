@@ -15,7 +15,19 @@ npm install php-reflection --save
 
 ```
 var repository = require('php-reflection');
-var workspace = new repository();
+var workspace = new repository('/home/devbox/my-project', {
+    // actual default options :
+    exclude: ['.git', '.svn'],
+    include: ['./'],
+    ext: [
+        '*.php','*.php3','*.php5','*.phtml',
+        '*.inc','*.class','*.req'
+    ],
+    scanVars: true,
+    scanExpr: true,
+    encoding: 'utf8',
+    cacheByFileSize: true
+});
 var workers = [
     workspace.parse('some-file.php'),
     workspace.parse('another-file.php'),
@@ -32,3 +44,27 @@ Promise.all(workers).then(function() {
 ```
 
 Read the [API docs](https://github.com/glayzzle/php-reflection/tree/master/docs) for more details.
+
+# What it can do
+
+ - Fully reflection support (classes, inheritance, documentation blocks)
+ - Recursively scan directories and add files to repository
+ - Request cross files elements (like retrieving a class)
+ - Put in-memory documents structure (with a small memory footprint)
+ - You can use a cache engine for the repository
+ - It avoids parsing a file that is already in memory and not modified since last parsing
+ - Symbols relations (what variable instanciate a class, or who extends that class)
+ - A cool (and really fast) requesting engine for retrieving elements
+
+# What you could do with it
+
+ - Write a documentation generator
+ - Write a static code generator based on relection (like an ORM)
+ - Write a code analysis tool (like phpMessDetector)
+ - Write a code completion plugin
+
+... if you want to share an idea or your project make a pull request
+
+# WIP Disclaimer
+
+This project is actually on it's early alpha stage. It may progress rapidly, so watch the project if you are interested to use it.

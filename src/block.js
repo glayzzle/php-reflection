@@ -20,7 +20,6 @@ var ptr = require('./ptr');
  * @property {class[]} classes {@link CLASS.md|:link:} List of classes
  * @property {interface[]} interfaces {@link INTERFACE.md|:link:} List of interfaces
  * @property {trait[]} traits {@link TRAIT.md|:link:} List of defined traits
- * @property {use[]} uses {@link USE.md|:link:} List of imported (or used namespaces)
  * @property {block[]} blocks {@link BLOCK.md|:link:} List of variable scoped blocks
  */
 var block = node.extends(function block(parent, ast) {
@@ -30,7 +29,6 @@ var block = node.extends(function block(parent, ast) {
     this.classes = [];
     this.interfaces = [];
     this.traits = [];
-    this.uses = [];
     this.blocks = [];
     node.apply(this, arguments);
 });
