@@ -16,6 +16,7 @@ var comment = require('./comment');
  * @param {array} ast The current AST node
  * 
  * @property {node} parent Parent node instance
+ * @property {relation[]} relations {@link RELATION.md|:link:} List of linked nodes
  * @property {position|null} position {@link POSITION.md|:link:} Current node position
  * @property {comment|null} doc {@link COMMENT.md|:link:} Node attached commebnt
  */
@@ -25,6 +26,8 @@ var node = function(parent, ast) {
     if (this.constructor.name.length > 0) {
         this.type = this.constructor.name;
     }
+
+    this.relations = [];
 
     // check if contains a position node
     if (ast[0] === 'position') {
@@ -54,6 +57,21 @@ var node = function(parent, ast) {
     this.consume(ast);
 };
 
+
+/**
+ * Scan relations nodes and retrieves related nodes
+ * @param {String} type
+ * @return {node[]}
+ */
+node.prototype.getByRelationType = function(type) {
+    var nodes = [];
+    this.relations.forEach(function(item) {
+        if (item.type === type) {
+            nodes.push(item.from);
+        }
+    });
+    return nodes;
+};
 
 /**
  * Gets the file node
@@ -236,7 +254,7 @@ node.builders = {};
 /**
  * Helper for creating a new node
  * @param {String} type
- * @param {Node} parent
+ * @param {node} parent
  * @param {Array|null} ast
  * @return {node}
  * @throws {Error} if the specified type is not fond
@@ -248,6 +266,7 @@ node.create = function(type, parent, ast) {
     if (!node.builders.hasOwnProperty(type)) {
         throw new Error('"'+type+'" is not found');
     }
+
     return new node.builders[type](parent, ast);
 };
 
