@@ -152,6 +152,7 @@ repository.prototype.scan = function(directory) {
  */
 repository.prototype.parse = function(filename, encoding) {
     if (!this.files.hasOwnProperty(filename)) {
+        if (!encoding) encoding = this.options.encoding;
         var self = this;
         this.files[filename] = new Promise(function(done, reject) {
             self.counter.total ++;
@@ -225,10 +226,10 @@ repository.prototype.getByType = function(type, limit) {
  * @param {Number} limit
  * @return {node[]} {@link NODE.md|:link:}
  */
-repository.prototype.getByName = function(type, name) {
+repository.prototype.getByName = function(type, name, limit) {
     var result = [];
     for(var k in this.files) {
-        result = result.concat(this.files[k].getByName(type, name));
+        result = result.concat(this.files[k].getByName(type, name, limit));
     }
     return result;
 };
