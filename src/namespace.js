@@ -30,7 +30,9 @@ namespace.prototype.consume = function(ast) {
 
     var self = this;
     this.name = ast[1].join('/');
-
+    if (this.name[0] != '/') {
+        this.name = '/' + this.name;
+    }
     this.uses = [];
     this.constants = [];
 
@@ -58,7 +60,17 @@ namespace.prototype.consume = function(ast) {
  * @return {String}
  */
 namespace.prototype.resolveClassName = function(name) {
-    // @todo
+    if (Array.isArray(name)) {
+        if (name[0] === 'ns' && Array.isArray(name[1])) {
+            name = name[1];
+        }
+        name = name.join('/');
+    }
+    if (name[0] !== '/') {
+        // @todo resolve use statements
+        name = this.name + '/' + name;
+    }
+    return name;
 };
 
 module.exports = namespace;
