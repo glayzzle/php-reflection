@@ -16,7 +16,18 @@ namespace foobar {
         class foo {
             const baz = 123;
             /**
-             * @var bar
+             * The var description
+             * @var bar Some description
+             * another line of description
+             * @something
+             * @throws Ns
+             * @model(table='', property=true)
+             * @tag {kind} something
+             * @json({
+             *   "key": "value",
+             *   "object": { "inner": true },
+             *   "list": [1, 2, 3]
+             * })
              */
             protected $bar;
         }
