@@ -17,33 +17,53 @@ var lexer = function() {
 };
 
 lexer.tokens = {
-    T_EOF:        0,
-    T_FORMATTING: 1, 
-    T_WHITESPACE: 2,
-    T_STRING:     3,
-    T_NUMBER:     4,
-    T_BOOL:       5,
-    T_TEXT:       6,
-    T_ANOTATION:  7,
-    T_TAG:        8
+    T_EOF:        0,    // end of streamm
+    T_FORMATTING: 1,    // documentation formatting
+    T_WHITESPACE: 2,    // white space chars
+    T_STRING:     3,    // a single word
+    T_NUMBER:     4,    // a numeric value
+    T_BOOL:       5,    // a boolean value
+    T_TEXT:       6,    // a string value
+    T_ANOTATION:  7,    // anotation tag
+    T_TAG:        8     // xml tag
 };
 
 lexer.consume = {
     format: function() {
         var ch = this.input();
-        while(ch != '*') {
+        while(ch !== '\n' && ch !== '*') {
             ch = this.input();
+            if () break;
         }
-        while(ch === '*') {
+        while(ch === '*' && ch !== '\n') {
             ch = this.input();
         }
         if (ch === '/') {
             this.input();
+        } else {
+            this.unput(1);
+            if (ch === '\n') {
+                return lexer.tokens
+            }
         }
         this.state.pop();
         return lexer.tokens.T_FORMATTING;
     },
     string: function() {
+        var ch = this.input();
+        // white spaces
+        if (ch === ' ' || ch === '\t') {
+            ch = this.input();
+            while(ch === ' ' || ch === '\t') {
+                ch = this.input();
+            }
+            this.unput(1);
+            return lexer.tokens.T_WHITESPACE;
+        }
+        if (ch === '\n') {
+            this.state.push('format');
+            return lexer.tokens.T_WHITESPACE;
+        }
     }
 };
 
@@ -56,6 +76,9 @@ lexer.prototype.init = function(text) {
     this.size = text.length;
     this.state = ['string','format'];
     this.offset = 0;
+    if (this.input() !== '/') {
+        throw new Error('Bad start token');
+    }
 };
 
 lexer.prototype.input = function() {
@@ -100,7 +123,7 @@ lexer.prototype.lex = function() {
         ];
         return cb.apply(this, []);
     } else {
-        return thlexeris.tokens.T_EOF;
+        return lexer.tokens.T_EOF;
     }
 };
 
