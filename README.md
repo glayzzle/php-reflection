@@ -7,13 +7,13 @@ Nodejs Reflection API for PHP files based on the [php-parser](https://github.com
 
 # Install
 
-```
+```sh
 npm install php-reflection --save
 ```
 
 # Usage
 
-```
+```js
 var repository = require('php-reflection');
 var workspace = new repository('/home/devbox/my-project', {
     // actual default options :
