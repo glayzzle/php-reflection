@@ -30,6 +30,27 @@ var comment = function(node, ast) {
     }
 };
 
+comment.prototype.getTag = function(name) {
+    var result = [];
+    this.tags.forEach(function(item) {
+        if (item.name === name) {
+            result.push(item);
+        }
+    });
+    return result;
+};
+
+comment.prototype.getAnnotation = function(name) {
+    var result = [];
+    this.annotations.forEach(function(item) {
+        if (item.name === name) {
+            result.push(item);
+        }
+    });
+    return result;
+};
+
+
 /**
  * @protected Helper for exporting this object
  */
@@ -501,7 +522,7 @@ var annotation = function(name, args) {
     var methodEnd = args.lastIndexOf(')');
     if (methodEnd > -1) {
         this.description = args.substring(methodEnd + 1);
-        var parser = new annotationParser(args.substring(1, methodEnd - 1));
+        var parser = new annotationParser(args.substring(1, methodEnd));
         this.arguments = parser.ast;
     }
 };
