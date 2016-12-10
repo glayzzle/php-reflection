@@ -6,6 +6,7 @@
 
 var node = require('./node');
 var ptr = require('./ptr');
+var comment = require('./comment');
 
 /**
  * **Extends from {@link NODE.md|:link: node}**
@@ -84,14 +85,22 @@ block.prototype.consumeChild = function(ast) {
     // handle class definition
     if (type === 'class') {
         var cls = ptr.create('class', this, ast);
+        if (this._lastDoc) {
+            cls.get().doc = comment.create(cls.get(), this._lastDoc);
+            this._lastDoc = null;
+        }
         this.classes.push(cls);
         if (this.type !== 'namespace') {
             this.getNamespace().classes.push(cls);
         }
     }
 
+    else if (type === 'doc') {
+        this._lastDoc = item;
+    }
+
     // consome system statements
-    if (type === 'sys') {
+    else if (type === 'sys') {
         var cmd = item[1];
         if (
             cmd === 'include' ||
