@@ -14,7 +14,6 @@ Initialize a new file with the specified AST contents
 -   `classes` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;class>** [:link:](CLASS.md) List of classes
 -   `interfaces` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;interface>** [:link:](INTERFACE.md) List of interfaces
 -   `traits` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;trait>** [:link:](TRAIT.md) List of defined traits
--   `uses` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;use>** [:link:](USE.md) List of imported (or used namespaces)
 -   `blocks` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[block](#block)>** [:link:](BLOCK.md) List of variable scoped blocks
 
 ## consumeChild

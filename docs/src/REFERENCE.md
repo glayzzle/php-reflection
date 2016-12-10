@@ -7,8 +7,15 @@ Defines a reference to another node
 **Parameters**
 
 -   `from` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** [:link:](NODE.md) Related from node
--   `to` **([node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling) \| [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String))** [:link:](NODE.md) Relating to node
+-   `to` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** [:link:](NODE.md) Relation to node
 -   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The relation type
+
+**Properties**
+
+-   `from` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** [:link:](NODE.md) Related from node
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The relation type
+-   `nodeType` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The related node type
+-   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The related node name
 
 ## get
 
@@ -16,15 +23,44 @@ Gets the related object
 
 Returns **([node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling) | null)** 
 
+## resolve
+
+Resolves the reference
+
 ## toClass
 
-Creates a reference to the classe name
+Creates a reference to the specified class
 
 **Parameters**
 
 -   `from` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** The object that uses the specified class
--   `className` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** The full classname
--   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The relation type (new, extends, type)
+-   `className` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** The classname (namespace relative, or full namespace)
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The relation type : new, extends, type
+
+Returns **[reference](#reference)** 
+
+## toInterface
+
+Creates a reference to the specified interface
+
+**Parameters**
+
+-   `from` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** The object that uses the specified class
+-   `interfaceName` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** The interface (namespace relative, or full namespace)
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The relation type : implements, extends
+
+Returns **[reference](#reference)** 
+
+## toTrait
+
+Creates a reference to the specified trait
+
+**Parameters**
+
+-   `from` **[node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** The object that uses the specified class
+-   `traitName` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** The trait (namespace relative, or full namespace)
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The relation type : use
+-   `interfaceName`  
 
 Returns **[reference](#reference)** 
 
@@ -40,3 +76,7 @@ Creates a reference to the classe name
 -   `referenceType` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The relation type (new, extends, type)
 
 Returns **[reference](#reference)** 
+
+# relationTypes
+
+Allowed reference types

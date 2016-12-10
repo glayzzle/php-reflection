@@ -11,6 +11,19 @@ names colision.
 **Properties**
 
 -   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The namespace full name
+-   `uses` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;use>** [:link:](USE.md) List of imported (or used namespaces)
+-   `constants` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;constant>** [:link:](CONSTANT.md) List of constants
+
+## resolveClassName
+
+Resolves a class name if it's relative, using aliases
+or adding current namespace prefix.
+
+**Parameters**
+
+-   `name` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** 
+
+Returns **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 
 # forEach
 

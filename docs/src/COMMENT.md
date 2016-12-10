@@ -6,24 +6,78 @@ Initialize a comment declaration
 
 **Parameters**
 
--   `file`  
+-   `node`  
 -   `ast`  
 
 **Properties**
 
 -   `summary` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `returns` **(class | primitve)** 
+-   `tags` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;tag>** 
+-   `annotations` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;annotation>** 
+
+## create
+
+creates a new comment node
+
+**Parameters**
+
+-   `node`  
+-   `ast`  
+
+Returns **[comment](#comment)** 
+
+# variable
+
+**Extends comment**
+
+property, variable, constant
+
+**Properties**
+
+-   `type` **[type](#type)** 
+
+# method
+
+**Extends variable**
+
+method / function
+
+**Properties**
+
 -   `throws` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[throws](#throws)>** 
 -   `params` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[param](#param)>** 
 
 # param
+
+**Parameters**
+
+-   `type`  
+-   `description`  
+
+**Properties**
+
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `description` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+
+# throws
+
+**Parameters**
+
+-   `type`  
+-   `description`  
 
 **Properties**
 
 -   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 -   `description` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 
-# throws
+# type
+
+**Parameters**
+
+-   `name`  
+-   `description`  
 
 **Properties**
 

@@ -14,6 +14,18 @@ offset (usefull for an editor).
 **Parameters**
 
 -   `directory`  
+-   `options`  
+
+## scan
+
+/\*\*
+Scan the current directory to add PHP files to parser
+
+**Parameters**
+
+-   `directory` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** Path to scan, relative to repository root
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 
 ## parse
 
@@ -60,6 +72,24 @@ Lookup at each file and retrieves named elements
 -   `name`  
 
 Returns **([node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling) | null)** [:link:](NODE.md)
+
+## getNamespace
+
+Retrieves a namespace (cross file)
+
+The retrieved namespace will include : 
+
+-   constants
+-   functions
+-   classes
+-   interfaces
+-   traits
+
+**Parameters**
+
+-   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The namespace name
+
+Returns **(namespace | null)** [:link:](NAMESPACE.md)
 
 ## cleanAll
 

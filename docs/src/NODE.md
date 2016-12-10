@@ -12,8 +12,19 @@ Generic node object (inherited by all objects)
 **Properties**
 
 -   `parent` **[node](#node)** Parent node instance
+-   `relations` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;relation>** [:link:](RELATION.md) List of linked nodes
 -   `position` **(position | null)** [:link:](POSITION.md) Current node position
 -   `doc` **([comment](https://developer.mozilla.org/en-US/docs/Web/API/Comment/Comment) | null)** [:link:](COMMENT.md) Node attached commebnt
+
+## getByRelationType
+
+Scan relations nodes and retrieves related nodes
+
+**Parameters**
+
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[node](#node)>** 
 
 ## getFile
 
@@ -89,7 +100,7 @@ Helper for creating a new node
 **Parameters**
 
 -   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `parent` **[Node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)** 
+-   `parent` **[node](#node)** 
 -   `ast` **([Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) | null)** 
 
 
