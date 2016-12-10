@@ -13,21 +13,35 @@ namespace foobar {
     require_once 'another-file.php';
 
     if ($something) {
+        /**
+         * @class(something)
+         */
         class foo {
+            /**
+             * A const value
+             */
             const baz = 123;
             /**
              * The var description
+             *
              * @var /bar/foo Some description
              * another line of description
-             * @something
+             *
+             * @something strange
+             *
              * @throws Ns
+             * 
              * @model(table='', property=true, [1,2,3])
+             * some explanation
+             * 
              * @tag {kind} something
              * @json({
              *   "key": "value",
              *   "object": { "inner": true },
-             *   "list": [1, 2, 3]
-             * }) hehe
+             *   "list": [1, 2, 3],
+             *   'fall"back': @method("name", false)
+             * })
+             * Some additionnal informations / comments
              */
             protected $bar;
         }

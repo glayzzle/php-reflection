@@ -23,6 +23,17 @@ describe('Repository class', function() {
         });
     });
 
+    describe('#scan', function() {
+        it('should scan directory', function (done) {
+            workspace.scan().then(function() {
+                workspace.files.should.have.property('test.php');
+                workspace.files.should.have.property('friend.php');
+                workspace.files.should.have.property('sub/empty.php');
+                done();
+            }, done);
+        });
+    });
+
     describe('#cache/get', function() {
         var fs = require('fs');
         it('should get cache', function () {
@@ -43,6 +54,35 @@ describe('Repository class', function() {
         var fs = require('fs');
         it('should set cache', function () {
             // @todo 
+        });
+    });
+
+    describe('#getByType', function() {
+        it('should find namespace', function () {
+            var items = workspace.getByType('namespace');
+            items.should.be.Array();
+            // 4 namespace block in 2 separate files
+            items.length.should.be.exactly(4);
+        });
+        it('should find classes', function () {
+            var items = workspace.getByType('class');
+            items.should.be.Array();
+            // 3 classes blocks in 2 separate files
+            items.length.should.be.exactly(3);
+        });
+        it('should find constants', function () {
+            var items = workspace.getByType('constant');
+            items.should.be.Array();
+            // 2 namespace constants 
+            // + 1 class constant declarations blocks 
+            // in 2 separate files
+            items.length.should.be.exactly(3);
+        });
+        it('should limit the results', function () {
+            var items = workspace.getByType('namespace', 3);
+            items.should.be.Array();
+            // limiting the scan to 3 results
+            items.length.should.be.exactly(3);
         });
     });
 
