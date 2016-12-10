@@ -36,7 +36,7 @@ var node = function(parent, ast) {
     }
     // check if doc block with inner component
     if (ast[0] === 'doc' && ast.length === 3) {
-        this.doc = new comment(this, ast);
+        this.doc = comment.create(this, ast);
         ast = ast[2];
         if (this.position) {
             // attach position node to comment

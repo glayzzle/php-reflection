@@ -17,17 +17,17 @@ namespace foobar {
             const baz = 123;
             /**
              * The var description
-             * @var bar Some description
+             * @var /bar/foo Some description
              * another line of description
              * @something
              * @throws Ns
-             * @model(table='', property=true)
+             * @model(table='', property=true, [1,2,3])
              * @tag {kind} something
              * @json({
              *   "key": "value",
              *   "object": { "inner": true },
              *   "list": [1, 2, 3]
-             * })
+             * }) hehe
              */
             protected $bar;
         }
