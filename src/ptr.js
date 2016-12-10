@@ -40,8 +40,10 @@ ptr.prototype.export = function() {
  * @return {ptr}
  */
 ptr.create = function(type, parent, ast) {
-    var file = node.create(type, parent, ast).getFile();
-    return new ptr(file, file.nodes.length - 1);
+    var file  = parent.getFile();
+    var offset = file.nodes.length;
+    node.create(type, parent, ast);
+    return new ptr(file, offset);
 };
 
 
