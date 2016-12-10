@@ -22,6 +22,8 @@ var comment = require('./comment');
  */
 var node = function(parent, ast) {
 
+    if (!parent) return;
+
     this.parent = parent;
     if (this.constructor.name.length > 0) {
         this.type = this.constructor.name;
