@@ -9,6 +9,7 @@ var path = require('path');
 var globToRegExp = require('glob-to-regexp');
 var parser = require('php-parser');
 var file = require('./file');
+var node = require('./node');
 
 
 /**
@@ -229,7 +230,10 @@ repository.prototype.getByType = function(type, limit) {
 repository.prototype.getByName = function(type, name, limit) {
     var result = [];
     for(var k in this.files) {
-        result = result.concat(this.files[k].getByName(type, name, limit));
+        var items = this.files[k].getByName(type, name, limit);
+        if (items.length > 0) {
+            result = result.concat(items);
+        }
     }
     return result;
 };
@@ -247,6 +251,50 @@ repository.prototype.getFirstByName = function(type, name) {
         if (result) return result;
     }
     return null;
+};
+
+/**
+ * Retrieves a namespace (cross file)
+ * 
+ * The retrieved namespace will include : 
+ * - constants
+ * - functions
+ * - classes
+ * - interfaces
+ * - traits
+ * 
+ * @param {String} name The namespace name
+ * @return {namespace|null} {@link NAMESPACE.md|:link:}
+ */
+repository.prototype.getNamespace = function(name) {
+    if (name[0] !== '/') name = '/' + name;
+    if (name.length > 1 && name.substring(-1) === '/') {
+        name = name.substring(0, name.length - 1);
+    }
+    var items = this.getByName('namespace', name);
+    if (items.length > 0) {
+        var result = node.create('namespace');
+        items.forEach(function(ns) {
+            if (ns.constants.length > 0) {
+                result.constants = result.constants.concat(ns.constants);
+            }
+            if (ns.functions.length > 0) {
+                result.functions = result.functions.concat(ns.functions);
+            }
+            if (ns.classes.length > 0) {
+                result.classes = result.classes.concat(ns.classes);
+            }
+            if (ns.traits.length > 0) {
+                result.traits = result.traits.concat(ns.traits);
+            }
+            if (ns.interfaces.length > 0) {
+                result.interfaces = result.interfaces.concat(ns.interfaces);
+            }
+        });
+        return result;
+    } else {
+        return null;
+    }
 };
 
 
