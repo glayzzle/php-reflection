@@ -42,7 +42,6 @@ file.prototype.getByType = function(type) {
     // build type index
     if (!this._indexNodeType) {
         this._indexNodeType = {};
-        var result = [];
         for(var i = 0; i < this.nodes.length; i++) {
             var item = this.nodes[i];
             if (!this._indexNodeType.hasOwnProperty(item.type)) {
@@ -87,8 +86,8 @@ file.prototype.getByName = function(type, name) {
         this._indexNodeName[type] = cache;
     }
 
-    return this._indexNodeType[type].hasOwnProperty(name) ? 
-        this._indexNodeType[type][name] : []
+    return this._indexNodeName[type].hasOwnProperty(name) ? 
+        this._indexNodeName[type][name] : []
     ;
 };
 
