@@ -6,11 +6,14 @@
 
 var fs = require('fs');
 var path = require('path');
+var EventEmitter = require('events').EventEmitter;
+var util = require('util');
+
 var globToRegExp = require('glob-to-regexp');
 var parser = require('php-parser');
+
 var file = require('./file');
 var node = require('./node');
-
 
 /**
  * 
@@ -23,7 +26,12 @@ var node = require('./node');
  * You can also use it to retrieve scope context from a specific
  * offset (usefull for an editor).
  * 
- * @public @constructor {repository}
+ * @public
+ * @constructor {repository}
+ * @property {Object} files
+ * @property {Object} options
+ * @property {String} directory
+ * @property {Object} counter
  */
 var repository = function(directory, options) {
     // direct function call
@@ -65,10 +73,15 @@ var repository = function(directory, options) {
     this.counter = {
         total: 0,
         loading: 0,
+        loaded: 0,
         error: 0
     };
     this.directory = path.resolve(directory);
+
+    // init EventEmitter
+    EventEmitter.call(this);
 };
+util.inherits(repository, EventEmitter);
 
 /**
 /**
@@ -155,6 +168,7 @@ repository.prototype.parse = function(filename, encoding) {
     if (!this.files.hasOwnProperty(filename)) {
         if (!encoding) encoding = this.options.encoding;
         var self = this;
+        this.emit('parse', filename);
         this.files[filename] = new Promise(function(done, reject) {
             self.counter.total ++;
             self.counter.loading ++;
@@ -180,16 +194,20 @@ repository.prototype.parse = function(filename, encoding) {
                 if (err) {
                     self.counter.total --;
                     delete self.files[filename];
+                    self.emit('error', err);
                     return reject(err);
                 } else {
                     try {
                         self.files[filename] = new file(self, filename, ast);
                         self.files[filename].size = data.length;
+                        self.counter.loaded ++;
+                        self.emit('progress', self.counter);
                         return done(self.files[filename]);
                     } catch(e) {
                         self.counter.total --;
                         self.counter.error ++;
                         delete self.files[filename];
+                        self.emit('error', e);
                         return reject(e);
                     }
                     

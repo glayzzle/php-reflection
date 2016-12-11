@@ -119,9 +119,15 @@ parser.prototype.read_array = function(endChar) {
         var item = this.body();
         if (item !== null) { // ignore
             this.token = this.lexer.lex();
+            item = this.get_json_value(item);
             if (this.token === '=>') {
                 this.token = this.lexer.lex(); // eat
-                item = ['key', item, this.body()];
+                item = [
+                    'key', item, 
+                    this.get_json_value(
+                        this.body()
+                    )
+                ];
                 this.token = this.lexer.lex(); // eat
             }
             if ( this.token !== ',') {

@@ -6,7 +6,7 @@
 var tunic = require('tunic');
 var util = require('util');
 var parser = require('./comment/parser');
-var grammar = require('../node_modules/tunic/dist/grammars/javascript');
+var grammar = require('tunic/dist/grammars/javascript');
 grammar.namedTags = [
     'return', 'var', 'property', 'throws', 'param'
 ];
@@ -31,7 +31,12 @@ var comment = function(node, ast) {
     }
 };
 
-comment.prototype.getTag = function(name) {
+/**
+ * Gets a list of tags matching to the specified name
+ * @param {String} name
+ * @return {tag[]}
+ */
+comment.prototype.getTags = function(name) {
     var result = [];
     this.tags.forEach(function(item) {
         if (item.name === name) {
@@ -41,7 +46,26 @@ comment.prototype.getTag = function(name) {
     return result;
 };
 
-comment.prototype.getAnnotation = function(name) {
+/**
+ * Gets the first tag that matches to the specified name
+ * @param {String} name
+ * @return {tag|null}
+ */
+comment.prototype.getTag = function(name) {
+    var items = this.getTags(name);
+    if (items.length > 0) {
+        return items[0];
+    } else  {
+        return null;
+    }
+};
+
+/**
+ * Gets a list of annotations matching to the specified name
+ * @param {String} name
+ * @return {annotation[]}
+ */
+comment.prototype.getAnnotations = function(name) {
     var result = [];
     this.annotations.forEach(function(item) {
         if (item.name === name) {
@@ -49,6 +73,20 @@ comment.prototype.getAnnotation = function(name) {
         }
     });
     return result;
+};
+
+/**
+ * Gets the first annotation that matches to the specified name
+ * @param {String} name
+ * @return {annotation|null}
+ */
+comment.prototype.getAnnotation = function(name) {
+    var items = this.getAnnotations(name);
+    if (items.length > 0) {
+        return items[0];
+    } else  {
+        return null;
+    }
 };
 
 
@@ -245,8 +283,85 @@ var annotation = function(name, args) {
         this.arguments = doc.ast;
     }
 };
+/**
+ * @private helper for export
+ */
 annotation.prototype.export = function() { return this; };
 
+/**
+ * Gets a named argument (or find it by position)
+ * @param {Number} offset The fallback offset when the name is not found
+ * @param {String|String[]} name The name of the parameter (or a list of names, aliases)
+ * @return {Object|null}
+ */
+annotation.prototype.getArgument = function(offset, name) {
+
+    // search the node
+    if (typeof name === 'undefined' && typeof offset !== 'number') {
+        name = offset;
+        offset = null;
+    }
+    var node = null;
+
+    // scan by name
+    if (name) {
+        if (!Array.isArray(name)) name = [name];
+        for(var i = 0; i < this.arguments.length; i++) {
+            if (
+                this.arguments[i][0] === 'key' && 
+                name.indexOf(this.arguments[i][1]) > -1
+            ) {
+                node = this.arguments[i][2];
+                break;
+            }
+        }
+    }
+
+    // fallback
+    if (node === null && offset > -1) {
+        // retrieve from offset
+        if (offset < this.arguments.length) {
+            node = this.arguments[offset];
+            // handle when the parameter is named
+            if (node[0] === 'key') {
+                if (!name) {
+                    node = node[2];
+                } else {
+                    // name does not matches with the offset (so ignore it)
+                    node = null;
+                }
+            }
+        }
+    }
+
+    console.log(offset, name, node);
+
+    // resolving the node type
+    if (node === null) {
+        return null; // node not found
+    }
+    if (node[0] === 'json') {
+        return node[1];
+    } else if (node[0] === 'array') {
+        return node[1];
+    } else if (node[0] === 'null') {
+        return null;
+    } else if (node[0] === 'text') {
+        node = node[1].substring(1, node[1].length - 1);
+        try {
+            return JSON.parse('"' + node + '"');
+        } catch(e) {
+            return node;
+        }
+    } else if (node[0] === 'number') {
+        return Number.parseInt(node[1]);
+    } else if (node[0] === 'boolean') {
+        return node[1];
+    } else {
+        // unresolved type
+        return node;
+    }
+};
 
 // exports the comment API
 module.exports = comment;
