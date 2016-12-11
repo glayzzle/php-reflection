@@ -99,7 +99,9 @@ lexer.prototype.next = function() {
         return t.T_TEXT;
     } else if (lexerSymbols.indexOf(ch) > -1) {
         if (ch === ':') ch = '=>'; // alias
-        if (ch === '=' && this.text[this.offset] === '>') ch += this.input();
+        if (ch === '=' && this._input[this.offset] === '>') {
+            ch += this.input();
+        }
         return ch;
     } else if (lexerWhiteSpace.indexOf(ch) > -1) {
         ch = this.input();

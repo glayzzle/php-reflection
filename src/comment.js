@@ -78,14 +78,15 @@ comment.prototype.getAnnotations = function(name) {
 /**
  * Gets the first annotation that matches to the specified name
  * @param {String} name
- * @return {annotation|null}
+ * @return {annotation|tag|null}
  */
 comment.prototype.getAnnotation = function(name) {
     var items = this.getAnnotations(name);
     if (items.length > 0) {
         return items[0];
     } else  {
-        return null;
+        // fallback on tag
+        return this.getTag(name);
     }
 };
 
@@ -267,6 +268,20 @@ var tag = function(name, description) {
 tag.prototype.export = function() { return this; };
 
 /**
+ * Parses an argument
+ */
+tag.prototype.getArgument = function(offset) {
+    if (!Number.isInteger(offset) || !this.description) {
+        return null;
+    }
+    var args = this.description.split(/s+/g);
+    if (offset > -1 && offset < args.length) {
+        return args[offset];
+    }
+    return null;
+};
+
+/**
  * @private
  * @constructor annotation
  * @property {String} name
@@ -318,12 +333,12 @@ annotation.prototype.getArgument = function(offset, name) {
     }
 
     // fallback
-    if (node === null && offset > -1) {
+    if (node === null && offset != null && offset > -1) {
         // retrieve from offset
         if (offset < this.arguments.length) {
             node = this.arguments[offset];
             // handle when the parameter is named
-            if (node[0] === 'key') {
+            if (Array.isArray(node) && node[0] === 'key') {
                 if (!name) {
                     node = node[2];
                 } else {
@@ -333,8 +348,6 @@ annotation.prototype.getArgument = function(offset, name) {
             }
         }
     }
-
-    console.log(offset, name, node);
 
     // resolving the node type
     if (node === null) {
