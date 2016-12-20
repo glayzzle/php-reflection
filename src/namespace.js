@@ -9,13 +9,13 @@ var _const = require('./constant');
 
 /**
  * **Extends from [block](BLOCK.md)**
- * 
+ *
  * The namespace is an organisational unit that stores
  * inner nodes and use the namespace prefix to avoid
  * names colision.
- * 
+ *
  * @constructor {namespace}
- * 
+ *
  * @property {String} name The namespace full name
  * @property {use[]} uses {@link USE.md|:link:} List of imported (or used namespaces)
  * @property {constant[]} constants {@link CONSTANT.md|:link:} List of constants
@@ -29,9 +29,9 @@ var namespace = block.extends('namespace');
 namespace.prototype.consume = function(ast) {
 
     var self = this;
-    this.name = ast[1].join('/');
-    if (this.name[0] != '/') {
-        this.name = '/' + this.name;
+    this.name = ast[1].join('\\');
+    if (this.name[0] != '\\') {
+        this.name = '\\' + this.name;
     }
     this.uses = [];
     this.constants = [];
@@ -64,11 +64,11 @@ namespace.prototype.resolveClassName = function(name) {
         if (name[0] === 'ns' && Array.isArray(name[1])) {
             name = name[1];
         }
-        name = name.join('/');
+        name = name.join('\\');
     }
-    if (name[0] !== '/') {
+    if (name[0] !== '\\') {
         // @todo resolve use statements
-        name = this.name + '/' + name;
+        name = this.name + '\\' + name;
     }
     return name;
 };

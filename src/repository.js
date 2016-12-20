@@ -16,16 +16,16 @@ var file = require('./file');
 var node = require('./node');
 
 /**
- * 
+ *
  * The repository stores a list of files with their symbols
- * and acts like a database. 
- * 
+ * and acts like a database.
+ *
  * You can request it to retrieve
  * [nodes](NODE.md) like [namespaces](NAMESPACE.md], functions or classes.
- * 
+ *
  * You can also use it to retrieve scope context from a specific
  * offset (usefull for an editor).
- * 
+ *
  * @public
  * @constructor {repository}
  * @property {Object} files
@@ -113,7 +113,7 @@ repository.prototype.scan = function(directory) {
                     fs.stat(path.resolve(root, file), function(err, stat) {
                         if (err) reject(err);
                         var filename = path.join(directory, file);
-                        
+
                         if (stat.isDirectory()) {
                             if (
                                 self.options.exclude.indexOf(file) > -1 ||
@@ -139,9 +139,9 @@ repository.prototype.scan = function(directory) {
                                 if (self.files[filename].version > stat.mtime) {
                                     return done(self.files[filename]);
                                 }
-                                // same size and 
+                                // same size and
                                 if (
-                                    self.options.cacheByFileSize && 
+                                    self.options.cacheByFileSize &&
                                     stat.size === self.files[filename].size
                                 ) {
                                     return done(self.files[filename]);
@@ -160,7 +160,7 @@ repository.prototype.scan = function(directory) {
 /**
  * Parsing a file
  * @public
- * @param {string} filename 
+ * @param {string} filename
  * @param {string} encoding The encoding (by default utf8)
  * @return {Promise}
  */
@@ -173,7 +173,7 @@ repository.prototype.parse = function(filename, encoding) {
             self.counter.total ++;
             self.counter.loading ++;
             fs.readFile(
-                path.resolve(self.directory, filename), 
+                path.resolve(self.directory, filename),
                 encoding, function(err, data) {
                 self.counter.loading --;
                 if (!err)  {
@@ -210,7 +210,7 @@ repository.prototype.parse = function(filename, encoding) {
                         self.emit('error', e);
                         return reject(e);
                     }
-                    
+
                 }
             });
         });
@@ -273,20 +273,20 @@ repository.prototype.getFirstByName = function(type, name) {
 
 /**
  * Retrieves a namespace (cross file)
- * 
- * The retrieved namespace will include : 
+ *
+ * The retrieved namespace will include :
  * - constants
  * - functions
  * - classes
  * - interfaces
  * - traits
- * 
+ *
  * @param {String} name The namespace name
  * @return {namespace|null} {@link NAMESPACE.md|:link:}
  */
 repository.prototype.getNamespace = function(name) {
-    if (name[0] !== '/') name = '/' + name;
-    if (name.length > 1 && name.substring(-1) === '/') {
+    if (name[0] !== '\\') name = '\\' + name;
+    if (name.length > 1 && name.substring(-1) === '\\') {
         name = name.substring(0, name.length - 1);
     }
     var items = this.getByName('namespace', name);
@@ -452,7 +452,7 @@ repository.prototype.refresh = function(filename, encoding) {
         }
         this.files[filename] = new Promise(function(done, reject) {
             fs.readFile(
-                path.join(self.directory, filename), 
+                path.join(self.directory, filename),
                 encoding, function(err, data) {
                 // @todo
             });

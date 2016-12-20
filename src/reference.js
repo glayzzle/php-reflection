@@ -11,10 +11,10 @@ var node = require('./node');
  * @constructor {reference}
  * @param {node} from {@link NODE.md|:link:} Related from node
  * @param {node} to {@link NODE.md|:link:} Relation to node
- * @param {String} type The relation type 
+ * @param {String} type The relation type
  * @property {node} from {@link NODE.md|:link:} Related from node
- * @property {String} type The relation type 
- * @property {String} nodeType The related node type 
+ * @property {String} type The relation type
+ * @property {String} nodeType The related node type
  * @property {String} name The related node name
  */
 var reference = function(from, to, type) {
@@ -51,9 +51,9 @@ var relationTypes = {
     //
     'class': [
         // create a new instance
-        'new', 
+        'new',
         // extends the class by another class
-        'extends', 
+        'extends',
         // use the class as a variable declaration (method parameters, @return ...)
         'type'
     ],
@@ -98,7 +98,7 @@ var relationTypes = {
  */
 reference.toClass = function(from, className, type) {
     return this.toNode(
-        from, 
+        from,
         from.getNamespace().resolveClassName(className),
         'class',
         type
@@ -115,7 +115,7 @@ reference.toClass = function(from, className, type) {
  */
 reference.toInterface = function(from, interfaceName, type) {
     return this.toNode(
-        from, 
+        from,
         from.getNamespace().resolveClassName(interfaceName),
         'interface',
         type
@@ -131,7 +131,7 @@ reference.toInterface = function(from, interfaceName, type) {
  */
 reference.toTrait = function(from, interfaceName, type) {
     return this.toNode(
-        from, 
+        from,
         from.getNamespace().resolveClassName(interfaceName),
         'interface',
         type
@@ -149,9 +149,9 @@ reference.toTrait = function(from, interfaceName, type) {
 reference.toNode = function(from, nodeName, nodeType, referenceType) {
     if (Array.isArray(nodeName)) {
         if (nodeName[0] === 'ns') {
-            nodeName = nodeName[1].join('/');
+            nodeName = nodeName[1].join('\\');
         } else {
-            nodeName = nodeName.join('/');
+            nodeName = nodeName.join('\\');
         }
     }
     var result = new reference(from, nodeName, referenceType);

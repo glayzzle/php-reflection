@@ -8,12 +8,12 @@ var reference = require('./reference');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **
- * 
+ *
  * Represents a class
- * 
+ *
  * @public
  * @constructor class
- * @property {string} name 
+ * @property {string} name
  * @property {string} fullName
  * @property {boolean} isAbstract
  * @property {boolean} isFinal
@@ -32,7 +32,7 @@ _class.prototype.consume = function(ast) {
 
     // handle name
     this.name = ast[1];
-    this.fullName = this.getNamespace().name + '/' + this.name;
+    this.fullName = this.getNamespace().name + '\\' + this.name;
 
     // handle flags
     this.isAbstract = ast[2][2] === 1;
