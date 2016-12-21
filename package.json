@@ -26,7 +26,9 @@
   "dependencies": {
     "glob-to-regexp": "^0.3.0",
     "php-parser": "^0.1.4",
-    "tunic": "git://github.com/glayzzle/tunic.git#801182d6b27d874940c74c09e0ada794570e143f"
+    "sse4_crc32": "^5.1.1",
+    "tunic": "git://github.com/glayzzle/tunic.git#801182d6b27d874940c74c09e0ada794570e143f",
+    "webworker-threads": "^0.7.9"
   },
   "devDependencies": {
     "coveralls": "^2.11.15",
