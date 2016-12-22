@@ -205,7 +205,15 @@ var hydrate = function(object) {
  * Node helper for importing data
  * @todo to implement
  */
-node.prototype.import = function() {
+node.import = function(repository, data) {
+
+};
+
+/**
+ * Node helper for importing data
+ * @todo to implement
+ */
+node.prototype.refresh = function() {
 
 };
 

@@ -41,16 +41,33 @@ var repository = function(directory, options) {
     this.files = {};
     // options
     this.options = {
-        exclude: ['.git', '.svn'],
+        // list of excluded directory names
+        exclude: ['.git', '.svn', 'node_modules'],
+        // list of included directories
         include: ['./'],
+        // list of php extension files
         ext: [
             '*.php','*.php3','*.php5','*.phtml',
             '*.inc','*.class','*.req'
         ],
+        // extract vars from each scope (functions, classes)
+        // may use memory but could be usefull for resolving
+        // their type (on autocompletion)
         scanVars: true,
+        // extract scopes from
         scanExpr: true,
+        // default parsing encoding
         encoding: 'utf8',
-        cacheByFileSize: true
+        // should spawn a worker process to avoir blocking
+        // the main loop (may be slower with small projects or single cpu)
+        forkWorker: require('os').cpus().length > 1,
+        // use the file mtime property to check changes
+        cacheByFileDate: true,
+        // use the file size to detect changes
+        cacheByFileSize: false,
+        // use an hash algorithm to detect changes
+        // if low cache hit, may slow down the parsing
+        cacheByFileHash: true
     };
     // extends options
     if (options && typeof options === 'object') {
@@ -136,7 +153,10 @@ repository.prototype.scan = function(directory) {
                             // handle in-memory cache
                             if (self.files.hasOwnProperty(filename)) {
                                 // check if need to parse again
-                                if (self.files[filename].version > stat.mtime) {
+                                if (
+                                  self.options.cacheByFileDate &&
+                                  self.files[filename].mtime === stat.mtime
+                                ) {
                                     return done(self.files[filename]);
                                 }
                                 // same size and
@@ -172,47 +192,65 @@ repository.prototype.parse = function(filename, encoding) {
         this.files[filename] = new Promise(function(done, reject) {
             self.counter.total ++;
             self.counter.loading ++;
-            fs.readFile(
-                path.resolve(self.directory, filename),
-                encoding, function(err, data) {
-                self.counter.loading --;
-                if (!err)  {
-                    try {
-                        var reader = new parser({
-                            parser: {
-                                locations: true,
-                                extractDoc: true,
-                                suppressErrors: true
-                            }
-                        });
-                        data = data.toString(encoding);
-                        var ast = reader.parseCode(data);
-                    } catch(e) {
-                        err = e;
-                    }
-                }
-                if (err) {
+            if (self.options.forkWorker) {
+                // reads from a forked process
+                require('./worker')().then(function(cache) {
+                    self.counter.loading --;
+                    self.files[filename] = file.import(self, cache);
+                    self.files[filename].refresh();
+                    self.counter.loaded ++;
+                    self.emit('progress', self.counter);
+                }, function(e) {
+                    self.counter.loading --;
                     self.counter.total --;
+                    self.counter.error ++;
                     delete self.files[filename];
-                    self.emit('error', err);
-                    return reject(err);
-                } else {
-                    try {
-                        self.files[filename] = new file(self, filename, ast);
-                        self.files[filename].size = data.length;
-                        self.counter.loaded ++;
-                        self.emit('progress', self.counter);
-                        return done(self.files[filename]);
-                    } catch(e) {
-                        self.counter.total --;
-                        self.counter.error ++;
-                        delete self.files[filename];
-                        self.emit('error', e);
-                        return reject(e);
+                    self.emit('error', e);
+                    return reject(e);
+                });
+            } else {
+                // reads from the main process
+                fs.readFile(
+                    path.resolve(self.directory, filename),
+                    encoding, function(err, data) {
+                    self.counter.loading --;
+                    if (!err)  {
+                        try {
+                            var reader = new parser({
+                                parser: {
+                                    locations: true,
+                                    extractDoc: true,
+                                    suppressErrors: true
+                                }
+                            });
+                            data = data.toString(encoding);
+                            var ast = reader.parseCode(data);
+                        } catch(e) {
+                            err = e;
+                        }
                     }
-
-                }
-            });
+                    if (err) {
+                        self.counter.total --;
+                        delete self.files[filename];
+                        self.emit('error', err);
+                        return reject(err);
+                    } else {
+                        try {
+                            self.files[filename] = new file(self, filename, ast);
+                            self.files[filename].size = data.length;
+                            self.counter.loaded ++;
+                            self.emit('progress', self.counter);
+                            return done(self.files[filename]);
+                        } catch(e) {
+                            self.counter.total --;
+                            self.counter.error ++;
+                            delete self.files[filename];
+                            self.emit('error', e);
+                            return reject(e);
+                        }
+                    }
+                });
+            }
         });
         return this.files[filename];
     } else {
@@ -227,13 +265,15 @@ repository.prototype.parse = function(filename, encoding) {
  * @return {node[]} {@link NODE.md|:link:}
  */
 repository.prototype.getByType = function(type, limit) {
-    if (!limit) limit = 100;
+    if (!limit || limit < 1) limit = 100;
     var result = [];
     for(var k in this.files) {
-        result = result.concat(this.files[k].getByType(type));
-        if (result.length > limit) {
-            result = result.slice(0, limit);
-            break;
+        if (this.files[k] instanceof file) {
+            result = result.concat(this.files[k].getByType(type));
+            if (result.length > limit) {
+                result = result.slice(0, limit);
+                break;
+            }
         }
     }
     return result;
@@ -248,9 +288,11 @@ repository.prototype.getByType = function(type, limit) {
 repository.prototype.getByName = function(type, name, limit) {
     var result = [];
     for(var k in this.files) {
-        var items = this.files[k].getByName(type, name, limit);
-        if (items.length > 0) {
-            result = result.concat(items);
+        if (this.files[k] instanceof file) {
+            var items = this.files[k].getByName(type, name, limit);
+            if (items.length > 0) {
+                result = result.concat(items);
+            }
         }
     }
     return result;
@@ -265,8 +307,10 @@ repository.prototype.getByName = function(type, name, limit) {
 repository.prototype.getFirstByName = function(type, name) {
     var result = null;
     for(var k in this.files) {
-        result = this.files[k].getFirstByName(type, name);
-        if (result) return result;
+        if (this.files[k] instanceof file) {
+            result = this.files[k].getFirstByName(type, name);
+            if (result) return result;
+        }
     }
     return null;
 };
@@ -336,7 +380,7 @@ repository.prototype.remove = function(filename) {
         if (this.files[filename] instanceof file) {
             this.files[filename].remove();
         }
-        delete files[filename];
+        delete this.files[filename];
     }
     return this;
 };
@@ -362,7 +406,10 @@ repository.prototype.each = function(cb) {
  * @return {scope}
  */
 repository.prototype.scope = function(filename, offset) {
-    if (this.files.hasOwnProperty(filename)) {
+    if (
+        this.files.hasOwnProperty(filename) && 
+        this.files[filename] instanceof file
+    ) {
         return this.files[filename].getScope(offset);
     } else {
         return null;
@@ -376,7 +423,10 @@ repository.prototype.scope = function(filename, offset) {
  * @return {file|null} Returns the file if exists, or null if not defined
  */
 repository.prototype.get = function(filename) {
-    if (this.files.hasOwnProperty(filename)) {
+    if (
+        this.files.hasOwnProperty(filename) && 
+        this.files[filename] instanceof file
+    ) {
         return this.files[filename];
     } else {
         return null;
@@ -398,11 +448,11 @@ repository.prototype.cache = function(data) {
             this.directory = data.directory;
             // creating files from structure
             for(var name in data.files) {
-                this.files[name] = file.import(data[name]);
+                this.files[name] = file.import(this, data[name]);
             }
-            // update object links
+            // rebuild object links
             for(var name in this.files) {
-                this.files[name].import();
+                this.files[name].refresh();
             }
         }
         return this;
