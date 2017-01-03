@@ -106,9 +106,9 @@ var repository = function(directory, options) {
 util.inherits(repository, EventEmitter);
 
 /**
- * Starts to read a file in order to parse it. This event is emited from 
+ * Starts to read a file in order to parse it. This event is emited from
  * parse or refresh methods.
- * 
+ *
  * @event repository#read
  * @type {object}
  * @property {string} name - The filename that will be parsed
@@ -117,7 +117,7 @@ util.inherits(repository, EventEmitter);
 
 /**
  * Cache hit event, file is already updated
- * 
+ *
  * @event repository#cache
  * @type {object}
  * @property {string} name - The filename that was found in cache
@@ -125,7 +125,7 @@ util.inherits(repository, EventEmitter);
 
 /**
  * The specified file is parsed.
- * 
+ *
  * @event repository#parse
  * @type {object}
  * @property {string} name - The filename that will be parsed
@@ -133,8 +133,8 @@ util.inherits(repository, EventEmitter);
  */
 
 /**
- * 
- * 
+ *
+ *
  * @event repository#error
  * @type {object}
  * @property {string} name - The filename that triggered the error
@@ -304,17 +304,20 @@ repository.prototype.parse = function(filename, encoding, stat) {
         fs.readFile(
           path.resolve(self.directory, filename),
           encoding, function(err, data) {
+            var ast;
             if (!err) {
               try {
                 var reader = new parser({
+                  ast: {
+                    withPositions: true
+                  },
                   parser: {
-                    locations: true,
                     extractDoc: true,
                     suppressErrors: true
                   }
                 });
                 data = data.toString(encoding);
-                var ast = reader.parseCode(data);
+                ast = reader.parseCode(data);
               } catch (e) {
                 err = e;
               }

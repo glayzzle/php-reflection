@@ -3,21 +3,19 @@
  * @constructor
  */
 var position = function(node) {
-  if (node[0] !== 'position') {
-    throw new Error('Bad node type');
-  }
   this.start = {
-    line: node[1][0],
-    column: node[1][1]
+    line: node.start.line,
+    column: node.start.column
   }
   this.end = {
-    line: node[2][0],
-    column: node[2][1]
+    line: node.end.line,
+    column: node.end.column
   }
   this.offset = {
-    start: node[1][2],
-    end: node[2][2]
+    start: node.start.offset,
+    end: node.end.offset
   };
+  console.log(this);
 };
 
 /**

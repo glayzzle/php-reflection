@@ -10,11 +10,11 @@ var comment = require('./comment');
 
 /**
  * Generic node object (inherited by all objects)
- * 
+ *
  * @public @constructor {node}
  * @param {node} parent The parent node
  * @param {array} ast The current AST node
- * 
+ *
  * @property {node} parent Parent node instance
  * @property {relation[]} relations {@link RELATION.md|:link:} List of linked nodes
  * @property {position|null} position {@link POSITION.md|:link:} Current node position
@@ -32,24 +32,8 @@ var node = function(parent, ast) {
   this.relations = [];
 
   // check if contains a position node
-  if (ast[0] === 'position') {
-    this.position = new position(ast);
-    ast = ast[3];
-  }
-  // check if doc block with inner component
-  if (ast[0] === 'doc' && ast.length === 3) {
-    this.doc = comment.create(this, ast);
-    ast = ast[2];
-    if (this.position) {
-      // attach position node to comment
-      this.doc.position = this.position;
-      if (ast[0] === 'position') {
-        this.position = new position(ast);
-        ast = ast[3];
-      } else {
-        delete this.position;
-      }
-    }
+  if (ast.loc) {
+    this.position = new position(ast.loc);
   }
 
   if (this.type !== 'file') {
@@ -223,17 +207,17 @@ node.prototype.export = function() {
 
 /**
  * Use this function to extend a node into a specific object.
- * 
+ *
  * In order to make the cache wording automatically, the class
  * name must be the same as the filename `foo` class into `./foo.js`
- * 
+ *
  * *WARNING* : It you pass a constructor, make sur it's named in order to
  * automatically retrieve it's classname (used by the caching system)
- * 
+ *
  * @public
  * @param {constructor|string} ctor Define the named constructor, or the class name
  * @return {constructor}
- * 
+ *
  * @example Create with a constructor
  * var block = require('./block');
  * var child = block.extends(function className(parent, ast) {
@@ -241,12 +225,12 @@ node.prototype.export = function() {
  *   // customized init code
  * });
  * child.prototype.foo = function() ...
- * 
+ *
  * @example Create with a generic class name
  * var block = require('./block');
  * var child = block.extends('className');
  * child.prototype.foo = function() ...
- * 
+ *
  */
 node.extends = declareExtends(node);
 
