@@ -4,7 +4,8 @@
   "description": "Enables to parse php files and from AST extracts code informations (namespaces, classes, functions ...)",
   "main": "src/repository.js",
   "scripts": {
-    "test": "node --stack-size=5000 node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- test/*"
+    "test": "node node_modules/mocha/bin/_mocha test/*",
+    "cover": "node --stack-size=5000 node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- test/*"
   },
   "repository": {
     "type": "git",

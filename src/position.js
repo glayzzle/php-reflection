@@ -15,7 +15,6 @@ var position = function(node) {
     start: node.start.offset,
     end: node.end.offset
   };
-  console.log(this);
 };
 
 /**

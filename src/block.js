@@ -10,10 +10,10 @@ var comment = require('./comment');
 
 /**
  * **Extends from {@link NODE.md|:link: node}**
- * 
+ *
  * Initialize a new file with the specified AST contents
- * 
- * @public 
+ *
+ * @public
  * @constructor block
  * @property {variable[]} variables {@link VARIABLE.md|:link:} A list of variables in current scope
  * @property {define[]} defines {@link DEFINE.md|:link:} A list of defined constants
@@ -68,7 +68,7 @@ block.prototype.scanForChilds = function(ast) {
 
 /**
  * Generic consumer of a list of nodes
- * @abstract @protected 
+ * @abstract @protected
  * @param {Array} ast The AST node to eat
  * @return void
  */
@@ -179,8 +179,8 @@ block.prototype.consumeChild = function(ast) {
     );
 }  else if (type === 'call') {
     if (
-        ast[1][0] === 'ns' && 
-        ast[1][1].length === 1 && 
+        ast[1][0] === 'ns' &&
+        ast[1][1].length === 1 &&
         ast[1][1][0] === 'define'
     ) {
         this.defines.push(
@@ -189,64 +189,6 @@ block.prototype.consumeChild = function(ast) {
     }
 }
 // @todo use, var */
-};
-
-/**
- * Static helper that resolves the AST type of the specified node.
- * 
- * This function will strip position node, or comment node to read
- * directly the AST node
- *
- * @public
- * @param {Array} node
- * @return {String}
- * 
- * @example
- * var block = require('./block');
- * var type = block.getASTType([
- *   'position', [..start..], [..end..], [
- *     'innerNode'
- *   ]
- * ]); // type = 'innerNode'
- */
-block.getASTType = function(ast) {
-  return block.getAST(ast)[0];
-};
-
-/**
- * Static helper that resolves the AST type of the specified node.
- * 
- * This function will strip position node, or comment node to read
- * directly the AST node
- *
- * @public
- * @param {Array} node
- * @return {String}
- * 
- * @example
- * var block = require('./block');
- * var ast = block.getAST([
- *   'position', [..start..], [..end..], [
- *     'innerNode'
- *   ]
- * ]); // ast = ['innerNode'...]
- */
-block.getAST = function(ast) {
-  var result = ast;
-  if (result) {
-    if (typeof result[0] === 'string') {
-      if (result[0] === 'position') {
-        result = result[3];
-      }
-      if (result[0] === 'doc' && result.length === 3) {
-        result = result[2];
-        if (result[0] === 'position') {
-          result = result[3];
-        }
-      }
-    }
-  }
-  return result;
 };
 
 module.exports = block;

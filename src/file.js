@@ -11,9 +11,9 @@ var comment = require('./comment');
 
 /**
  * **Extends from [node](NODE.md)**
- * 
+ *
  * Initialize a new file with the specified AST contents
- * 
+ *
  * @constructor {file}
  * @property {repository} repository The repository instance
  * @property {Date} version Last time when the file was parsed
@@ -147,7 +147,7 @@ file.prototype.getNamespace = function(name) {
 file.prototype.consume = function(ast) {
 
   // check the AST structure
-  if (ast[0] !== 'program' || !Array.isArray(ast[1])) {
+  if (ast.kind !== 'program' || !Array.isArray(ast.children)) {
     throw new Error('Bad AST node');
   }
 
@@ -161,18 +161,17 @@ file.prototype.consume = function(ast) {
   var self = this;
 
   // scan each document node
-  ast[1].forEach(function(item) {
-    var type = block.getASTType(item);
-    if (type) {
-      if (type === 'declare') {
+  ast.children.forEach(function(item) {
+    if (item.kind) {
+      if (item.kind === 'declare') {
         node.create('declare', self, item);
-      } else if (type === 'namespace') {
+      } else if (item.kind === 'namespace') {
         var ns = node.create('namespace', self, item);
         if (doc) {
           ns.doc = new comment(this, doc);
           doc = null;
         }
-      } else if (type === 'doc' || type === 'comment') {
+      } else if (item.kind === 'doc') {
         doc = item;
       } else {
         // out of namespace scope
@@ -186,9 +185,14 @@ file.prototype.consume = function(ast) {
 
   // create an empty namespace
   if (root.length > 0) {
-    node.create('namespace', this, [
-      'namespace', [''], root
-    ]);
+    node.create('namespace', this, {
+      'kind': 'namespace',
+      'name': {
+        'kind': 'identifier',
+        'name': ''
+      },
+      'children': root
+    });
   }
 };
 

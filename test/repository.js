@@ -7,7 +7,9 @@ describe('Repository class', function() {
     var workspace = null;
 
     describe('#ctor', function() {
-        workspace = new repository(path);
+        workspace = new repository(path, {
+          forkWorker: false
+        });
         it('properties', function () {
             workspace.files.should.be.Object();
             workspace.directory.should.be.exactly(path);
