@@ -166,17 +166,18 @@ file.prototype.consume = function(ast) {
       if (item.kind === 'declare') {
         node.create('declare', self, item);
       } else if (item.kind === 'namespace') {
-        var ns = node.create('namespace', self, item);
         if (doc) {
-          ns.doc = new comment(this, doc);
+          item.doc = doc;
           doc = null;
         }
+        node.create('namespace', self, item);
       } else if (item.kind === 'doc') {
         doc = item;
       } else {
         // out of namespace scope
         if (doc) {
           root.push(doc);
+          doc = null;
         }
         root.push(item);
       }

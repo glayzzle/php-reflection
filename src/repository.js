@@ -265,6 +265,7 @@ repository.prototype.parse = function(filename, encoding, stat) {
     this.files[filename] = new Promise(function(done, reject) {
 
       if (typeof self.options.lazyCache === 'function') {
+        // @todo
         var result = self.options.lazyCache(filename, stat);
         if (result) {
           if (typeof result.then === 'function') {

@@ -3,9 +3,9 @@
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
-
+"use strict";
 var block = require('./block');
-var _const = require('./constant');
+var ptr = require('./ptr');
 
 /**
  * **Extends from [block](BLOCK.md)**
@@ -29,23 +29,19 @@ var namespace = block.extends('namespace');
 namespace.prototype.consume = function(ast) {
 
   var self = this;
-  this.name = ast[1].join('\\');
-  if (this.name[0] != '\\') {
-    this.name = '\\' + this.name;
-  }
+  this.name = '\\' + ast.name.name;
   this.uses = [];
   this.constants = [];
 
   /**
    * Iterator over each namespace item
    */
-  ast[2].forEach(function(item) {
-    var type = block.getASTType(item);
-    if (type === 'const') {
-      self.constants = self.constants.concat(
-        _const.fromAST(self, item)
+  ast.children.forEach(function(item) {
+    if (item.kind === 'constant') {
+      self.constants.push(
+        ptr.create('constant', self, item)
       );
-    } else if (type === 'use') {
+    } else if (item.kind === 'usegroup' || item.kind === 'useitem') {
       // @todo
     } else {
       self.consumeChild(item);

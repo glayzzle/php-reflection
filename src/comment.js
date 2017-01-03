@@ -13,15 +13,15 @@ grammar.namedTags = [
 
 /**
  * Initialize a comment declaration
- * @public 
+ * @public
  * @constructor comment
  * @property {String} summary
  * @property {tag[]} tags
  * @property {annotation[]} annotations
  */
 var comment = function(node, ast) {
-  ast = tunic.parse(ast[1], grammar);
   this.type = node.type;
+/*  ast = tunic.parse(ast[1], grammar);
   this.summary = ast.blocks[0].description;
   this.annotations = [];
   this.tags = [];
@@ -29,6 +29,7 @@ var comment = function(node, ast) {
   for (var i = 0; i < ast.length; i++) {
     this.parseBlock(node, ast[i]);
   }
+  */
 };
 
 /**

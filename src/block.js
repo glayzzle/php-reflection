@@ -56,7 +56,7 @@ block.prototype.scanForChilds = function(ast) {
     for (var i = 0; i < ast.length; i++) {
       this.consumeChild(ast[i]);
     }
-  } else {
+  } else if (ast && ast.kind) {
     this.consumeChild(ast);
   }
 };
@@ -76,15 +76,23 @@ block.prototype.consumeChild = function(ast) {
   } else {
 
     // attach last doc node to current node
-    ast.doc = this._lastDoc;
-    this._lastDoc = null;
+    if (this._lastDoc) {
+      ast.doc = this._lastDoc;
+      this._lastDoc = null;
+    }
 
     // scan a class
     if (ast.kind === 'class') {
-      this.classes.push(ptr.create('class', this, ast));
+      var cls = ptr.create('class', this, ast);
+      this.classes.push(cls);
       if (this.type !== 'namespace') {
         this.getNamespace().classes.push(cls);
       }
+    }
+
+    // consome a namespace (from inner statements like declare)
+    else if (ast.kind === 'namespace') {
+      node.create('namespace', this.getFile(), ast);
     }
 
     // consome include statements
@@ -158,7 +166,7 @@ block.prototype.consumeChild = function(ast) {
         var item = ast[k];
         if (Array.isArray(item)) {
           this.scanForChilds(item);
-        } else if (typeof item === 'object' && item.kind) {
+        } else if (item && item.kind) {
           this.consumeChild(item);
         }
       }
