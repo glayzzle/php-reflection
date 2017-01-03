@@ -10,9 +10,9 @@ var expr = require('./expr');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **
- * 
+ *
  * Represents an external link (require or include)
- * 
+ *
  * @public
  * @constructor external
  * @property {String|expr} target {@link EXPR.md|:link:} The target file to be included
@@ -26,9 +26,9 @@ var _ext = node.extends('external');
  * @protected Consumes the current ast node
  */
 _ext.prototype.consume = function(ast) {
-  this.strict = ast[1].substring(0, 7) === 'require';
-  this.once = ast[1].substring(ast[1].length - 5) === '_once';
-  this.target = expr.resolve(this, ast[2]);
+  this.strict = ast.require;
+  this.once = ast.once;
+  this.target = expr.resolve(this, ast.target);
 };
 
 /**
