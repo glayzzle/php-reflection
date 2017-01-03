@@ -29,11 +29,11 @@ var property = node.extends('property');
  * @protected Consumes the current ast node
  */
 property.prototype.consume = function(ast) {
-    this.name = ast[0];
-    this.fullName = this.parent.fullName + '::' + this.name;
-    if (ast[1]) {
-        this.value = expr.resolve(this, ast[1]);
-    }
+  this.name = ast[0];
+  this.fullName = this.parent.fullName + '::' + this.name;
+  if (ast[1]) {
+    this.value = expr.resolve(this, ast[1]);
+  }
 };
 
 module.exports = property;

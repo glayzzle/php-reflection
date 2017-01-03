@@ -22,7 +22,7 @@ var variable = node.extends('variable');
  * @protected Consumes the current ast node
  */
 variable.prototype.consume = function(ast) {
-    this.name = ast[1][1];
+  this.name = ast[1][1];
 };
 
 module.exports = variable;

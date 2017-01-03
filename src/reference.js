@@ -18,75 +18,75 @@ var node = require('./node');
  * @property {String} name The related node name
  */
 var reference = function(from, to, type) {
-    this.from = from;
-    this.type = type;
-    if (to instanceof node) {
-        this.to = to;
-        this.nodeType = to.type;
-        if (to.fullName) {
-            this.name = to.fullName;
-        } else if (to.name) {
-            this.name = to.name;
-        }
-        // link to related node
-        this.to.relations.push(this);
+  this.from = from;
+  this.type = type;
+  if (to instanceof node) {
+    this.to = to;
+    this.nodeType = to.type;
+    if (to.fullName) {
+      this.name = to.fullName;
+    } else if (to.name) {
+      this.name = to.name;
     }
+    // link to related node
+    this.to.relations.push(this);
+  }
 };
 
 /**
  * @protected Helper function to export data
  */
 reference.prototype.export = function() {
-    return {
-        nodeType: this.nodeType,
-        nodeName: this.name,
-        type: this.type
-    };
+  return {
+    nodeType: this.nodeType,
+    nodeName: this.name,
+    type: this.type
+  };
 };
 
 /**
  * Allowed reference types
  */
 var relationTypes = {
-    //
-    'class': [
-        // create a new instance
-        'new',
-        // extends the class by another class
-        'extends',
-        // use the class as a variable declaration (method parameters, @return ...)
-        'type'
-    ],
-    'interface': [
-        // when a class implements an interface
-        'implements',
-        // when another interface extends the class definition
-        'extends'
-    ],
-    'trait': [
-        // when a class or a trait uses the specified trait
-        'use'
-    ],
-    'variable': [
-        // used into an expression `$a = $a * 3`
-        'expr',
-        // used as a parameter in a method call `foo($a)`
-        'call',
-        // used as a global variable into a closure
-        'use'
-    ],
-    'function': [
-        // a function call statement
-        'call'
-    ],
-    'method': [
-        // a method call statement
-        'call',
-        // a method variation
-        'extends',
-        // a method call from child `parent::foo`
-        'super'
-    ]
+  //
+  'class': [
+    // create a new instance
+    'new',
+    // extends the class by another class
+    'extends',
+    // use the class as a variable declaration (method parameters, @return ...)
+    'type'
+  ],
+  'interface': [
+    // when a class implements an interface
+    'implements',
+    // when another interface extends the class definition
+    'extends'
+  ],
+  'trait': [
+    // when a class or a trait uses the specified trait
+    'use'
+  ],
+  'variable': [
+    // used into an expression `$a = $a * 3`
+    'expr',
+    // used as a parameter in a method call `foo($a)`
+    'call',
+    // used as a global variable into a closure
+    'use'
+  ],
+  'function': [
+    // a function call statement
+    'call'
+  ],
+  'method': [
+    // a method call statement
+    'call',
+    // a method variation
+    'extends',
+    // a method call from child `parent::foo`
+    'super'
+  ]
 };
 
 /**
@@ -97,12 +97,12 @@ var relationTypes = {
  * @return {reference}
  */
 reference.toClass = function(from, className, type) {
-    return this.toNode(
-        from,
-        from.getNamespace().resolveClassName(className),
-        'class',
-        type
-    );
+  return this.toNode(
+    from,
+    from.getNamespace().resolveClassName(className),
+    'class',
+    type
+  );
 };
 
 
@@ -114,12 +114,12 @@ reference.toClass = function(from, className, type) {
  * @return {reference}
  */
 reference.toInterface = function(from, interfaceName, type) {
-    return this.toNode(
-        from,
-        from.getNamespace().resolveClassName(interfaceName),
-        'interface',
-        type
-    );
+  return this.toNode(
+    from,
+    from.getNamespace().resolveClassName(interfaceName),
+    'interface',
+    type
+  );
 };
 
 /**
@@ -130,12 +130,12 @@ reference.toInterface = function(from, interfaceName, type) {
  * @return {reference}
  */
 reference.toTrait = function(from, interfaceName, type) {
-    return this.toNode(
-        from,
-        from.getNamespace().resolveClassName(interfaceName),
-        'interface',
-        type
-    );
+  return this.toNode(
+    from,
+    from.getNamespace().resolveClassName(interfaceName),
+    'interface',
+    type
+  );
 };
 
 /**
@@ -147,17 +147,17 @@ reference.toTrait = function(from, interfaceName, type) {
  * @return {reference}
  */
 reference.toNode = function(from, nodeName, nodeType, referenceType) {
-    if (Array.isArray(nodeName)) {
-        if (nodeName[0] === 'ns') {
-            nodeName = nodeName[1].join('\\');
-        } else {
-            nodeName = nodeName.join('\\');
-        }
+  if (Array.isArray(nodeName)) {
+    if (nodeName[0] === 'ns') {
+      nodeName = nodeName[1].join('\\');
+    } else {
+      nodeName = nodeName.join('\\');
     }
-    var result = new reference(from, nodeName, referenceType);
-    result.name = nodeName;
-    result.nodeType = nodeType;
-    return result;
+  }
+  var result = new reference(from, nodeName, referenceType);
+  result.name = nodeName;
+  result.nodeType = nodeType;
+  return result;
 };
 
 /**
@@ -165,29 +165,29 @@ reference.toNode = function(from, nodeName, nodeType, referenceType) {
  * @return {node|null}
  */
 reference.prototype.get = function() {
-    if (!this.to) this.resolve();
-    return this.to;
+  if (!this.to) this.resolve();
+  return this.to;
 };
 
 /**
  * Resolves the reference
  */
 reference.prototype.resolve = function() {
-    if (!this.to) {
-        if (!this.from || !this.nodeType || !this.name) {
-            return false;
-        }
-        var repository = this.from.getFile().repository;
-        this.to = repository.getFirstByName(this.nodeType, this.name);
-        if (this.to) {
-            // relate current relation :
-            this.to.relations.push(this);
-            return true;
-        } else {
-            return false;
-        }
+  if (!this.to) {
+    if (!this.from || !this.nodeType || !this.name) {
+      return false;
     }
-    return true;
+    var repository = this.from.getFile().repository;
+    this.to = repository.getFirstByName(this.nodeType, this.name);
+    if (this.to) {
+      // relate current relation :
+      this.to.relations.push(this);
+      return true;
+    } else {
+      return false;
+    }
+  }
+  return true;
 };
 
 module.exports = reference;

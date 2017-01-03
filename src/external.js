@@ -26,9 +26,9 @@ var _ext = node.extends('external');
  * @protected Consumes the current ast node
  */
 _ext.prototype.consume = function(ast) {
-    this.strict = ast[1].substring(0, 7) === 'require';
-    this.once = ast[1].substring(ast[1].length - 5) === '_once';
-    this.target = expr.resolve(this, ast[2]);
+  this.strict = ast[1].substring(0, 7) === 'require';
+  this.once = ast[1].substring(ast[1].length - 5) === '_once';
+  this.target = expr.resolve(this, ast[2]);
 };
 
 /**
@@ -36,8 +36,6 @@ _ext.prototype.consume = function(ast) {
  * @todo
  * @return {file} {@link FILE.md|:link:}
  */
-_ext.prototype.getTargetFile = function() {
-
-};
+_ext.prototype.getTargetFile = function() {};
 
 module.exports = _ext;

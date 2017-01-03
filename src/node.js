@@ -22,41 +22,41 @@ var comment = require('./comment');
  */
 var node = function(parent, ast) {
 
-    if (!parent) return;
+  if (!parent) return;
 
-    this.parent = parent;
-    if (this.constructor.name.length > 0) {
-        this.type = this.constructor.name;
-    }
+  this.parent = parent;
+  if (this.constructor.name.length > 0) {
+    this.type = this.constructor.name;
+  }
 
-    this.relations = [];
+  this.relations = [];
 
-    // check if contains a position node
-    if (ast[0] === 'position') {
+  // check if contains a position node
+  if (ast[0] === 'position') {
+    this.position = new position(ast);
+    ast = ast[3];
+  }
+  // check if doc block with inner component
+  if (ast[0] === 'doc' && ast.length === 3) {
+    this.doc = comment.create(this, ast);
+    ast = ast[2];
+    if (this.position) {
+      // attach position node to comment
+      this.doc.position = this.position;
+      if (ast[0] === 'position') {
         this.position = new position(ast);
         ast = ast[3];
+      } else {
+        delete this.position;
+      }
     }
-    // check if doc block with inner component
-    if (ast[0] === 'doc' && ast.length === 3) {
-        this.doc = comment.create(this, ast);
-        ast = ast[2];
-        if (this.position) {
-            // attach position node to comment
-            this.doc.position = this.position;
-            if (ast[0] === 'position') {
-                this.position = new position(ast);
-                ast = ast[3];
-            } else {
-                delete this.position;
-            }
-        }
-    }
+  }
 
-    if (this.type !== 'file') {
-        // automatic reference
-        this.getFile().nodes.push(this);
-    }
-    this.consume(ast);
+  if (this.type !== 'file') {
+    // automatic reference
+    this.getFile().nodes.push(this);
+  }
+  this.consume(ast);
 };
 
 
@@ -66,13 +66,13 @@ var node = function(parent, ast) {
  * @return {node[]}
  */
 node.prototype.getByRelationType = function(type) {
-    var nodes = [];
-    this.relations.forEach(function(item) {
-        if (item.type === type) {
-            nodes.push(item.from);
-        }
-    });
-    return nodes;
+  var nodes = [];
+  this.relations.forEach(function(item) {
+    if (item.type === type) {
+      nodes.push(item.from);
+    }
+  });
+  return nodes;
 };
 
 /**
@@ -80,14 +80,14 @@ node.prototype.getByRelationType = function(type) {
  * @return {file} {@link FILE.md|:link:}
  */
 node.prototype.getFile = function() {
-    if (!this._file) {
-        if (this.type === 'file') {
-            this._file = this;
-        } else {
-            this._file = this.parent.getFile();
-        }
+  if (!this._file) {
+    if (this.type === 'file') {
+      this._file = this;
+    } else {
+      this._file = this.parent.getFile();
     }
-    return this._file;
+  }
+  return this._file;
 };
 
 /**
@@ -95,13 +95,13 @@ node.prototype.getFile = function() {
  * @return {namespace} {@link NAMESPACE.md|:link:}
  */
 node.prototype.getNamespace = function() {
-    if (this.type === 'namespace') {
-        return this;
-    }
-    if (!this._namespace) {
-        this._namespace = this.parent.getNamespace();
-    }
-    return this._namespace;
+  if (this.type === 'namespace') {
+    return this;
+  }
+  if (!this._namespace) {
+    this._namespace = this.parent.getNamespace();
+  }
+  return this._namespace;
 };
 
 /**
@@ -109,10 +109,10 @@ node.prototype.getNamespace = function() {
  * @return {block} {@link BLOCK.md|:link:}
  */
 node.prototype.getBlock = function() {
-    if (this.parent) {
-        return this.parent.getBlock();
-    }
-    return null;
+  if (this.parent) {
+    return this.parent.getBlock();
+  }
+  return null;
 };
 
 /**
@@ -128,101 +128,96 @@ node.prototype.consume = function(ast) {};
  */
 var deshydate = function(self) {
 
-    if (!self) return null;
+  if (!self) return null;
 
-    // primitives
-    if (typeof self === 'string') return self;
-    if (typeof self.getTime === 'function') return self.getTime();
-    if (typeof self === 'boolean') return self;
-    if (typeof self === 'number') return self;
+  // primitives
+  if (typeof self === 'string') return self;
+  if (typeof self.getTime === 'function') return self.getTime();
+  if (typeof self === 'boolean') return self;
+  if (typeof self === 'number') return self;
 
-    var result = null;
+  var result = null;
 
-    // try to export array
-    if (Array.isArray(self)) {
-        result = [];
-        for(var i = 0; i < self.length; i++) {
-            var n = deshydate(self[i]);
-            if (n) {
-                result.push(n);
-            }
+  // try to export array
+  if (Array.isArray(self)) {
+    result = [];
+    for (var i = 0; i < self.length; i++) {
+      var n = deshydate(self[i]);
+      if (n) {
+        result.push(n);
+      }
+    }
+    return result.length > 0 ? result : null;
+  }
+
+  // objects filter
+  if (typeof self === 'object' && !(self instanceof node)) {
+    if (typeof self.export === 'function') {
+      return self.export();
+    } else {
+      return null;
+    }
+  }
+
+  // try to export object
+  result = {};
+  for (var k in self) {
+    if (k === 'parent' || k[0] === '_') continue;
+    var n = self[k];
+    if (n instanceof node) {
+      result[k] = n.export();
+      if (!result[k]) {
+        delete result[k];
+      }
+    } else if (Array.isArray(n)) {
+      if (n.length > 0) {
+        result[k] = [];
+        n.forEach(function(item) {
+          item = deshydate(item);
+          if (item) {
+            result[k].push(item);
+          }
+        });
+        if (result[k].length === 0) {
+          delete result[k];
         }
-        return result.length > 0 ? result : null;
+      }
+    } else if (typeof n !== 'function') {
+      var item = deshydate(n);
+      if (item)
+        result[k] = item;
     }
-
-    // objects filter
-    if (typeof self === 'object' && !(self instanceof node)) {
-        if (typeof self.export === 'function') {
-            return self.export();
-        } else {
-            return null;
-        }
-    }
-
-    // try to export object
-    result = {};
-    for(var k in self) {
-        if (k === 'parent' || k[0] === '_') continue;
-        var n = self[k];
-        if (n instanceof node) {
-            result[k] = n.export();
-            if (!result[k]) {
-                delete result[k];
-            }
-        } else if (Array.isArray(n)) {
-            if (n.length > 0) {
-                result[k] = [];
-                n.forEach(function(item) {
-                    item = deshydate(item);
-                    if (item) {
-                        result[k].push(item);
-                    }
-                });
-                if (result[k].length === 0) {
-                    delete result[k];
-                }
-            }
-        } else if (typeof n !== 'function') {
-            var item = deshydate(n);
-            if (item) result[k] = item;
-        } 
-    }
-    if (Object.keys(result).length > 0) {
-        return result;
-    }
-    return null;
+  }
+  if (Object.keys(result).length > 0) {
+    return result;
+  }
+  return null;
 };
 
 /**
  * @private
  * Take an object and create its instances
  */
-var hydrate = function(object) {
-
-};
+var hydrate = function(object) {};
 
 /**
  * Node helper for importing data
  * @todo to implement
  */
-node.import = function(repository, data) {
-
-};
+node.import = function(repository, data) {};
 
 /**
  * Node helper for importing data
  * @todo to implement
  */
-node.prototype.refresh = function() {
-
-};
+node.prototype.refresh = function() {};
 
 /**
  * Gets a POJO representation of the current node that can be serialized / {@link #import|unserialized}
  * @return {Object|null}
  */
 node.prototype.export = function() {
-    return deshydate(this);
+  return deshydate(this);
 };
 
 
@@ -270,34 +265,35 @@ node.builders = {};
  * @throws {Error} if the specified type is not fond
  */
 node.create = function(type, parent, ast) {
-    if (!node.builders.hasOwnProperty(type)) {
-        require('./' + type);
-    }
-    if (!node.builders.hasOwnProperty(type)) {
-        throw new Error('"'+type+'" is not found');
-    }
+  if (!node.builders.hasOwnProperty(type)) {
+    require('./' + type);
+  }
+  if (!node.builders.hasOwnProperty(type)) {
+    throw new Error('"' + type + '" is not found');
+  }
 
-    return new node.builders[type](parent, ast);
+  return new node.builders[type](parent, ast);
 };
 
-/** @private recursive extends */ 
+/** @private recursive extends */
 function declareExtends(base) {
-    return function(ctor) {
-        var _super = ctor;
-        if (typeof ctor !== 'function') {
-            _super = function(parent, ast) {
-                this.type = ctor;
-                base.apply(this, arguments);
-            };
-            node.builders[ctor] = _super;
-        } else {
-            node.builders[_super.name] = _super;
-        }
-        // recursive extends
-        _super.extends = declareExtends(_super);
-        inherits(_super, base);
-        return _super;
-    };
-};
+  return function(ctor) {
+    var _super = ctor;
+    if (typeof ctor !== 'function') {
+      _super = function(parent, ast) {
+        this.type = ctor;
+        base.apply(this, arguments);
+      };
+      node.builders[ctor] = _super;
+    } else {
+      node.builders[_super.name] = _super;
+    }
+    // recursive extends
+    _super.extends = declareExtends(_super);
+    inherits(_super, base);
+    return _super;
+  };
+}
+;
 
 module.exports = node;

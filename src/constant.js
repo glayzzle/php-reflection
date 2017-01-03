@@ -26,19 +26,19 @@ var _const = node.extends('constant');
  * @protected Consumes the current ast node
  */
 _const.prototype.consume = function(ast) {
-    this.name = ast[0];
+  this.name = ast[0];
 
-    if (this.parent.type === 'class') {
-        this.fullName = this.parent.fullName + '::' + this.name;
-    } else if (this.parent.type === 'namespace') {
-        this.fullName = this.parent.name + '::' + this.name;
-    } else {
-        this.fullName = this.name;
-    }
+  if (this.parent.type === 'class') {
+    this.fullName = this.parent.fullName + '::' + this.name;
+  } else if (this.parent.type === 'namespace') {
+    this.fullName = this.parent.name + '::' + this.name;
+  } else {
+    this.fullName = this.name;
+  }
 
-    if (ast.length === 2) {
-        this.value = expr.resolve(this, ast[1]);
-    }
+  if (ast.length === 2) {
+    this.value = expr.resolve(this, ast[1]);
+  }
 };
 
 /**
@@ -46,15 +46,15 @@ _const.prototype.consume = function(ast) {
  * @return {constant[]}
  */
 _const.fromAST = function(parent, ast) {
-    var result = [];
-    if (ast[0] === 'const' && ast.length === 2) {
-        ast[1].forEach(function(item) {
-            result.push(
-                ptr.create('constant', parent, item)
-            );
-        });
-    }
-    return result;
+  var result = [];
+  if (ast[0] === 'const' && ast.length === 2) {
+    ast[1].forEach(function(item) {
+      result.push(
+        ptr.create('constant', parent, item)
+      );
+    });
+  }
+  return result;
 };
 
 module.exports = _const;

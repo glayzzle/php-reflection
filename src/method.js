@@ -30,9 +30,9 @@ var method = block.extends('method');
  * @protected Consumes the current ast node
  */
 method.prototype.consume = function(ast) {
-    this.name = ast[1];
-    this.fullName = this.parent.fullName + '::' + this.name;
-    // @todo
+  this.name = ast[1];
+  this.fullName = this.parent.fullName + '::' + this.name;
+// @todo
 };
 
 module.exports = method;

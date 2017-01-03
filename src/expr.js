@@ -21,8 +21,8 @@ var expr = block.extends('expr');
  * @protected Consumes the current ast node
  */
 expr.prototype.consume = function(ast) {
-    this.ast = ast;
-    this.scanForChilds(ast);
+  this.ast = ast;
+  this.scanForChilds(ast);
 };
 
 
@@ -32,30 +32,30 @@ expr.prototype.consume = function(ast) {
  * @todo
  */
 expr.prototype.toPHP = function() {
-    return null;
+  return null;
 };
 
 /**
  * @return {expr|Boolean|String|Number}
  */
 expr.resolve = function(parent, ast) {
-    var item = block.getAST(ast);
-    if (item[0] === 'string') {
-        return item[1];
-    } else if (item[0] === 'constant') {
-        var cVal = item[1].toLowerCase();
-        if (cVal === 'true') {
-            return true;
-        } else if (cVal === 'false') {
-            return false;
-        } else {
-            return new expr(parent, ast);
-        }
-    } else if (item[0] === 'number') {
-        return item[1];
+  var item = block.getAST(ast);
+  if (item[0] === 'string') {
+    return item[1];
+  } else if (item[0] === 'constant') {
+    var cVal = item[1].toLowerCase();
+    if (cVal === 'true') {
+      return true;
+    } else if (cVal === 'false') {
+      return false;
     } else {
-        return new expr(parent, ast);
+      return new expr(parent, ast);
     }
+  } else if (item[0] === 'number') {
+    return item[1];
+  } else {
+    return new expr(parent, ast);
+  }
 };
 
 module.exports = expr;

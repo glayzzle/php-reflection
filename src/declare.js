@@ -23,15 +23,15 @@ var declare = block.extends('declare');
  */
 declare.prototype.consume = function(ast) {
 
-    // @fixme object are not exported as cache
-    var options = {}; 
-    ast[1].forEach(function(item) {
-        options[item[0]] = item[1];
-    });
-    this.options = options;
-    
-    // Iterator over each namespace item
-    this.scanForChilds(ast[2]);
+  // @fixme object are not exported as cache
+  var options = {};
+  ast[1].forEach(function(item) {
+    options[item[0]] = item[1];
+  });
+  this.options = options;
+
+  // Iterator over each namespace item
+  this.scanForChilds(ast[2]);
 };
 
 module.exports = declare;

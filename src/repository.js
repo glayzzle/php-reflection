@@ -34,74 +34,74 @@ var node = require('./node');
  * @property {Object} counter
  */
 var repository = function(directory, options) {
-    // direct function call
-    if (typeof this === 'function') {
-        return new this(directory, options);
+  // direct function call
+  if (typeof this === 'function') {
+    return new this(directory, options);
+  }
+  this.files = {};
+  // options
+  this.options = {
+    // list of excluded directory names
+    exclude: ['.git', '.svn', 'node_modules'],
+    // list of included directories
+    include: ['./'],
+    // list of php extension files
+    ext: [
+      '*.php', '*.php3', '*.php5', '*.phtml',
+      '*.inc', '*.class', '*.req'
+    ],
+    // extract vars from each scope (functions, classes)
+    // may use memory but could be usefull for resolving
+    // their type (on autocompletion)
+    scanVars: true,
+    // extract scopes from
+    scanExpr: true,
+    // default parsing encoding
+    encoding: 'utf8',
+    // should spawn a worker process to avoir blocking
+    // the main loop (may be slower with small projects or single cpu)
+    forkWorker: require('os').cpus().length > 1,
+    // use the file mtime property to check changes
+    cacheByFileDate: true,
+    // use the file size to detect changes
+    cacheByFileSize: false,
+    // use an hash algorithm to detect changes
+    // if low cache hit, may slow down the parsing
+    cacheByFileHash: true,
+    // avoid to load the full cache repository
+    // just loads files when they are requested
+    // define a function that receives the filename in argumen
+    // and return the file cached structure
+    lazyCache: false
+  };
+  // extends options
+  if (options && typeof options === 'object') {
+    for (var k in options) {
+      this.options[k] = options[k];
     }
-    this.files = {};
-    // options
-    this.options = {
-        // list of excluded directory names
-        exclude: ['.git', '.svn', 'node_modules'],
-        // list of included directories
-        include: ['./'],
-        // list of php extension files
-        ext: [
-            '*.php','*.php3','*.php5','*.phtml',
-            '*.inc','*.class','*.req'
-        ],
-        // extract vars from each scope (functions, classes)
-        // may use memory but could be usefull for resolving
-        // their type (on autocompletion)
-        scanVars: true,
-        // extract scopes from
-        scanExpr: true,
-        // default parsing encoding
-        encoding: 'utf8',
-        // should spawn a worker process to avoir blocking
-        // the main loop (may be slower with small projects or single cpu)
-        forkWorker: require('os').cpus().length > 1,
-        // use the file mtime property to check changes
-        cacheByFileDate: true,
-        // use the file size to detect changes
-        cacheByFileSize: false,
-        // use an hash algorithm to detect changes
-        // if low cache hit, may slow down the parsing
-        cacheByFileHash: true,
-        // avoid to load the full cache repository
-        // just loads files when they are requested
-        // define a function that receives the filename in argumen
-        // and return the file cached structure
-        lazyCache: false
-    };
-    // extends options
-    if (options && typeof options === 'object') {
-        for(var k in options) {
-            this.options[k] = options[k];
-        }
-    }
+  }
 
-    // prepare extension filters
-    this._regex = [];
-    for(var i = 0; i < this.options.ext.length; i++) {
-        this._regex.push(
-            globToRegExp(
-                this.options.ext[i]
-            )
-        );
-    }
+  // prepare extension filters
+  this._regex = [];
+  for (var i = 0; i < this.options.ext.length; i++) {
+    this._regex.push(
+      globToRegExp(
+        this.options.ext[i]
+      )
+    );
+  }
 
-    // counting things
-    this.counter = {
-        total: 0,
-        loading: 0,
-        loaded: 0,
-        error: 0
-    };
-    this.directory = path.resolve(directory);
+  // counting things
+  this.counter = {
+    total: 0,
+    loading: 0,
+    loaded: 0,
+    error: 0
+  };
+  this.directory = path.resolve(directory);
 
-    // init EventEmitter
-    EventEmitter.call(this);
+  // init EventEmitter
+  EventEmitter.call(this);
 };
 util.inherits(repository, EventEmitter);
 
@@ -151,92 +151,96 @@ util.inherits(repository, EventEmitter);
  * @fires repository#cache
  */
 repository.prototype.scan = function(directory) {
-    var pending = [];
-    var self = this;
-    if (!directory) {
-        directory = this.options.include;
-    }
-    if (Array.isArray(directory)) {
-        directory.forEach(function(dir) {
-            if (dir) {
-                pending.push(self.scan(dir));
-            }
-        });
-        return Promise.all(pending);
-    }
-    var root = path.resolve(this.directory, directory);
-    return new Promise(function(done, reject) {
-        fs.readdir(root, function(err, files) {
-            if (err) return reject(err);
-            files.forEach(function(file) {
-                pending.push(new Promise(function(done, reject) {
-                    fs.stat(path.resolve(root, file), function(err, stat) {
-                        if (err) reject(err);
-                        var filename = path.join(directory, file);
-
-                        if (stat.isDirectory()) {
-                            if (
-                                self.options.exclude.indexOf(file) > -1 ||
-                                self.options.exclude.indexOf(filename) > -1
-                            ) {
-                                return done(); // ignore path
-                            } else {
-                                self.scan(filename).then(done, reject);
-                            }
-                        } else {
-                            var matched = false;
-                            for(var i = 0; i < self._regex.length; i++) {
-                                if (self._regex[i].test(file)) {
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                            // ignore file (due to pattern)
-                            if (!matched) return done();
-                            // handle in-memory cache
-                            if (self.files.hasOwnProperty(filename)) {
-                                // check if need to parse again
-                                if (
-                                  self.options.cacheByFileDate &&
-                                  self.files[filename].mtime === stat.mtime.getTime()
-                                ) {
-                                    self.emit('cache', { name: filename });
-                                    return done(self.files[filename]);
-                                }
-                                // same size and
-                                if (
-                                    self.options.cacheByFileSize &&
-                                    stat.size === self.files[filename].size
-                                ) {
-                                    self.emit('cache', { name: filename });
-                                    return done(self.files[filename]);
-                                }
-                            }
-                            self.counter.total ++;
-                            self.counter.loading ++;
-                            self.parse(
-                                filename,
-                                self.options.encoding,
-                                stat
-                            ).then(function() {
-                                self.counter.loading --;
-                                self.counter.loaded ++;
-                                self.emit('progress', self.counter);
-                                done();
-                            }, function(e) {
-                                self.counter.loading --;
-                                self.counter.total --;
-                                self.counter.error ++;
-                                self.emit('progress', self.counter);
-                                reject(e);
-                            });
-                        }
-                    });
-                }));
-            });
-            Promise.all(pending).then(done, reject);
-        });
+  var pending = [];
+  var self = this;
+  if (!directory) {
+    directory = this.options.include;
+  }
+  if (Array.isArray(directory)) {
+    directory.forEach(function(dir) {
+      if (dir) {
+        pending.push(self.scan(dir));
+      }
     });
+    return Promise.all(pending);
+  }
+  var root = path.resolve(this.directory, directory);
+  return new Promise(function(done, reject) {
+    fs.readdir(root, function(err, files) {
+      if (err) return reject(err);
+      files.forEach(function(file) {
+        pending.push(new Promise(function(done, reject) {
+          fs.stat(path.resolve(root, file), function(err, stat) {
+            if (err) reject(err);
+            var filename = path.join(directory, file);
+
+            if (stat.isDirectory()) {
+              if (
+                self.options.exclude.indexOf(file) > -1 ||
+                self.options.exclude.indexOf(filename) > -1
+              ) {
+                return done(); // ignore path
+              } else {
+                self.scan(filename).then(done, reject);
+              }
+            } else {
+              var matched = false;
+              for (var i = 0; i < self._regex.length; i++) {
+                if (self._regex[i].test(file)) {
+                  matched = true;
+                  break;
+                }
+              }
+              // ignore file (due to pattern)
+              if (!matched) return done();
+              // handle in-memory cache
+              if (self.files.hasOwnProperty(filename)) {
+                // check if need to parse again
+                if (
+                  self.options.cacheByFileDate &&
+                  self.files[filename].mtime === stat.mtime.getTime()
+                ) {
+                  self.emit('cache', {
+                    name: filename
+                  });
+                  return done(self.files[filename]);
+                }
+                // same size and
+                if (
+                  self.options.cacheByFileSize &&
+                  stat.size === self.files[filename].size
+                ) {
+                  self.emit('cache', {
+                    name: filename
+                  });
+                  return done(self.files[filename]);
+                }
+              }
+              self.counter.total++;
+              self.counter.loading++;
+              self.parse(
+                filename,
+                self.options.encoding,
+                stat
+              ).then(function() {
+                self.counter.loading--;
+                self.counter.loaded++;
+                self.emit('progress', self.counter);
+                done();
+              }, function(e) {
+                self.counter.loading--;
+                self.counter.total--;
+                self.counter.error++;
+                self.emit('progress', self.counter);
+                reject(e);
+              });
+            }
+          });
+        }));
+      });
+      Promise.all(pending).then(done, reject);
+    });
+  });
 };
 
 /**
@@ -251,94 +255,99 @@ repository.prototype.scan = function(directory) {
  * @fires repository#cache
  */
 repository.prototype.parse = function(filename, encoding, stat) {
-    if (!this.files.hasOwnProperty(filename)) {
-        if (!encoding) encoding = this.options.encoding;
-        var self = this;
-        this.emit('read', { name: filename });
-        this.files[filename] = new Promise(function(done, reject) {
+  if (!this.files.hasOwnProperty(filename)) {
+    if (!encoding)
+      encoding = this.options.encoding;
+    var self = this;
+    this.emit('read', {
+      name: filename
+    });
+    this.files[filename] = new Promise(function(done, reject) {
 
-            if (typeof self.options.lazyCache === 'function') {
-                var result = self.options.lazyCache(filename, stat);
-                if (result) {
-                    if (typeof result.then === 'function') {
+      if (typeof self.options.lazyCache === 'function') {
+        var result = self.options.lazyCache(filename, stat);
+        if (result) {
+          if (typeof result.then === 'function') {
 
-                    } else {
-                        
-                    }
-                }
-            }
+          } else {
 
-            if (self.options.forkWorker) {
-                // reads from a forked process
-                require('./worker')(filename, null, self.options).then(function(cache) {
-                    if (cache.hit) {
-                        self.emit('cache', { name: filename });
-                    } else {
-                        self.files[filename] = file.import(self, cache);
-                        self.files[filename].refresh();
-                        self.emit('parse', {
-                            name: filename,
-                            file: self.files[filename]
-                        });
-                    }
-                    return done(self.files[filename]);
-                }, function(e) {
-                    delete self.files[filename];
-                    self.emit('error', { 
-                        name: filename,
-                        error: e
-                    });
-                    return reject(e);
-                });
-            } else {
-                // reads from the main process
-                fs.readFile(
-                    path.resolve(self.directory, filename),
-                    encoding, function(err, data) {
-                    if (!err)  {
-                        try {
-                            var reader = new parser({
-                                parser: {
-                                    locations: true,
-                                    extractDoc: true,
-                                    suppressErrors: true
-                                }
-                            });
-                            data = data.toString(encoding);
-                            var ast = reader.parseCode(data);
-                        } catch(e) {
-                            err = e;
-                        }
-                    }
-                    if (err) {
-                        delete self.files[filename];
-                        self.emit('error', err);
-                        return reject(err);
-                    } else {
-                        try {
-                            self.files[filename] = new file(self, filename, ast);
-                            self.files[filename].refresh();
-                            if (self.options.cacheByFileSize) {
-                                self.files[filename].size = data.length;
-                            }
-                            if (self.options.cacheByFileDate) {
-                                self.files[filename].mtime = data.length;
-                            }
+          }
+        }
+      }
 
-                            return done(self.files[filename]);
-                        } catch(e) {
-                            delete self.files[filename];
-                            self.emit('error', e);
-                            return reject(e);
-                        }
-                    }
-                });
-            }
+      if (self.options.forkWorker) {
+        // reads from a forked process
+        require('./worker')(filename, null, self.options).then(function(cache) {
+          if (cache.hit) {
+            self.emit('cache', {
+              name: filename
+            });
+          } else {
+            self.files[filename] = file.import(self, cache);
+            self.files[filename].refresh();
+            self.emit('parse', {
+              name: filename,
+              file: self.files[filename]
+            });
+          }
+          return done(self.files[filename]);
+        }, function(e) {
+          delete self.files[filename];
+          self.emit('error', {
+            name: filename,
+            error: e
+          });
+          return reject(e);
         });
-        return this.files[filename];
-    } else {
-        return this.refresh(filename, encoding, stat);
-    }
+      } else {
+        // reads from the main process
+        fs.readFile(
+          path.resolve(self.directory, filename),
+          encoding, function(err, data) {
+            if (!err) {
+              try {
+                var reader = new parser({
+                  parser: {
+                    locations: true,
+                    extractDoc: true,
+                    suppressErrors: true
+                  }
+                });
+                data = data.toString(encoding);
+                var ast = reader.parseCode(data);
+              } catch (e) {
+                err = e;
+              }
+            }
+            if (err) {
+              delete self.files[filename];
+              self.emit('error', err);
+              return reject(err);
+            } else {
+              try {
+                self.files[filename] = new file(self, filename, ast);
+                self.files[filename].refresh();
+                if (self.options.cacheByFileSize) {
+                  self.files[filename].size = data.length;
+                }
+                if (self.options.cacheByFileDate) {
+                  self.files[filename].mtime = data.length;
+                }
+
+                return done(self.files[filename]);
+              } catch (e) {
+                delete self.files[filename];
+                self.emit('error', e);
+                return reject(e);
+              }
+            }
+          });
+      }
+    });
+    return this.files[filename];
+  } else {
+    return this.refresh(filename, encoding, stat);
+  }
 };
 
 /**
@@ -348,18 +357,19 @@ repository.prototype.parse = function(filename, encoding, stat) {
  * @return {node[]} {@link NODE.md|:link:}
  */
 repository.prototype.getByType = function(type, limit) {
-    if (!limit || limit < 1) limit = 100;
-    var result = [];
-    for(var k in this.files) {
-        if (this.files[k] instanceof file) {
-            result = result.concat(this.files[k].getByType(type));
-            if (result.length > limit) {
-                result = result.slice(0, limit);
-                break;
-            }
-        }
+  if (!limit || limit < 1)
+    limit = 100;
+  var result = [];
+  for (var k in this.files) {
+    if (this.files[k] instanceof file) {
+      result = result.concat(this.files[k].getByType(type));
+      if (result.length > limit) {
+        result = result.slice(0, limit);
+        break;
+      }
     }
-    return result;
+  }
+  return result;
 }
 
 /**
@@ -369,16 +379,16 @@ repository.prototype.getByType = function(type, limit) {
  * @return {node[]} {@link NODE.md|:link:}
  */
 repository.prototype.getByName = function(type, name, limit) {
-    var result = [];
-    for(var k in this.files) {
-        if (this.files[k] instanceof file) {
-            var items = this.files[k].getByName(type, name, limit);
-            if (items.length > 0) {
-                result = result.concat(items);
-            }
-        }
+  var result = [];
+  for (var k in this.files) {
+    if (this.files[k] instanceof file) {
+      var items = this.files[k].getByName(type, name, limit);
+      if (items.length > 0) {
+        result = result.concat(items);
+      }
     }
-    return result;
+  }
+  return result;
 };
 
 /**
@@ -388,14 +398,14 @@ repository.prototype.getByName = function(type, name, limit) {
  * @return {node|null} {@link NODE.md|:link:}
  */
 repository.prototype.getFirstByName = function(type, name) {
-    var result = null;
-    for(var k in this.files) {
-        if (this.files[k] instanceof file) {
-            result = this.files[k].getFirstByName(type, name);
-            if (result) return result;
-        }
+  var result = null;
+  for (var k in this.files) {
+    if (this.files[k] instanceof file) {
+      result = this.files[k].getFirstByName(type, name);
+      if (result) return result;
     }
-    return null;
+  }
+  return null;
 };
 
 /**
@@ -412,34 +422,35 @@ repository.prototype.getFirstByName = function(type, name) {
  * @return {namespace|null} {@link NAMESPACE.md|:link:}
  */
 repository.prototype.getNamespace = function(name) {
-    if (name[0] !== '\\') name = '\\' + name;
-    if (name.length > 1 && name.substring(-1) === '\\') {
-        name = name.substring(0, name.length - 1);
-    }
-    var items = this.getByName('namespace', name);
-    if (items.length > 0) {
-        var result = node.create('namespace');
-        items.forEach(function(ns) {
-            if (ns.constants.length > 0) {
-                result.constants = result.constants.concat(ns.constants);
-            }
-            if (ns.functions.length > 0) {
-                result.functions = result.functions.concat(ns.functions);
-            }
-            if (ns.classes.length > 0) {
-                result.classes = result.classes.concat(ns.classes);
-            }
-            if (ns.traits.length > 0) {
-                result.traits = result.traits.concat(ns.traits);
-            }
-            if (ns.interfaces.length > 0) {
-                result.interfaces = result.interfaces.concat(ns.interfaces);
-            }
-        });
-        return result;
-    } else {
-        return null;
-    }
+  if (name[0] !== '\\')
+    name = '\\' + name;
+  if (name.length > 1 && name.substring(-1) === '\\') {
+    name = name.substring(0, name.length - 1);
+  }
+  var items = this.getByName('namespace', name);
+  if (items.length > 0) {
+    var result = node.create('namespace');
+    items.forEach(function(ns) {
+      if (ns.constants.length > 0) {
+        result.constants = result.constants.concat(ns.constants);
+      }
+      if (ns.functions.length > 0) {
+        result.functions = result.functions.concat(ns.functions);
+      }
+      if (ns.classes.length > 0) {
+        result.classes = result.classes.concat(ns.classes);
+      }
+      if (ns.traits.length > 0) {
+        result.traits = result.traits.concat(ns.traits);
+      }
+      if (ns.interfaces.length > 0) {
+        result.interfaces = result.interfaces.concat(ns.interfaces);
+      }
+    });
+    return result;
+  } else {
+    return null;
+  }
 };
 
 
@@ -449,8 +460,8 @@ repository.prototype.getNamespace = function(name) {
  * @return {repository}
  */
 repository.prototype.cleanAll = function() {
-    this.files = {};
-    return this;
+  this.files = {};
+  return this;
 };
 
 /**
@@ -459,13 +470,13 @@ repository.prototype.cleanAll = function() {
  * @return {repository}
  */
 repository.prototype.remove = function(filename) {
-    if (this.files.hasOwnProperty(filename)) {
-        if (this.files[filename] instanceof file) {
-            this.files[filename].remove();
-        }
-        delete this.files[filename];
+  if (this.files.hasOwnProperty(filename)) {
+    if (this.files[filename] instanceof file) {
+      this.files[filename].remove();
     }
-    return this;
+    delete this.files[filename];
+  }
+  return this;
 };
 
 /**
@@ -475,12 +486,12 @@ repository.prototype.remove = function(filename) {
  * @return {repository}
  */
 repository.prototype.each = function(cb) {
-    for(var name in this.files) {
-        if (this.files[name] instanceof file) {
-            cb.apply(this, this.files[name], name);
-        }
+  for (var name in this.files) {
+    if (this.files[name] instanceof file) {
+      cb.apply(this, this.files[name], name);
     }
-    return this;
+  }
+  return this;
 };
 
 /**
@@ -489,14 +500,14 @@ repository.prototype.each = function(cb) {
  * @return {scope}
  */
 repository.prototype.scope = function(filename, offset) {
-    if (
-        this.files.hasOwnProperty(filename) && 
-        this.files[filename] instanceof file
-    ) {
-        return this.files[filename].getScope(offset);
-    } else {
-        return null;
-    }
+  if (
+    this.files.hasOwnProperty(filename) &&
+    this.files[filename] instanceof file
+  ) {
+    return this.files[filename].getScope(offset);
+  } else {
+    return null;
+  }
 };
 
 /**
@@ -506,14 +517,14 @@ repository.prototype.scope = function(filename, offset) {
  * @return {file|null} Returns the file if exists, or null if not defined
  */
 repository.prototype.get = function(filename) {
-    if (
-        this.files.hasOwnProperty(filename) && 
-        this.files[filename] instanceof file
-    ) {
-        return this.files[filename];
-    } else {
-        return null;
-    }
+  if (
+    this.files.hasOwnProperty(filename) &&
+    this.files[filename] instanceof file
+  ) {
+    return this.files[filename];
+  } else {
+    return null;
+  }
 };
 
 
@@ -524,34 +535,34 @@ repository.prototype.get = function(filename) {
  * @return {repository|object} Retrieves the cache (if data not set)
  */
 repository.prototype.cache = function(data) {
-    if (typeof data !== 'undefined') {
-        // sets the data
-        this.files = {};
-        if (data) {
-            this.directory = data.directory;
-            // creating files from structure
-            for(var name in data.files) {
-                this.files[name] = file.import(this, data[name]);
-            }
-            // rebuild object links
-            for(var name in this.files) {
-                this.files[name].refresh();
-            }
-        }
-        return this;
-    } else {
-        // gets the data
-        var result = {
-            directory: this.directory,
-            files: {}
-        };
-        for(var name in this.files) {
-            if (this.files[name] instanceof file) {
-                result.files[name] = this.files[name].export();
-            }
-        }
-        return result;
+  if (typeof data !== 'undefined') {
+    // sets the data
+    this.files = {};
+    if (data) {
+      this.directory = data.directory;
+      // creating files from structure
+      for (var name in data.files) {
+        this.files[name] = file.import(this, data[name]);
+      }
+      // rebuild object links
+      for (var name in this.files) {
+        this.files[name].refresh();
+      }
     }
+    return this;
+  } else {
+    // gets the data
+    var result = {
+      directory: this.directory,
+      files: {}
+    };
+    for (var name in this.files) {
+      if (this.files[name] instanceof file) {
+        result.files[name] = this.files[name].export();
+      }
+    }
+    return result;
+  }
 };
 
 /**
@@ -562,12 +573,12 @@ repository.prototype.cache = function(data) {
  * @return {repository}
  */
 repository.prototype.rename = function(oldName, newName) {
-    if (this.files.hasOwnProperty(oldName)) {
-        this.files[newName] = this.files[oldName];
-        this.files[newName].name = newName;
-        delete this.files[oldName];
-    }
-    return this;
+  if (this.files.hasOwnProperty(oldName)) {
+    this.files[newName] = this.files[oldName];
+    this.files[newName].name = newName;
+    delete this.files[oldName];
+  }
+  return this;
 };
 
 
@@ -577,24 +588,23 @@ repository.prototype.rename = function(oldName, newName) {
  * @return {Promise}
  */
 repository.prototype.refresh = function(filename, encoding, stat) {
-    if (!this.files.hasOwnProperty(filename)) {
-        return this.parse(filename, encoding, stat);
-    } else {
-        if (this.files[name] instanceof Promise) {
-            return this.files[name];
-        }
-        var crc32 = this.options.cacheByFileHash ? 
-            this.files[filename].crc32 : null
-        ;
-        this.files[filename] = new Promise(function(done, reject) {
-            fs.readFile(
-                path.join(self.directory, filename),
-                encoding, function(err, data) {
-                // @todo
-            });
-        });
-        return this.files[filename];
+  if (!this.files.hasOwnProperty(filename)) {
+    return this.parse(filename, encoding, stat);
+  } else {
+    if (this.files[name] instanceof Promise) {
+      return this.files[name];
     }
+    var crc32 = this.options.cacheByFileHash ?
+      this.files[filename].crc32 : null;
+    this.files[filename] = new Promise(function(done, reject) {
+      fs.readFile(
+        path.join(self.directory, filename),
+        encoding, function(err, data) {
+          // @todo
+        });
+    });
+    return this.files[filename];
+  }
 };
 
 module.exports = repository;
