@@ -11,11 +11,11 @@ var ptr = require('./ptr');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **
- * 
+ *
  * Represents a constant declaration
- * 
+ *
  * @public @constructor constant
- * @property {String} name 
+ * @property {String} name
  * @property {String} fullName
  * @property {expr} value {@link EXPR.md|:link:}
  */
@@ -26,7 +26,7 @@ var _const = node.extends('constant');
  * @protected Consumes the current ast node
  */
 _const.prototype.consume = function(ast) {
-  this.name = ast[0];
+  this.name = ast.name;
 
   if (this.parent.type === 'class') {
     this.fullName = this.parent.fullName + '::' + this.name;
@@ -36,8 +36,8 @@ _const.prototype.consume = function(ast) {
     this.fullName = this.name;
   }
 
-  if (ast.length === 2) {
-    this.value = expr.resolve(this, ast[1]);
+  if (ast.value) {
+    this.value = expr.resolve(this, ast.value);
   }
 };
 
