@@ -24,8 +24,9 @@ var comment = require('./comment');
  */
 var file = node.extends(function file(repository, name, ast) {
     this.repository = repository;
-    this.version = new Date();
+    this.mtime = 0;
     this.size = 0;
+    this.crc32 = null;
     this.name = name;
     this.nodes = [];
     this.error = null;

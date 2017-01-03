@@ -1,2 +1,59 @@
 #!/usr/bin/env node
 'use strict';
+
+var Repository = require('../src/repository');
+var stack = [];
+var working = false;
+
+// received a work request
+process.on('message', function(data) {
+    stack.push(JSON.parse(data));
+    if (!working) {
+        work();
+    }
+});
+
+// end of work
+process.on('disconnect', function() {
+    process.exit(1);
+});
+
+// do some work
+function work() {
+    // got work ?
+    if (stack.length === 0) {
+        working = false;
+        return;
+    }
+
+    // lets go !
+    working = true;
+    var data = stack.pop();
+
+    console.log('Start >> ', data);
+    // is parameters OK ?
+    if (!data.filename || !data.options) {
+        return process.nextTick(work);
+    }
+
+    // init a new repository
+    process.send(JSON.stringify({
+        type: 'start',
+        filename: data.filename
+    }));
+
+    // init a new repository
+    try {
+        data.options.forkWorker = false;
+        var repo = new Repository(data.options);
+    } catch(e) {
+        process.send(JSON.stringify({
+            type: 'reject',
+            filename: data.filename,
+            error: e.message
+        }));
+    }
+
+    // release loop for checking message
+    process.nextTick(work);
+}

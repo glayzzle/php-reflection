@@ -67,7 +67,12 @@ var repository = function(directory, options) {
         cacheByFileSize: false,
         // use an hash algorithm to detect changes
         // if low cache hit, may slow down the parsing
-        cacheByFileHash: true
+        cacheByFileHash: true,
+        // avoid to load the full cache repository
+        // just loads files when they are requested
+        // define a function that receives the filename in argumen
+        // and return the file cached structure
+        lazyCache: false
     };
     // extends options
     if (options && typeof options === 'object') {
@@ -101,11 +106,49 @@ var repository = function(directory, options) {
 util.inherits(repository, EventEmitter);
 
 /**
+ * Starts to read a file in order to parse it. This event is emited from 
+ * parse or refresh methods.
+ * 
+ * @event repository#read
+ * @type {object}
+ * @property {string} name - The filename that will be parsed
+ */
+
+
+/**
+ * Cache hit event, file is already updated
+ * 
+ * @event repository#cache
+ * @type {object}
+ * @property {string} name - The filename that was found in cache
+ */
+
+/**
+ * The specified file is parsed.
+ * 
+ * @event repository#parse
+ * @type {object}
+ * @property {string} name - The filename that will be parsed
+ * @property {file} file - The file
+ */
+
+/**
+ * 
+ * 
+ * @event repository#error
+ * @type {object}
+ * @property {string} name - The filename that triggered the error
+ * @property {object} error - The reaised error object
+ */
+
+
 /**
  * Scan the current directory to add PHP files to parser
  * @public
  * @param {String|Array} directory Path to scan, relative to repository root
  * @return {Promise}
+ * @fires repository#progress
+ * @fires repository#cache
  */
 repository.prototype.scan = function(directory) {
     var pending = [];
@@ -155,8 +198,9 @@ repository.prototype.scan = function(directory) {
                                 // check if need to parse again
                                 if (
                                   self.options.cacheByFileDate &&
-                                  self.files[filename].mtime === stat.mtime
+                                  self.files[filename].mtime === stat.mtime.getTime()
                                 ) {
+                                    self.emit('cache', { name: filename });
                                     return done(self.files[filename]);
                                 }
                                 // same size and
@@ -164,10 +208,28 @@ repository.prototype.scan = function(directory) {
                                     self.options.cacheByFileSize &&
                                     stat.size === self.files[filename].size
                                 ) {
+                                    self.emit('cache', { name: filename });
                                     return done(self.files[filename]);
                                 }
                             }
-                            self.parse(filename).then(done, reject);
+                            self.counter.total ++;
+                            self.counter.loading ++;
+                            self.parse(
+                                filename,
+                                self.options.encoding,
+                                stat
+                            ).then(function() {
+                                self.counter.loading --;
+                                self.counter.loaded ++;
+                                self.emit('progress', self.counter);
+                                done();
+                            }, function(e) {
+                                self.counter.loading --;
+                                self.counter.total --;
+                                self.counter.error ++;
+                                self.emit('progress', self.counter);
+                                reject(e);
+                            });
                         }
                     });
                 }));
@@ -183,29 +245,49 @@ repository.prototype.scan = function(directory) {
  * @param {string} filename
  * @param {string} encoding The encoding (by default utf8)
  * @return {Promise}
+ * @fires repository#read
+ * @fires repository#parse
+ * @fires repository#error
+ * @fires repository#cache
  */
-repository.prototype.parse = function(filename, encoding) {
+repository.prototype.parse = function(filename, encoding, stat) {
     if (!this.files.hasOwnProperty(filename)) {
         if (!encoding) encoding = this.options.encoding;
         var self = this;
-        this.emit('parse', filename);
+        this.emit('read', { name: filename });
         this.files[filename] = new Promise(function(done, reject) {
-            self.counter.total ++;
-            self.counter.loading ++;
+
+            if (typeof self.options.lazyCache === 'function') {
+                var result = self.options.lazyCache(filename, stat);
+                if (result) {
+                    if (typeof result.then === 'function') {
+
+                    } else {
+                        
+                    }
+                }
+            }
+
             if (self.options.forkWorker) {
                 // reads from a forked process
-                require('./worker')().then(function(cache) {
-                    self.counter.loading --;
-                    self.files[filename] = file.import(self, cache);
-                    self.files[filename].refresh();
-                    self.counter.loaded ++;
-                    self.emit('progress', self.counter);
+                require('./worker')(filename, null, self.options).then(function(cache) {
+                    if (cache.hit) {
+                        self.emit('cache', { name: filename });
+                    } else {
+                        self.files[filename] = file.import(self, cache);
+                        self.files[filename].refresh();
+                        self.emit('parse', {
+                            name: filename,
+                            file: self.files[filename]
+                        });
+                    }
+                    return done(self.files[filename]);
                 }, function(e) {
-                    self.counter.loading --;
-                    self.counter.total --;
-                    self.counter.error ++;
                     delete self.files[filename];
-                    self.emit('error', e);
+                    self.emit('error', { 
+                        name: filename,
+                        error: e
+                    });
                     return reject(e);
                 });
             } else {
@@ -213,7 +295,6 @@ repository.prototype.parse = function(filename, encoding) {
                 fs.readFile(
                     path.resolve(self.directory, filename),
                     encoding, function(err, data) {
-                    self.counter.loading --;
                     if (!err)  {
                         try {
                             var reader = new parser({
@@ -230,20 +311,22 @@ repository.prototype.parse = function(filename, encoding) {
                         }
                     }
                     if (err) {
-                        self.counter.total --;
                         delete self.files[filename];
                         self.emit('error', err);
                         return reject(err);
                     } else {
                         try {
                             self.files[filename] = new file(self, filename, ast);
-                            self.files[filename].size = data.length;
-                            self.counter.loaded ++;
-                            self.emit('progress', self.counter);
+                            self.files[filename].refresh();
+                            if (self.options.cacheByFileSize) {
+                                self.files[filename].size = data.length;
+                            }
+                            if (self.options.cacheByFileDate) {
+                                self.files[filename].mtime = data.length;
+                            }
+
                             return done(self.files[filename]);
                         } catch(e) {
-                            self.counter.total --;
-                            self.counter.error ++;
                             delete self.files[filename];
                             self.emit('error', e);
                             return reject(e);
@@ -254,7 +337,7 @@ repository.prototype.parse = function(filename, encoding) {
         });
         return this.files[filename];
     } else {
-        return this.refresh(filename, encoding);
+        return this.refresh(filename, encoding, stat);
     }
 };
 
@@ -493,13 +576,16 @@ repository.prototype.rename = function(oldName, newName) {
  * @public
  * @return {Promise}
  */
-repository.prototype.refresh = function(filename, encoding) {
+repository.prototype.refresh = function(filename, encoding, stat) {
     if (!this.files.hasOwnProperty(filename)) {
-        return this.parse(filename, encoding);
+        return this.parse(filename, encoding, stat);
     } else {
         if (this.files[name] instanceof Promise) {
             return this.files[name];
         }
+        var crc32 = this.options.cacheByFileHash ? 
+            this.files[filename].crc32 : null
+        ;
         this.files[filename] = new Promise(function(done, reject) {
             fs.readFile(
                 path.join(self.directory, filename),

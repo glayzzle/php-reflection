@@ -53,7 +53,7 @@ describe('Repository class', function() {
     describe('#cache/set', function() {
         var fs = require('fs');
         it('should set cache', function () {
-            // @todo 
+            // @todo
         });
     });
 
@@ -73,8 +73,8 @@ describe('Repository class', function() {
         it('should find constants', function () {
             var items = workspace.getByType('constant');
             items.should.be.Array();
-            // 2 namespace constants 
-            // + 1 class constant declarations blocks 
+            // 2 namespace constants
+            // + 1 class constant declarations blocks
             // in 2 separate files
             items.length.should.be.exactly(3);
         });

@@ -1,3 +1,4 @@
 /node_modules/
 /test/cache/*.json
 /coverage/
+npm-debug.log
