@@ -9,10 +9,10 @@ var node = require('./node');
 
 /**
  * **Extends from {@link NODE.md|:link: node}**
- * 
+ *
  * Reprensents a variable declaration
- * 
- * @public 
+ *
+ * @public
  * @constructor variable
  * @property {String} name
  */
@@ -22,9 +22,11 @@ var variable = node.extends('variable');
  * @protected Consumes the current ast node
  */
 variable.prototype.consume = function(ast) {
-  this.name = ast[1][1];
+  if (ast.kind === 'assign') {
+    this.name = ast.left.name;
+  } else {
+    this.name = ast.name;
+  }
 };
 
 module.exports = variable;
-
-
