@@ -52,17 +52,12 @@ block.prototype.consume = function(ast) {
  * @protected Scan for inner childs
  */
 block.prototype.scanForChilds = function(ast) {
-  if (!Array.isArray(ast)) return;
-  if (ast.length === 0) return;
-  for (var i = 0; i < ast.length; i++) {
-    var item = ast[i];
-    if (Array.isArray(item) && item.length > 0) {
-      if (Array.isArray(item[0])) {
-        this.scanForChilds(item);
-      } else {
-        this.consumeChild(item);
-      }
+  if (Array.isArray(ast)) {
+    for (var i = 0; i < ast.length; i++) {
+      this.consumeChild(ast[i]);
     }
+  } else {
+    this.consumeChild(ast);
   }
 };
 
@@ -73,17 +68,10 @@ block.prototype.scanForChilds = function(ast) {
  * @return void
  */
 block.prototype.consumeChild = function(ast) {
-
-  if (!Array.isArray(ast)) return;
-  if (ast.length === 0) return;
-  if (Array.isArray(ast[0])) return this.scanForChilds(ast);
-
-  // reads the current node
-  var item = block.getAST(ast);
-  var type = item[0];
+  if (!ast.kind) return;
 
   // handle class definition
-  if (type === 'class') {
+  if (ast.kind === 'class') {
     var cls = ptr.create('class', this, ast);
     if (this._lastDoc) {
       cls.get().doc = comment.create(cls.get(), this._lastDoc);
@@ -93,61 +81,58 @@ block.prototype.consumeChild = function(ast) {
     if (this.type !== 'namespace') {
       this.getNamespace().classes.push(cls);
     }
-  } else if (type === 'doc') {
+  } else if (ast.kind === 'doc') {
     this._lastDoc = item;
   }
 
-  // consome system statements
-  else if (type === 'sys') {
-    var cmd = item[1];
-    if (
-      cmd === 'include' ||
-      cmd === 'include_once' ||
-      cmd === 'require' ||
-      cmd === 'require_once'
-    ) {
-      ptr.create('external', this, ast);
-    }
+  // consome include statements
+  else if (ast.kind === 'include') {
+    ptr.create('external', this, ast);
   }
 
   // consume IF nodes
-  else if (type === 'if') {
+  else if (ast.kind === 'if') {
     // IF BODY
-    if (Array.isArray(item[2]) && item[2].length > 0) {
+    if (ast.body) {
       this.blocks.push(
-        ptr.create('block', this, item[2])
+        ptr.create('block', this, ast.body)
       );
     }
     // ELSE STATEMENT
-    if (Array.isArray(item[3]) && item[3].length > 0) {
+    if (ast.alternate) {
       this.blocks.push(
-        ptr.create('block', this, item[3])
+        ptr.create('block', this, ast.alternate)
       );
     }
   }
 
   // try nodes
-  else if (type === 'try') {
+  else if (ast.kind === 'try') {
+
     // BODY
     this.blocks.push(
-      ptr.create('block', this, item[1])
+      ptr.create('block', this, ast.body)
     );
+
     // CATCH
-    item[2].forEach(function(item) {
-      this.blocks.push(
-        ptr.create('block', this, item.body)
-      );
-    }.bind(this));
+    if (Array.isArray(ast.catches)) {
+      ast.catches.forEach(function(item) {
+        this.blocks.push(
+          ptr.create('block', this, item.body)
+        );
+      }.bind(this));
+    }
+
     // FINALLY
-    if (item[3]) {
+    if (ast.allways) {
       this.blocks.push(
-        ptr.create('block', this, item[3])
+        ptr.create('block', this, ast.allways)
       );
     }
   }
 
   // functions
-  else if (type === 'function') {
+  else if (ast.kind === 'function') {
     var fn = ptr.create('function', this, item);
     this.functions.push(fn);
     if (this.type !== 'namespace') {
@@ -155,18 +140,26 @@ block.prototype.consumeChild = function(ast) {
     }
   }
 
-  // variables
-  else if (type === 'set') {
-    if (item[1][0] === 'var') {
-      this.variables.push(
-        ptr.create('variable', this, ast)
-      );
-    }
+  // variables (by assignment)
+  else if (ast.kind === 'assign' && ast.left.kind === 'variable') {
+    this.variables.push(
+      ptr.create('variable', this, ast)
+    );
   }
+  // @todo : variables by global statement
+  // @todo : variables by static statement
 
   // nested childs
   else {
-    this.scanForChilds(item);
+    // generic recusive scanner
+    for(var k in ast) {
+      var item = ast[k];
+      if (Array.isArray(item)) {
+        this.scanForChilds(item);
+      } else if (typeof item === 'object' && item.kind) {
+        this.consumeChild(item);
+      }
+    }
   }
 
 /*else if (type === 'interface') {
