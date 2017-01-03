@@ -71,96 +71,100 @@ block.prototype.consumeChild = function(ast) {
   if (!ast.kind) return;
 
   // handle class definition
-  if (ast.kind === 'class') {
-    var cls = ptr.create('class', this, ast);
-    if (this._lastDoc) {
-      cls.get().doc = comment.create(cls.get(), this._lastDoc);
-      this._lastDoc = null;
-    }
-    this.classes.push(cls);
-    if (this.type !== 'namespace') {
-      this.getNamespace().classes.push(cls);
-    }
-  } else if (ast.kind === 'doc') {
+  if (ast.kind === 'doc') {
     this._lastDoc = item;
-  }
+  } else {
 
-  // consome include statements
-  else if (ast.kind === 'include') {
-    ptr.create('external', this, ast);
-  }
+    // attach last doc node to current node
+    ast.doc = this._lastDoc;
+    this._lastDoc = null;
 
-  // consume IF nodes
-  else if (ast.kind === 'if') {
-    // IF BODY
-    if (ast.body) {
+    // scan a class
+    if (ast.kind === 'class') {
+      this.classes.push(ptr.create('class', this, ast));
+      if (this.type !== 'namespace') {
+        this.getNamespace().classes.push(cls);
+      }
+    }
+
+    // consome include statements
+    else if (ast.kind === 'include') {
+      ptr.create('external', this, ast);
+    }
+
+    // consume IF nodes
+    else if (ast.kind === 'if') {
+      // IF BODY
+      if (ast.body) {
+        this.blocks.push(
+          ptr.create('block', this, ast.body)
+        );
+      }
+      // ELSE STATEMENT
+      if (ast.alternate) {
+        this.blocks.push(
+          ptr.create('block', this, ast.alternate)
+        );
+      }
+    }
+
+    // try nodes
+    else if (ast.kind === 'try') {
+
+      // BODY
       this.blocks.push(
         ptr.create('block', this, ast.body)
       );
-    }
-    // ELSE STATEMENT
-    if (ast.alternate) {
-      this.blocks.push(
-        ptr.create('block', this, ast.alternate)
-      );
-    }
-  }
 
-  // try nodes
-  else if (ast.kind === 'try') {
+      // CATCH
+      if (Array.isArray(ast.catches)) {
+        ast.catches.forEach(function(item) {
+          this.blocks.push(
+            ptr.create('block', this, item.body)
+          );
+        }.bind(this));
+      }
 
-    // BODY
-    this.blocks.push(
-      ptr.create('block', this, ast.body)
-    );
-
-    // CATCH
-    if (Array.isArray(ast.catches)) {
-      ast.catches.forEach(function(item) {
+      // FINALLY
+      if (ast.allways) {
         this.blocks.push(
-          ptr.create('block', this, item.body)
+          ptr.create('block', this, ast.allways)
         );
-      }.bind(this));
+      }
     }
 
-    // FINALLY
-    if (ast.allways) {
-      this.blocks.push(
-        ptr.create('block', this, ast.allways)
+    // functions
+    else if (ast.kind === 'function') {
+      var fn = ptr.create('function', this, item);
+      this.functions.push(fn);
+      if (this.type !== 'namespace') {
+        this.getNamespace().functions.push(fn);
+      }
+    }
+
+    // variables (by assignment)
+    else if (ast.kind === 'assign' && ast.left.kind === 'variable') {
+      this.variables.push(
+        ptr.create('variable', this, ast)
       );
     }
-  }
+    // @todo : variables by global statement
+    // @todo : variables by static statement
 
-  // functions
-  else if (ast.kind === 'function') {
-    var fn = ptr.create('function', this, item);
-    this.functions.push(fn);
-    if (this.type !== 'namespace') {
-      this.getNamespace().functions.push(fn);
-    }
-  }
-
-  // variables (by assignment)
-  else if (ast.kind === 'assign' && ast.left.kind === 'variable') {
-    this.variables.push(
-      ptr.create('variable', this, ast)
-    );
-  }
-  // @todo : variables by global statement
-  // @todo : variables by static statement
-
-  // nested childs
-  else {
-    // generic recusive scanner
-    for(var k in ast) {
-      var item = ast[k];
-      if (Array.isArray(item)) {
-        this.scanForChilds(item);
-      } else if (typeof item === 'object' && item.kind) {
-        this.consumeChild(item);
+    // nested childs
+    else {
+      // generic recusive scanner
+      for(var k in ast) {
+        var item = ast[k];
+        if (Array.isArray(item)) {
+          this.scanForChilds(item);
+        } else if (typeof item === 'object' && item.kind) {
+          this.consumeChild(item);
+        }
       }
     }
   }
+
 
 /*else if (type === 'interface') {
     this.interfaces.push(

@@ -36,6 +36,11 @@ var node = function(parent, ast) {
     this.position = new position(ast.loc);
   }
 
+  // check if contains a doc node
+  if (ast.doc) {
+    this.doc = new comment(ast.doc);
+  }
+
   if (this.type !== 'file') {
     // automatic reference
     this.getFile().nodes.push(this);
