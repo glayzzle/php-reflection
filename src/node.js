@@ -25,7 +25,7 @@ var node = function(parent, ast) {
   if (!parent) return;
 
   this.parent = parent;
-  if (this.constructor.name.length > 0) {
+  if (!this.type && this.constructor.name.length > 0) {
     this.type = this.constructor.name;
   }
 
@@ -37,8 +37,8 @@ var node = function(parent, ast) {
   }
 
   // check if contains a doc node
-  if (ast.doc) {
-    this.doc = new comment(ast.doc);
+  if (typeof ast.doc === 'object' && ast.doc !== null) {
+    this.doc = new comment(this, ast.doc);
   }
 
   if (this.type !== 'file') {

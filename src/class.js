@@ -68,7 +68,6 @@ _class.prototype.consume = function(ast) {
       lastDoc = item;
     } else {
       item.doc = lastDoc;
-      lastDoc = null;
       if (item.kind === 'classconstant') {
         this.constants.push(
           node.create('constant', this, item)
@@ -82,6 +81,7 @@ _class.prototype.consume = function(ast) {
           node.create('method', this, item)
         );
       }
+      lastDoc = null;
     }
   }
 };
