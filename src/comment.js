@@ -26,10 +26,11 @@ var comment = function(node, ast) {
     if (child.kind === 'annotation') {
       this.annotations.push(child);
     } else {
-      if (!this.body.hasOwnProperty(child.kind)) {
-        this.body[child.kind] = [];
+      var name = child.kind.toLowerCase();
+      if (!this.tags.hasOwnProperty(name)) {
+        this.tags[name] = [];
       }
-      this.body[child.kind].push(child);
+      this.tags[name].push(child);
     }
   }
 };
@@ -42,8 +43,8 @@ var comment = function(node, ast) {
 comment.prototype.getTags = function(name) {
   var result = [];
   name = name.toLowerCase();
-  if (this.body.hasOwnProperty(name)) {
-    result = this.body[name];
+  if (this.tags.hasOwnProperty(name)) {
+    result = this.tags[name];
   }
   return result;
 };
