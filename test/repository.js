@@ -65,8 +65,8 @@ describe('Repository class', function() {
         it('should find namespace', function () {
             var items = workspace.getByType('namespace');
             items.should.be.Array();
-            // 4 namespace block in 2 separate files
-            items.length.should.be.exactly(4);
+            // 5 namespace block in 3 separate files
+            items.length.should.be.exactly(5);
         });
         it('should find classes', function () {
             var items = workspace.getByType('class');
