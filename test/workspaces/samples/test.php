@@ -8,7 +8,7 @@ declare(encoding='UTF-8');
 namespace foobar {
 
     const BAR = 123;
-
+    define('a', true);
     include __DIR__ . '/some-file.php';
     require_once 'another-file.php';
 
@@ -30,10 +30,10 @@ namespace foobar {
              * @something strange
              *
              * @throws Ns
-             * 
+             *
              * @model(table='', property=true, [1,2,3])
              * some explanation
-             * 
+             *
              * @tag {kind} something
              * @json({
              *   "key": "value",

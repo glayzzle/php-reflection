@@ -258,23 +258,47 @@ repository.prototype.scan = function(directory) {
  */
 repository.prototype.parse = function(filename, encoding, stat) {
   if (!this.files.hasOwnProperty(filename)) {
-    if (!encoding)
-      encoding = this.options.encoding;
     var self = this;
+    if (!encoding) {
+      encoding = this.options.encoding;
+    }
     this.emit('read', {
       name: filename
     });
     this.files[filename] = new Promise(function(done, reject) {
 
       if (typeof self.options.lazyCache === 'function') {
-        // @todo
-        var result = self.options.lazyCache(filename, stat);
-        if (result) {
-          if (typeof result.then === 'function') {
-
-          } else {
-
+        try {
+          // the lazy cache
+          // handles files loading from cache
+          // without needing to resolve all repository cache
+          var result = self.options.lazyCache(filename, stat);
+          if (result) {
+            // retrieved from cache
+            self.emit('cache', {
+              name: filename
+            });
+            if (typeof result.then === 'function') {
+              return result.then(function(file) {
+                self.files[filename] = file;
+                self.files[filename].refresh();
+                return done(file);
+              }, function(e) {
+                delete self.files[filename];
+                self.emit('error', e);
+                return reject(e);
+              });
+            } else {
+              self.files[filename] = result;
+              self.files[filename].refresh();
+              return done(result);
+            }
           }
+          // if result is false, then continue loading
+        } catch(e) {
+          delete self.files[filename];
+          self.emit('error', e);
+          return reject(e);
         }
       }
 
@@ -339,7 +363,6 @@ repository.prototype.parse = function(filename, encoding, stat) {
                 if (self.options.cacheByFileDate) {
                   self.files[filename].mtime = data.length;
                 }
-
                 return done(self.files[filename]);
               } catch (e) {
                 delete self.files[filename];
@@ -600,7 +623,7 @@ repository.prototype.refresh = function(filename, encoding, stat) {
     if (this.files[filename] instanceof Promise) {
       return this.files[filename];
     }
-    var self = this;
+    /*var self = this;
     var crc32 = this.options.cacheByFileHash ?
       this.files[filename].crc32 : null;
     this.files[filename] = new Promise(function(done, reject) {
@@ -608,9 +631,12 @@ repository.prototype.refresh = function(filename, encoding, stat) {
         path.join(self.directory, filename),
         encoding, function(err, data) {
           // @todo
+          done();
         });
+    });*/
+    return new Promise(function(done, reject) {
+      done(); // this.files[filename];
     });
-    return this.files[filename];
   }
 };
 
