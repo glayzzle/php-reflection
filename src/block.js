@@ -3,6 +3,7 @@
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
+"use strict";
 
 var node = require('./node');
 var ptr = require('./ptr');
@@ -143,7 +144,7 @@ block.prototype.consumeChild = function(ast) {
 
     // functions
     else if (ast.kind === 'function') {
-      var fn = ptr.create('function', this, item);
+      var fn = ptr.create('function', this, ast);
       this.functions.push(fn);
       if (this.type !== 'namespace') {
         this.getNamespace().functions.push(fn);
