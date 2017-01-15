@@ -44,7 +44,7 @@ Gets the parent block
 
 Returns **block** [:link:](BLOCK.md)
 
-## import
+## refresh
 
 Node helper for importing data
 
@@ -53,6 +53,15 @@ Node helper for importing data
 Gets a POJO representation of the current node that can be serialized / [unserialized](#import)
 
 Returns **([Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) | null)** 
+
+## import
+
+Node helper for importing data
+
+**Parameters**
+
+-   `repository`  
+-   `data`  
 
 ## extends
 

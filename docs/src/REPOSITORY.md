@@ -3,7 +3,7 @@
 # repository
 
 The repository stores a list of files with their symbols
-and acts like a database. 
+and acts like a database.
 
 You can request it to retrieve
 [nodes](NODE.md) like [namespaces]\(NAMESPACE.md], functions or classes.
@@ -16,9 +16,15 @@ offset (usefull for an editor).
 -   `directory`  
 -   `options`  
 
+**Properties**
+
+-   `files` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+-   `options` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+-   `directory` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `counter` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+
 ## scan
 
-/\*\*
 Scan the current directory to add PHP files to parser
 
 **Parameters**
@@ -35,6 +41,7 @@ Parsing a file
 
 -   `filename` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 -   `encoding` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The encoding (by default utf8)
+-   `stat`  
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 
@@ -77,7 +84,7 @@ Returns **([node](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibl
 
 Retrieves a namespace (cross file)
 
-The retrieved namespace will include : 
+The retrieved namespace will include :
 
 -   constants
 -   functions
@@ -167,5 +174,6 @@ Refresh the file contents
 
 -   `filename`  
 -   `encoding`  
+-   `stat`  
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 

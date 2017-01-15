@@ -15,71 +15,64 @@ Initialize a comment declaration
 -   `tags` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;tag>** 
 -   `annotations` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;annotation>** 
 
-## create
+## getTags
 
-creates a new comment node
-
-**Parameters**
-
--   `node`  
--   `ast`  
-
-Returns **[comment](#comment)** 
-
-# variable
-
-**Extends comment**
-
-property, variable, constant
-
-**Properties**
-
--   `type` **[type](#type)** 
-
-# method
-
-**Extends variable**
-
-method / function
-
-**Properties**
-
--   `throws` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[throws](#throws)>** 
--   `params` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[param](#param)>** 
-
-# param
+Gets a list of tags matching to the specified name
 
 **Parameters**
 
--   `type`  
--   `description`  
-
-**Properties**
-
--   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 -   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `description` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 
-# throws
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>** 
 
-**Parameters**
+## getTag
 
--   `type`  
--   `description`  
-
-**Properties**
-
--   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `description` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
-
-# type
+Gets the first tag that matches to the specified name
 
 **Parameters**
 
--   `name`  
--   `description`  
+-   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 
-**Properties**
+Returns **([Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) | null)** 
 
--   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `description` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+## getAnnotations
+
+Gets a list of annotations matching to the specified name
+
+**Parameters**
+
+-   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>** 
+
+## getAnnotation
+
+Gets the first annotation that matches to the specified name
+
+**Parameters**
+
+-   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+
+Returns **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+
+## getArgument
+
+Gets the attribute of the specified annotation
+
+```js
+/**
+ * @foo(bar => 'baz')
+ * @return void
+ *\/
+var doc = new comment(docNode);
+doc.getArgument('return', 'what');
+doc.getArgument('foo', 0, 'bar');
+```
+
+**Parameters**
+
+-   `tag` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `offset` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+
+Returns **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 

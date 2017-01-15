@@ -4,7 +4,7 @@
 
 ** Extends from [:link: block](BLOCK.md) **
 
-The declare construct is used to set execution directives 
+The declare construct is used to set execution directives
 for a block of code.
 
 <http://php.net/manual/en/control-structures.declare.php>
