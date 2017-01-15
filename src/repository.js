@@ -4,6 +4,8 @@
  * @url http://glayzzle.com
  */
 
+"use strict";
+
 var fs = require('fs');
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
@@ -595,9 +597,10 @@ repository.prototype.refresh = function(filename, encoding, stat) {
   if (!this.files.hasOwnProperty(filename)) {
     return this.parse(filename, encoding, stat);
   } else {
-    if (this.files[name] instanceof Promise) {
-      return this.files[name];
+    if (this.files[filename] instanceof Promise) {
+      return this.files[filename];
     }
+    var self = this;
     var crc32 = this.options.cacheByFileHash ?
       this.files[filename].crc32 : null;
     this.files[filename] = new Promise(function(done, reject) {
