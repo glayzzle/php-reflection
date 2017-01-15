@@ -10,13 +10,13 @@ var expr = require('./expr');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **
- * 
+ *
  * Represents a constant declaration
- * 
+ *
  * @public @constructor define
- * @property {String|expr} name 
+ * @property {String|expr} name
  * @property {expr} value {@link EXPR.md|:link:}
- * @property {Boolean|expr} caseInsensitive 
+ * @property {Boolean|expr} caseInsensitive
  */
 var _def = node.extends('define');
 
@@ -24,13 +24,12 @@ var _def = node.extends('define');
  * @protected Consumes the current ast node
  */
 _def.prototype.consume = function(ast) {
-  var args = ast[2];
-  this.name = expr.resolve(this, args[0]);
-  if (args.length > 1) {
-    this.value = expr.resolve(this, args[1]);
+  this.name = expr.resolve(this, ast.arguments[0]);
+  if (ast.arguments.length > 1) {
+    this.value = expr.resolve(this, ast.arguments[1]);
   }
-  if (args.length > 2) {
-    this.caseInsensitive = expr.resolve(this, args[2]);
+  if (ast.arguments.length > 2) {
+    this.caseInsensitive = expr.resolve(this, ast.arguments[2]);
   } else {
     this.caseInsensitive = false;
   }

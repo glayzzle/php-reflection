@@ -157,6 +157,13 @@ block.prototype.consumeChild = function(ast) {
         ptr.create('variable', this, ast)
       );
     }
+
+    // extract defines
+    else if (ast.kind === 'call' && ast.what.name === 'define') {
+      this.defines.push(
+        ptr.create('define', this, ast)
+      );
+    }
     // @todo : variables by global statement
     // @todo : variables by static statement
 
