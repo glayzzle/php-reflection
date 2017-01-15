@@ -8,7 +8,8 @@ describe('Repository class', function() {
 
     describe('#ctor', function() {
         workspace = new repository(path, {
-          forkWorker: false
+          forkWorker: false,
+          exclude: ['bin']
         });
         it('properties', function () {
             workspace.files.should.be.Object();
@@ -31,6 +32,7 @@ describe('Repository class', function() {
                 workspace.files.should.have.property('test.php');
                 workspace.files.should.have.property('friend.php');
                 workspace.files.should.have.property('sub/empty.php');
+                workspace.files.should.not.have.property('bin/nok.php');
                 done();
             }, done);
         });
