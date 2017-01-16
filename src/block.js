@@ -91,6 +91,15 @@ block.prototype.consumeChild = function(ast) {
       }
     }
 
+    // consome interface
+    else if (ast.kind === 'interface') {
+      var int = ptr.create('interface', this, ast);
+      this.interfaces.push(int);
+      if (this.type !== 'namespace') {
+        this.getNamespace().interfaces.push(cls);
+      }
+    }
+
     // consome a namespace (from inner statements like declare)
     else if (ast.kind === 'namespace') {
       node.create('namespace', this.getFile(), ast);
@@ -182,11 +191,7 @@ block.prototype.consumeChild = function(ast) {
   }
 
 
-/*else if (type === 'interface') {
-    this.interfaces.push(
-        new node.builders['interface'](this, node)
-    );
-} else if (type === 'trait') {
+/* else if (type === 'trait') {
     this.traits.push(
         new node.builders['trait'](this, node)
     );
