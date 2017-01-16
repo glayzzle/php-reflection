@@ -97,12 +97,7 @@ var relationTypes = {
  * @return {reference}
  */
 reference.toClass = function(from, className, type) {
-  return this.toNode(
-    from,
-    from.getNamespace().resolveClassName(className),
-    'class',
-    type
-  );
+  return this.toNode(from, className, 'class', type);
 };
 
 
@@ -114,12 +109,7 @@ reference.toClass = function(from, className, type) {
  * @return {reference}
  */
 reference.toInterface = function(from, interfaceName, type) {
-  return this.toNode(
-    from,
-    from.getNamespace().resolveClassName(interfaceName),
-    'interface',
-    type
-  );
+  return this.toNode(from, interfaceName, 'interface', type);
 };
 
 /**
@@ -129,13 +119,8 @@ reference.toInterface = function(from, interfaceName, type) {
  * @param {String} type The relation type : use
  * @return {reference}
  */
-reference.toTrait = function(from, interfaceName, type) {
-  return this.toNode(
-    from,
-    from.getNamespace().resolveClassName(interfaceName),
-    'interface',
-    type
-  );
+reference.toTrait = function(from, traitName, type) {
+  return this.toNode(from, traitName, 'trait', type);
 };
 
 /**
@@ -147,12 +132,8 @@ reference.toTrait = function(from, interfaceName, type) {
  * @return {reference}
  */
 reference.toNode = function(from, nodeName, nodeType, referenceType) {
-  if (Array.isArray(nodeName)) {
-    if (nodeName[0] === 'ns') {
-      nodeName = nodeName[1].join('\\');
-    } else {
-      nodeName = nodeName.join('\\');
-    }
+  if (typeof nodeName !== 'string') {
+    nodeName = from.getNamespace().resolveClassName(nodeName);
   }
   var result = new reference(from, nodeName, referenceType);
   result.name = nodeName;
