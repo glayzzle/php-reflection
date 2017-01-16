@@ -30,7 +30,7 @@ namespace.prototype.consume = function(ast) {
 
   var self = this;
   this.name = '\\' + ast.name.name;
-  this.uses = [];
+  this.uses = {};
   this.constants = [];
 
   /**
@@ -41,8 +41,18 @@ namespace.prototype.consume = function(ast) {
       self.constants.push(
         ptr.create('constant', self, item)
       );
-    } else if (item.kind === 'usegroup' || item.kind === 'useitem') {
-      // @todo
+    } else if (item.kind === 'usegroup') {
+      var prefix = item.name.name;
+      for(var i = 0; i < item.items.length; i++) {
+        var alias = item.items[i].alias;
+        var name = item.items[i].name.name;
+        if (name[0] !== '\\') name = '\\' + name;
+        if (!alias) {
+          alias = name.split('\\');
+          alias = alias[alias.length - 1];
+        }
+        self.uses[alias] = prefix + name;
+      }
     } else {
       self.consumeChild(item);
     }
@@ -56,17 +66,20 @@ namespace.prototype.consume = function(ast) {
  * @return {String}
  */
 namespace.prototype.resolveClassName = function(name) {
-  if (Array.isArray(name)) {
-    if (name[0] === 'ns' && Array.isArray(name[1])) {
-      name = name[1];
+  if (name.kind && name.kind === 'identifier') {
+    if (name.resolution === 'fqn') {
+      return name.name;
+    } else if (name.resolution === 'rn') {
+      return this.name + '\\' + name.name;
+    } else {
+      // resolve with use
+      if (this.uses[name.name]) {
+        return this.uses[name.name];
+      }
+      // relative to current namespace
+      return this.name + '\\' + name.name;
     }
-    name = name.join('\\');
   }
-  if (name[0] !== '\\') {
-    // @todo resolve use statements
-    name = this.name + '\\' + name;
-  }
-  return name;
 };
 
 module.exports = namespace;
