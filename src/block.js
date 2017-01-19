@@ -1,9 +1,9 @@
 /*!
- * Copyright (C) 2016 Glayzzle (BSD3 License)
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
-"use strict";
+'use strict';
 
 var node = require('./node');
 var ptr = require('./ptr');
@@ -100,6 +100,15 @@ block.prototype.consumeChild = function(ast) {
       }
     }
 
+    // consome trait
+    else if (ast.kind === 'trait') {
+      var trait = ptr.create('trait', this, ast);
+      this.traits.push(trait);
+      if (this.type !== 'namespace') {
+        this.getNamespace().traits.push(trait);
+      }
+    }
+
     // consome a namespace (from inner statements like declare)
     else if (ast.kind === 'namespace') {
       node.create('namespace', this.getFile(), ast);
@@ -173,6 +182,29 @@ block.prototype.consumeChild = function(ast) {
         ptr.create('define', this, ast)
       );
     }
+
+    // namespace constants
+    else if (ast.kind === 'constant') {
+      this.getNamespace().constants.push(
+        ptr.create('constant', this, ast)
+      );
+    }
+
+    // namespace use statements
+    else if (ast.kind === 'usegroup') {
+      var prefix = ast.name.name;
+      for(var i = 0; i < ast.items.length; i++) {
+        var alias = ast.items[i].alias;
+        var name = ast.items[i].name.name;
+        if (name[0] !== '\\') name = '\\' + name;
+        if (!alias) {
+          alias = name.split('\\');
+          alias = alias[alias.length - 1];
+        }
+        this.getNamespace().uses[alias] = prefix + name;
+      }
+    }
+
     // @todo : variables by global statement
     // @todo : variables by static statement
 
@@ -190,23 +222,7 @@ block.prototype.consumeChild = function(ast) {
     }
   }
 
-
-/* else if (type === 'trait') {
-    this.traits.push(
-        new node.builders['trait'](this, node)
-    );
-}  else if (type === 'call') {
-    if (
-        ast[1][0] === 'ns' &&
-        ast[1][1].length === 1 &&
-        ast[1][1][0] === 'define'
-    ) {
-        this.defines.push(
-            new node.builders['define'](this, node)
-        );
-    }
-}
-// @todo use, var */
+  /* @todo var */
 };
 
 module.exports = block;

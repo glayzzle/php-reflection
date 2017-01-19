@@ -1,9 +1,9 @@
 /*!
- * Copyright (C) 2016 Glayzzle (BSD3 License)
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
-"use strict";
+'use strict';
 var block = require('./block');
 var ptr = require('./ptr');
 
@@ -27,36 +27,10 @@ var namespace = block.extends('namespace');
  * @protected Consumes the current ast node
  */
 namespace.prototype.consume = function(ast) {
-
-  var self = this;
   this.name = '\\' + ast.name.name;
   this.uses = {};
   this.constants = [];
-
-  /**
-   * Iterator over each namespace item
-   */
-  ast.children.forEach(function(item) {
-    if (item.kind === 'constant') {
-      self.constants.push(
-        ptr.create('constant', self, item)
-      );
-    } else if (item.kind === 'usegroup') {
-      var prefix = item.name.name;
-      for(var i = 0; i < item.items.length; i++) {
-        var alias = item.items[i].alias;
-        var name = item.items[i].name.name;
-        if (name[0] !== '\\') name = '\\' + name;
-        if (!alias) {
-          alias = name.split('\\');
-          alias = alias[alias.length - 1];
-        }
-        self.uses[alias] = prefix + name;
-      }
-    } else {
-      self.consumeChild(item);
-    }
-  });
+  this.scanForChilds(ast.children);
 };
 
 /**
