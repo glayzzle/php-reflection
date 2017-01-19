@@ -80,6 +80,19 @@ node.prototype.getFile = function() {
 };
 
 /**
+ * Gets the current repository
+ * @return {Repository} {@link REPOSITORY.md|:link:}
+ */
+node.prototype.getRepository = function() {
+  var file = this.getFile();
+  if (file) {
+    return file.repository;
+  }
+  return null;
+};
+
+
+/**
  * Gets the current namespace
  * @return {namespace} {@link NAMESPACE.md|:link:}
  */
