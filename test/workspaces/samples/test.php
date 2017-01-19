@@ -12,11 +12,13 @@ namespace foobar {
     include __DIR__ . '/some-file.php';
     require_once 'another-file.php';
 
+
+
     if ($something) {
         /**
          * @class(something)
          */
-        class foo {
+        class foo implements \foo {
             /**
              * A const value
              */

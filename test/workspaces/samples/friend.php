@@ -4,6 +4,9 @@
         function hey() {
             return true;
         }
+        interface foo {
+          public function doFoo($arg);
+        }
     }
 
     namespace foobar {
