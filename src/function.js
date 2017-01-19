@@ -13,7 +13,7 @@ var block = require('./block');
  * inner nodes and use the namespace prefix to avoid
  * names colision.
  *
- * @constructor function
+ * @constructor Function
  *
  * @property {String} name The function name
  * @property {String} fullName

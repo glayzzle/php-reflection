@@ -1,9 +1,9 @@
 /*!
- * Copyright (C) 2016 Glayzzle (BSD3 License)
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
-
+'use strict';
 
 var node = require('./node');
 var expr = require('./expr');
@@ -13,17 +13,18 @@ var expr = require('./expr');
  *
  * Represents a constant declaration
  *
- * @public @constructor define
+ * @public
+ * @constructor Define
  * @property {String|expr} name
  * @property {expr} value {@link EXPR.md|:link:}
  * @property {Boolean|expr} caseInsensitive
  */
-var _def = node.extends('define');
+var Define = node.extends('define');
 
 /**
  * @protected Consumes the current ast node
  */
-_def.prototype.consume = function(ast) {
+Define.prototype.consume = function(ast) {
   this.name = expr.resolve(this, ast.arguments[0]);
   if (ast.arguments.length > 1) {
     this.value = expr.resolve(this, ast.arguments[1]);
@@ -35,4 +36,4 @@ _def.prototype.consume = function(ast) {
   }
 };
 
-module.exports = _def;
+module.exports = Define;

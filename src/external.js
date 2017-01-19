@@ -3,7 +3,7 @@
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
-
+'use strict';
 
 var node = require('./node');
 var expr = require('./expr');

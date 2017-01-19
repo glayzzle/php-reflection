@@ -1,12 +1,13 @@
 /*!
- * Copyright (C) 2016 Glayzzle (BSD3 License)
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
+'use strict';
 
 var node = require('./node');
 var block = require('./block');
-var scope = require('./scope');
+var Scope = require('./scope');
 var comment = require('./comment');
 
 /**
@@ -14,15 +15,15 @@ var comment = require('./comment');
  *
  * Initialize a new file with the specified AST contents
  *
- * @constructor {file}
- * @property {repository} repository The repository instance
+ * @constructor {File}
+ * @property {Repository} repository The repository instance
  * @property {Date} version Last time when the file was parsed
  * @property {integer} size The total file size
  * @property {String} name The filename
- * @property {node[]} nodes {@link NODE.md|:link:} List of nodes
- * @property {error} error {@link ERROR.md|:link:} Error node
+ * @property {Node[]} nodes {@link NODE.md|:link:} List of nodes
+ * @property {Error} error {@link ERROR.md|:link:} Error node
  */
-var file = node.extends(function file(repository, name, ast) {
+var File = node.extends(function file(repository, name, ast) {
   this.repository = repository;
   this.mtime = 0;
   this.size = 0;
@@ -37,9 +38,9 @@ var file = node.extends(function file(repository, name, ast) {
 
 /**
  * Generic lookup by node type
- * @return {node[]}
+ * @return {Node[]}
  */
-file.prototype.getByType = function(type) {
+File.prototype.getByType = function(type) {
   // build type index
   if (!this._indexNodeType) {
     this._indexNodeType = {};
@@ -57,9 +58,9 @@ file.prototype.getByType = function(type) {
 
 /**
  * Generic lookup by node name
- * @return {node[]}
+ * @return {Node[]}
  */
-file.prototype.getByName = function(type, name) {
+File.prototype.getByName = function(type, name) {
   if (!this._indexNodeName) {
     this._indexNodeName = {};
   }
@@ -92,59 +93,59 @@ file.prototype.getByName = function(type, name) {
 
 /**
  * Generic lookup by node name
- * @return {node|null}
+ * @return {Node|null}
  */
-file.prototype.getFirstByName = function(type, name) {
+File.prototype.getFirstByName = function(type, name) {
   var result = this.getByName(type, name);
   return result.length > 0 ? result[0] : null;
 };
 
 /**
- * @return {namespace[]}
+ * @return {Namespace[]}
  */
-file.prototype.getNamespaces = function() {
+File.prototype.getNamespaces = function() {
   return this.getByType('namespace');
 };
 
 /**
- * @return {class[]}
+ * @return {Class[]}
  */
-file.prototype.getClasses = function() {
+File.prototype.getClasses = function() {
   return this.getByType('class');
 };
 
 /**
- * @return {interfaces[]}
+ * @return {Interface[]}
  */
-file.prototype.getInterfaces = function() {
-  return this.getByType('class');
+File.prototype.getInterfaces = function() {
+  return this.getByType('interface');
 };
 
 /**
- * @return {external[]}
+ * @return {External[]}
  */
-file.prototype.getIncludes = function() {
+File.prototype.getIncludes = function() {
   return this.getByType('external');
 };
 
 /**
- * @return {class}
+ * @return {Class}
  */
-file.prototype.getClass = function(name) {
+File.prototype.getClass = function(name) {
   return this.getFirstByName('class', name);
 };
 
 /**
- * @return {class}
+ * @return {Class}
  */
-file.prototype.getNamespace = function(name) {
+File.prototype.getNamespace = function(name) {
   return this.getFirstByName('namespace', name);
 };
 
 /**
  * @protected Consumes the current ast node
  */
-file.prototype.consume = function(ast) {
+File.prototype.consume = function(ast) {
 
   // check the AST structure
   if (ast.kind !== 'program' || !Array.isArray(ast.children)) {
@@ -199,24 +200,24 @@ file.prototype.consume = function(ast) {
 
 /**
  * Gets a scope reader
- * @return {scope} {@link SCOPE.md|:link:}
+ * @return {Scope} {@link SCOPE.md|:link:}
  */
-file.prototype.getScope = function(offset) {
-  return new scope(this, offset);
+File.prototype.getScope = function(offset) {
+  return new Scope(this, offset);
 };
 
 /**
  * Removes the current file from the parser (need to clean external references)
  */
-file.prototype.remove = function() {
+File.prototype.remove = function() {
   // @todo
 };
 
 /**
  * Refreshing symbols
  */
-file.prototype.refresh = function() {
+File.prototype.refresh = function() {
   // @todo
 };
 
-module.exports = file;
+module.exports = File;

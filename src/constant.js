@@ -1,9 +1,9 @@
 /*!
- * Copyright (C) 2016 Glayzzle (BSD3 License)
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
-
+'use strict';
 
 var node = require('./node');
 var expr = require('./expr');
@@ -14,18 +14,19 @@ var ptr = require('./ptr');
  *
  * Represents a constant declaration
  *
- * @public @constructor constant
+ * @public
+ * @constructor Constant
  * @property {String} name
  * @property {String} fullName
  * @property {expr} value {@link EXPR.md|:link:}
  */
-var _const = node.extends('constant');
+var Constant = node.extends('constant');
 
 
 /**
  * @protected Consumes the current ast node
  */
-_const.prototype.consume = function(ast) {
+Constant.prototype.consume = function(ast) {
   this.name = ast.name;
 
   if (this.parent.type === 'class') {
@@ -41,20 +42,5 @@ _const.prototype.consume = function(ast) {
   }
 };
 
-/**
- * Creates an array of constants
- * @return {constant[]}
- */
-_const.fromAST = function(parent, ast) {
-  var result = [];
-  if (ast[0] === 'const' && ast.length === 2) {
-    ast[1].forEach(function(item) {
-      result.push(
-        ptr.create('constant', parent, item)
-      );
-    });
-  }
-  return result;
-};
 
-module.exports = _const;
+module.exports = Constant;

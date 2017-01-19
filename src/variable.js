@@ -1,9 +1,9 @@
 /*!
- * Copyright (C) 2016 Glayzzle (BSD3 License)
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
-
+'use strict';
 
 var node = require('./node');
 var reference = require('./reference');

@@ -1,8 +1,10 @@
 /*!
- * Copyright (C) 2016 Glayzzle (BSD3 License)
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
+'use strict';
+
 var block = require('./block');
 var expr = require('./expr');
 
@@ -14,15 +16,16 @@ var expr = require('./expr');
  *
  * {@link http://php.net/manual/en/control-structures.declare.php}
  *
- * @public @constructor declare
+ * @public
+ * @constructor Declare
  * @property {Object} options List of key/value declarations
  */
-var declare = block.extends('declare');
+var Declare = block.extends('declare');
 
 /**
  * @protected reads each declared option
  */
-declare.prototype.consume = function(ast) {
+Declare.prototype.consume = function(ast) {
 
   // @fixme object are not exported as cache
   this.options = {};
@@ -34,4 +37,4 @@ declare.prototype.consume = function(ast) {
   this.scanForChilds(ast.children);
 };
 
-module.exports = declare;
+module.exports = Declare;

@@ -3,6 +3,8 @@
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
+'use strict';
+
 var node = require('./node');
 var reference = require('./reference');
 
@@ -13,7 +15,7 @@ var reference = require('./reference');
  * Represents an interface
  *
  * @public
- * @constructor interface
+ * @constructor Interface
  * @property {string} name
  * @property {string} fullName
  * @property {boolean} isFinal
@@ -22,13 +24,13 @@ var reference = require('./reference');
  * @property {property[]} properties {@link PROPERTY.md|:link:}
  * @property {method[]} methods {@link METHOD.md|:link:}
  */
-var _interface = node.extends('interface');
+var Interface = node.extends('interface');
 
 
 /**
  * @protected Consumes the current ast node
  */
-_interface.prototype.consume = function(ast) {
+Interface.prototype.consume = function(ast) {
 
   // handle name
   this.name = ast.name;
@@ -50,4 +52,4 @@ _interface.prototype.consume = function(ast) {
   }
 };
 
-module.exports = _interface;
+module.exports = Interface;

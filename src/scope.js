@@ -1,20 +1,21 @@
 /*!
- * Copyright (C) 2016 Glayzzle (BSD3 License)
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
+'use strict';
 
 /**
  * This class contains the state at a specified offset into a file
  * @public @constructor scope
- * @property {file} file {@link FILE.md|:link:} 
+ * @property {file} file {@link FILE.md|:link:}
  * @property {Integer} offset
- * @property {namespace} namespace {@link NAMESPACE.md|:link:} 
- * @property {class|null} class {@link CLASS.md|:link:} 
- * @property {trait|null} trait {@link TRAIT.md|:link:} 
- * @property {interface|null} trait {@link INTERFACE.md|:link:} 
- * @property {method|null} method {@link METHOD.md|:link:} 
- * @property {function|null} function {@link FUNCTION.md|:link:} 
+ * @property {namespace} namespace {@link NAMESPACE.md|:link:}
+ * @property {class|null} class {@link CLASS.md|:link:}
+ * @property {trait|null} trait {@link TRAIT.md|:link:}
+ * @property {interface|null} trait {@link INTERFACE.md|:link:}
+ * @property {method|null} method {@link METHOD.md|:link:}
+ * @property {function|null} function {@link FUNCTION.md|:link:}
  */
 var scope = function(file, offset) {
 
@@ -54,7 +55,7 @@ var scope = function(file, offset) {
 
 /**
  * Gets variables depending on current state
- * @return {variable[]|null} {@link VARIABLE.md|:link:} 
+ * @return {variable[]|null} {@link VARIABLE.md|:link:}
  */
 scope.prototype.getVariables = function() {
   // scope restricted

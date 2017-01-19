@@ -4,6 +4,7 @@
  * @url http://glayzzle.com
  */
 'use strict';
+
 var block = require('./block');
 var ptr = require('./ptr');
 
@@ -14,19 +15,19 @@ var ptr = require('./ptr');
  * inner nodes and use the namespace prefix to avoid
  * names colision.
  *
- * @constructor {namespace}
+ * @constructor {Namespace}
  *
  * @property {String} name The namespace full name
  * @property {use[]} uses {@link USE.md|:link:} List of imported (or used namespaces)
  * @property {constant[]} constants {@link CONSTANT.md|:link:} List of constants
  */
-var namespace = block.extends('namespace');
+var Namespace = block.extends('namespace');
 
 
 /**
  * @protected Consumes the current ast node
  */
-namespace.prototype.consume = function(ast) {
+Namespace.prototype.consume = function(ast) {
   this.name = '\\' + ast.name.name;
   this.uses = {};
   this.constants = [];
@@ -39,7 +40,7 @@ namespace.prototype.consume = function(ast) {
  * @param {String|Array} name
  * @return {String}
  */
-namespace.prototype.resolveClassName = function(name) {
+Namespace.prototype.resolveClassName = function(name) {
   if (name.kind && name.kind === 'identifier') {
     if (name.resolution === 'fqn') {
       return name.name;
@@ -56,4 +57,4 @@ namespace.prototype.resolveClassName = function(name) {
   }
 };
 
-module.exports = namespace;
+module.exports = Namespace;

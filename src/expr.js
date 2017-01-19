@@ -1,8 +1,9 @@
 /*!
- * Copyright (C) 2016 Glayzzle (BSD3 License)
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
+'use strict';
 
 var block = require('./block');
 
@@ -11,16 +12,17 @@ var block = require('./block');
  *
  * Defines a generic AST expression
  *
- * @public @constructor expr
+ * @public
+ * @constructor Expr
  * @property {Array} ast List of AST nodes (as plain arrays)
  */
-var expr = block.extends('expr');
+var Expr = block.extends('expr');
 
 
 /**
  * @protected Consumes the current ast node
  */
-expr.prototype.consume = function(ast) {
+Expr.prototype.consume = function(ast) {
   this.ast = ast;
   this.scanForChilds(ast);
 };
@@ -31,7 +33,7 @@ expr.prototype.consume = function(ast) {
  * @return {String}
  * @todo
  */
-expr.prototype.toPHP = function() {
+Expr.prototype.toPHP = function() {
   // @todo : use php-unparser
   return null;
 };
@@ -39,7 +41,7 @@ expr.prototype.toPHP = function() {
 /**
  * @return {expr|Boolean|String|Number}
  */
-expr.resolve = function(parent, ast) {
+Expr.resolve = function(parent, ast) {
   if (
     ast.kind === 'string' ||
     ast.kind === 'boolean' ||
@@ -47,8 +49,8 @@ expr.resolve = function(parent, ast) {
   ) {
     return ast.value;
   } else {
-    return new expr(parent, ast);
+    return new Expr(parent, ast);
   }
 };
 
-module.exports = expr;
+module.exports = Expr;

@@ -1,8 +1,10 @@
 /*!
- * Copyright (C) 2016 Glayzzle (BSD3 License)
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
+'use strict';
+
 var node = require('./node');
 var reference = require('./reference');
 
@@ -12,7 +14,7 @@ var reference = require('./reference');
  * Represents a class
  *
  * @public
- * @constructor class
+ * @constructor Class
  * @property {string} name
  * @property {string} fullName
  * @property {boolean} isAbstract
@@ -81,6 +83,7 @@ _class.prototype.consume = function(ast) {
           node.create('method', this, item)
         );
       }
+      // @todo use traits statements
       lastDoc = null;
     }
   }
