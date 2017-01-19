@@ -1,20 +1,20 @@
-/*!
- * Copyright (C) 2016 Glayzzle (BSD3 License)
+statu/*!
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
  * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
  * @url http://glayzzle.com
  */
-
+'use strict';
 
 var node = require('./node');
 var expr = require('./expr');
 
 /**
  * **Extends from {@link NODE.md|:link: node}**
- * 
+ *
  * Reprensents a class property declaration
- * 
- * @public 
- * @constructor property
+ *
+ * @public
+ * @constructor Property
  * @property {String} name
  * @property {String} fullName
  * @property {Boolean} isStatic
@@ -23,17 +23,21 @@ var expr = require('./expr');
  * @property {Boolean} isPublic
  * @property {expr} value {@link EXPR.md|:link:}
  */
-var property = node.extends('property');
+var Property = node.extends('property');
 
 /**
  * @protected Consumes the current ast node
  */
-property.prototype.consume = function(ast) {
-  this.name = ast[0];
+Property.prototype.consume = function(ast) {
+  this.name = ast.name;
   this.fullName = this.parent.fullName + '::' + this.name;
-  if (ast[1]) {
-    this.value = expr.resolve(this, ast[1]);
+  this.isStatic = ast.isStatic;
+  this.isPrivate = ast.visibility === 'private';
+  this.isPublic = ast.visibility === 'public';
+  this.isProtected = ast.visibility === 'protected';
+  if (ast.value) {
+    this.value = expr.resolve(this, ast.value);
   }
 };
 
-module.exports = property;
+module.exports = Property;
