@@ -1,9 +1,22 @@
 #!/usr/bin/env node
+/*!
+ * Copyright (C) 2017 Glayzzle (BSD3 License)
+ * @authors https://github.com/glayzzle/php-reflection/graphs/contributors
+ * @url http://glayzzle.com
+ */
 'use strict';
 
+var fs = require('fs');
+var path = require('path');
 var Repository = require('../src/repository');
 var stack = [];
 var working = false;
+
+// sends a response to master
+function reply(type, data) {
+  data.type = type;
+  process.send(JSON.stringify(data));
+}
 
 // received a work request
 process.on('message', function(data) {
@@ -15,45 +28,68 @@ process.on('message', function(data) {
 
 // end of work
 process.on('disconnect', function() {
-    process.exit(1);
+    process.kill();
 });
 
 // do some work
 function work() {
-    // got work ?
-    if (stack.length === 0) {
-        working = false;
-        return;
-    }
+  // got work ?
+  if (stack.length === 0) {
+    working = false;
+    return;
+  }
 
-    // lets go !
-    working = true;
-    var data = stack.pop();
+  // lets go !
+  working = true;
+  var data = stack.pop();
 
-    console.log('Start >> ', data);
-    // is parameters OK ?
-    if (!data.filename || !data.options) {
-        return process.nextTick(work);
-    }
+  // is parameters OK ?
+  if (!data.filename || !data.options) {
+    return process.nextTick(work);
+  }
 
-    // init a new repository
-    process.send(JSON.stringify({
-        type: 'start',
-        filename: data.filename
-    }));
+  // init a new repository
+  reply('start', {
+    filename: data.filename,
+    directory: data.directory
+  });
 
-    // init a new repository
-    try {
-        data.options.forkWorker = false;
-        var repo = new Repository(data.options);
-    } catch(e) {
-        process.send(JSON.stringify({
-            type: 'reject',
-            filename: data.filename,
-            error: e.message
-        }));
-    }
-
-    // release loop for checking message
-    process.nextTick(work);
+  // init a new repository
+  try {
+      data.options.forkWorker = false;
+      var repo = new Repository(data.directory, data.options);
+      fs.stat(path.resolve(data.directory, data.filename), function(err, stat) {
+        if (err) {
+          reply('reject', {
+              filename: data.filename,
+              directory: data.directory,
+              error: err.message
+          });
+          process.nextTick(work);
+        } else {
+          repo.parse(data.filename, null, stat).then(function(file) {
+            reply('done', {
+                filename: data.filename,
+                directory: data.directory,
+                result: file.export()
+            });
+            process.nextTick(work);
+          }, function(err) {
+            reply('reject', {
+                filename: data.filename,
+                directory: data.directory,
+                error: err.stack
+            });
+            process.nextTick(work);
+          });
+        }
+      });
+  } catch(e) {
+      reply('reject', {
+          filename: data.filename,
+          directory: data.directory,
+          error: e.stack
+      });
+      process.nextTick(work);
+  }
 }
