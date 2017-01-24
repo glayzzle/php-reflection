@@ -32,21 +32,25 @@ var node = function(parent, ast) {
 
   this.relations = [];
 
-  // check if contains a position node
-  if (ast.loc) {
-    this.position = new position(ast.loc);
-  }
+  if (ast) {
+    // check if contains a position node
+    if (ast.loc) {
+      this.position = new position(ast.loc);
+    }
 
-  // check if contains a doc node
-  if (typeof ast.doc === 'object' && ast.doc !== null) {
-    this.doc = new comment(this, ast.doc);
+    // check if contains a doc node
+    if (typeof ast.doc === 'object' && ast.doc !== null) {
+      this.doc = new comment(this, ast.doc);
+    }
   }
 
   if (this.type !== 'file') {
     // automatic reference
     this.getFile().nodes.push(this);
   }
-  this.consume(ast);
+  if (ast) {
+    this.consume(ast);
+  }
 };
 
 
