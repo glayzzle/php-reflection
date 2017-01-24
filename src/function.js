@@ -5,6 +5,7 @@
  */
 
 var block = require('./block');
+var ptr = require('./ptr');
 
 /**
  * **Extends from [block](BLOCK.md)**
