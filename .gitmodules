@@ -1,0 +1,3 @@
+[submodule "test/workspaces/magento2"]
+	path = test/workspaces/magento2
+	url = https://github.com/magento/magento2.git

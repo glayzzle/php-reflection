@@ -67,6 +67,9 @@ Read the [API docs](https://github.com/glayzzle/php-reflection/tree/master/docs)
 
 ... if you want to share an idea or your project make a pull request
 
+# Benchmark
+
+
 # WIP Disclaimer
 
 This project is actually on it's early alpha stage. It may progress rapidly, so watch the project if you are interested to use it.

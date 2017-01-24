@@ -2,4 +2,3 @@
 /test/cache/*.json
 /coverage/
 npm-debug.log
-test/workspaces/magento2
