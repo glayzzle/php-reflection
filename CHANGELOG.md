@@ -1,3 +1,11 @@
+## [Version 1.1.0](https://github.com/glayzzle/php-reflection/releases/tag/v1.1.0) (2017-1-24)
+
+### Patches
+
+- use version 1.1.0: [`e0a0fe3`](https://github.com/glayzzle/php-reflection/commit/e0a0fe3)
+
+[...full changes](https://github.com/glayzzle/php-reflection/compare/v0.1.0...v1.1.0)
+
 ## [Version 1.1.0](https://github.com/glayzzle/php-reflection/releases/tag/v1.1.0) (2017-01-24)
 
 ### Major Changes
