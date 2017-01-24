@@ -1,4 +1,4 @@
-## [Version 0.1.0](https://github.com/glayzzle/php-reflection/releases/tag/v0.1.0) (2017-1-24)
+## [Version 1.1.0](https://github.com/glayzzle/php-reflection/releases/tag/v1.1.0) (2017-01-24)
 
 ### Major Changes
 
