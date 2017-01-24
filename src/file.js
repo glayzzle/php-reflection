@@ -220,4 +220,13 @@ File.prototype.refresh = function() {
   // @todo
 };
 
+
+/**
+ * Refreshing symbols
+ */
+File.import = function(repository, data) {
+  // @todo
+  return new File(repository, data.name);
+};
+
 module.exports = File;
