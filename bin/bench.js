@@ -47,8 +47,8 @@ workspace.scan().then(function() {
   elapsed_time('List of interfaces : ' + items.length);
   items = workspace.getByType('constant', -1);
   elapsed_time('List of constants : ' + items.length);
-  // var ns = workspace.getNamespace('\\Magento\\Catalog\\Ui\\DataProvider\\Product\\Form\\Modifier');
-  // elapsed_time('Found Namespace : ' + ns.name);
+  var ns = workspace.getNamespace('\\Magento\\Catalog\\Ui\\DataProvider\\Product\\Form\\Modifier');
+  elapsed_time('Found Namespace : ' + (ns ? ns.name : 'KO'));
+  // tada (force workers to stop)
+  process.exit(0);
 });
-
-//workspace.parse('lib/internal/Magento/Framework/CurrencyFactory.php');
