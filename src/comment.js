@@ -19,7 +19,13 @@ var reader = new DocParser();
  */
 var comment = function(node, ast) {
   this.type = node.type;
-  var doc = reader.parse(ast.lines);
+  try {
+    var doc = reader.parse(ast.lines);
+  } catch(e) {
+    console.error(e.stack);
+    console.log('Source : \n* ' + ast.lines.join('\n* '));
+    return;
+  }
   this.summary = doc.summary;
   this.tags = {};
   this.annotations = [];
