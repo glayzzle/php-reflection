@@ -69,7 +69,7 @@ block.prototype.scanForChilds = function(ast) {
  * @return void
  */
 block.prototype.consumeChild = function(ast) {
-  if (!ast.kind) return;
+  if (!ast || !ast.kind) return;
 
   // handle class definition
   if (ast.kind === 'doc') {
@@ -192,7 +192,7 @@ block.prototype.consumeChild = function(ast) {
 
     // namespace use statements
     else if (ast.kind === 'usegroup') {
-      var prefix = ast.name.name;
+      var prefix = ast.name ? ast.name.name : '';
       for(var i = 0; i < ast.items.length; i++) {
         var alias = ast.items[i].alias;
         var name = ast.items[i].name.name;
