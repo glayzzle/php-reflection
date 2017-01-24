@@ -44,7 +44,7 @@ Worker.prototype.restart = function(code) {
     this.child.on('exit', this.restart.bind(this));
     this.child.on('message', this.message.bind(this));
     this.ready = true;
-    console.log('>> restart', code);
+    // console.log('>> restart', code);
     // retry pending scripts
     if (this.length > 0) {
       for (var k in this.jobs) {
@@ -68,7 +68,7 @@ Worker.prototype.message = function(data) {
   var filename = data.filename;
   if (this.jobs.hasOwnProperty(filename)) {
     var type = data.type;
-    console.log(type, filename);
+    // console.log(type, filename);
     if (type === 'start') {
       var self = this;
       // 5 sec timeout max
@@ -102,22 +102,25 @@ Worker.prototype.message = function(data) {
 /**
  * Runs a process
  */
-Worker.prototype.process = function(filename, crc32, options) {
+Worker.prototype.process = function(filename, crc32, directory, options) {
   if (!this.jobs.hasOwnProperty(filename)) {
     this.length++;
-    var self = this;
+    var fnDone, fnReject;
     this.jobs[filename] = new Promise(function(done, reject) {
-      console.log('process>>' + filename, crc32, options);
-      self.jobs[filename].done = done;
-      self.jobs[filename].reject = reject;
-      self.jobs[filename].crc32 = crc32;
-      self.jobs[filename].options = options;
-      self.child.send(JSON.stringify({
-        filename: filename,
-        crc32: crc32,
-        options: options
-      }));
+      fnDone = done;
+      fnReject = reject;
     });
+    // console.log('process>>' + filename, crc32, options);
+    this.jobs[filename].done = fnDone;
+    this.jobs[filename].reject = fnReject;
+    this.jobs[filename].crc32 = crc32;
+    this.jobs[filename].options = options;
+    this.child.send(JSON.stringify({
+      directory: directory,
+      filename: filename,
+      crc32: crc32,
+      options: options
+    }));
   }
   return this.jobs[filename];
 };
@@ -132,14 +135,17 @@ for (var i = 0; i < numCPUs; i++) {
  * @param {String} crc32
  * @return {Promise}
  */
-module.exports = function(filename, crc32, options) {
+module.exports = function(filename, crc32, directory, options) {
+  var num = 0;
   var w = workers[0];
   for (var i = 1; i < workers.length; i++) {
     if (workers[i].ready && workers[i].length < w.length) {
       w = workers[i];
+      num = i;
     }
   }
-  return w.process(filename, crc32, {
+  // console.log('[' + num + '] => ' + w.length);
+  return w.process(filename, crc32, directory, {
     cacheByFileDate: false,
     cacheByFileSize: false,
     cacheByFileHash: options.cacheByFileHash,
