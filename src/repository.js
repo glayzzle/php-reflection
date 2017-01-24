@@ -303,7 +303,7 @@ repository.prototype.parse = function(filename, encoding, stat) {
 
       if (self.options.forkWorker) {
         // reads from a forked process
-        require('./worker')(filename, null, self.options).then(function(cache) {
+        require('./worker')(filename, null, self.directory, self.options).then(function(cache) {
           if (cache.hit) {
             self.emit('cache', {
               name: filename
@@ -333,6 +333,7 @@ repository.prototype.parse = function(filename, encoding, stat) {
             var ast;
             if (!err) {
               try {
+                //console.log('start', filename);
                 var reader = new parser({
                   ast: {
                     withPositions: true
@@ -344,6 +345,7 @@ repository.prototype.parse = function(filename, encoding, stat) {
                 });
                 data = data.toString(encoding);
                 ast = reader.parseCode(data);
+                //console.log('done', filename);
               } catch (e) {
                 err = e;
               }
@@ -355,6 +357,7 @@ repository.prototype.parse = function(filename, encoding, stat) {
             } else {
               try {
                 self.files[filename] = new file(self, filename, ast);
+                //console.log('parsed', filename);
                 self.files[filename].refresh();
                 if (self.options.cacheByFileSize) {
                   self.files[filename].size = data.length;
@@ -385,13 +388,12 @@ repository.prototype.parse = function(filename, encoding, stat) {
  * @return {node[]} {@link NODE.md|:link:}
  */
 repository.prototype.getByType = function(type, limit) {
-  if (!limit || limit < 1)
-    limit = 100;
+  if (!limit) limit = 100;
   var result = [];
   for (var k in this.files) {
     if (this.files[k] instanceof file) {
       result = result.concat(this.files[k].getByType(type));
-      if (result.length > limit) {
+      if (limit > 0 && result.length > limit) {
         result = result.slice(0, limit);
         break;
       }
