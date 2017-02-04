@@ -151,6 +151,7 @@ module.exports = function(filename, crc32, directory, options) {
     cacheByFileHash: options.cacheByFileHash,
     encoding: options.encoding,
     scanExpr: options.scanExpr,
-    scanVars: options.scanVars
+    scanVars: options.scanVars,
+    scanDocs: options.scanDocs
   });
 };

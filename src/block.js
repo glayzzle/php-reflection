@@ -73,7 +73,11 @@ block.prototype.consumeChild = function(ast) {
 
   // handle class definition
   if (ast.kind === 'doc') {
-    this._lastDoc = item;
+    if (this.getRepository().options.scanDocs) {
+      this._lastDoc = item;
+    } else {
+      this._lastDoc = null;
+    }
   } else {
 
     // attach last doc node to current node
@@ -121,42 +125,54 @@ block.prototype.consumeChild = function(ast) {
 
     // consume IF nodes
     else if (ast.kind === 'if') {
-      // IF BODY
-      if (ast.body) {
-        this.blocks.push(
-          ptr.create('block', this, ast.body)
-        );
-      }
-      // ELSE STATEMENT
-      if (ast.alternate) {
-        this.blocks.push(
-          ptr.create('block', this, ast.alternate)
-        );
+      if (this.getRepository().options.scanExpr) {
+
+        // IF BODY
+        if (ast.body) {
+          this.blocks.push(
+            ptr.create('block', this, ast.body)
+          );
+        }
+        // ELSE STATEMENT
+        if (ast.alternate) {
+          this.blocks.push(
+            ptr.create('block', this, ast.alternate)
+          );
+        }
+      } else {
+        // inner scan only (ignore blocks)
+        if (ast.body) this.scanForChilds(ast.body);
+        if (ast.alternate) this.scanForChilds(ast.alternate);
       }
     }
 
     // try nodes
     else if (ast.kind === 'try') {
 
-      // BODY
-      this.blocks.push(
-        ptr.create('block', this, ast.body)
-      );
-
-      // CATCH
-      if (Array.isArray(ast.catches)) {
-        ast.catches.forEach(function(item) {
-          this.blocks.push(
-            ptr.create('block', this, item.body)
-          );
-        }.bind(this));
-      }
-
-      // FINALLY
-      if (ast.allways) {
+      if (this.getRepository().options.scanExpr) {
+        // BODY
         this.blocks.push(
-          ptr.create('block', this, ast.allways)
+          ptr.create('block', this, ast.body)
         );
+        // CATCH
+        if (Array.isArray(ast.catches)) {
+          ast.catches.forEach(function(item) {
+            this.blocks.push(
+              ptr.create('block', this, item.body)
+            );
+          }.bind(this));
+        }
+        // FINALLY
+        if (ast.allways) {
+          this.blocks.push(
+            ptr.create('block', this, ast.allways)
+          );
+        }
+      } else {
+        // inner scan only (ignore blocks)
+        this.scanForChilds(ast.body);
+        if (Array.isArray(ast.catches)) this.scanForChilds(ast.catches);
+        if (ast.allways) this.scanForChilds(ast.allways);
       }
     }
 
@@ -170,7 +186,11 @@ block.prototype.consumeChild = function(ast) {
     }
 
     // variables (by assignment)
-    else if (ast.kind === 'assign' && ast.left.kind === 'variable') {
+    else if (
+      ast.kind === 'assign' && 
+      ast.left.kind === 'variable' && 
+      this.getRepository().options.scanVars
+    ) {
       this.variables.push(
         ptr.create('variable', this, ast)
       );

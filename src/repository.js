@@ -57,6 +57,8 @@ var repository = function(directory, options) {
     scanVars: true,
     // extract scopes from
     scanExpr: true,
+    // extract documentation from
+    scanDocs: true,
     // default parsing encoding
     encoding: 'utf8',
     // should spawn a worker process to avoir blocking
@@ -97,7 +99,9 @@ var repository = function(directory, options) {
     total: 0,
     loading: 0,
     loaded: 0,
-    error: 0
+    error: 0,
+    symbols: 0,
+    size: 0
   };
   this.directory = path.resolve(directory);
 
@@ -223,9 +227,11 @@ repository.prototype.scan = function(directory) {
                 filename,
                 self.options.encoding,
                 stat
-              ).then(function() {
+              ).then(function(file) {
                 self.counter.loading--;
                 self.counter.loaded++;
+                self.counter.size += file.size;
+                self.counter.symbols += file.nodes.length;
                 self.emit('progress', self.counter);
                 done();
               }, function(e) {
@@ -333,19 +339,18 @@ repository.prototype.parse = function(filename, encoding, stat) {
             var ast;
             if (!err) {
               try {
-                //console.log('start', filename);
                 var reader = new parser({
                   ast: {
                     withPositions: true
                   },
                   parser: {
-                    extractDoc: true,
+                    extractDoc: self.options.scanDocs,
                     suppressErrors: true
                   }
                 });
-                data = data.toString(encoding);
-                ast = reader.parseCode(data);
-                //console.log('done', filename);
+                ast = reader.parseCode(
+                  data.toString(encoding)
+                );
               } catch (e) {
                 err = e;
               }
@@ -357,11 +362,8 @@ repository.prototype.parse = function(filename, encoding, stat) {
             } else {
               try {
                 self.files[filename] = new file(self, filename, ast);
-                //console.log('parsed', filename);
                 self.files[filename].refresh();
-                if (self.options.cacheByFileSize) {
-                  self.files[filename].size = data.length;
-                }
+                self.files[filename].size = data.length;
                 if (self.options.cacheByFileDate) {
                   self.files[filename].mtime = data.length;
                 }

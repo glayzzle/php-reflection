@@ -67,7 +67,9 @@ _class.prototype.consume = function(ast) {
   for(var i = 0; i < ast.body.length; i++) {
     var item = ast.body[i];
     if (item.kind === 'doc') {
-      lastDoc = item;
+      if (this.getRepository().options.scanDocs) {
+        lastDoc = item;
+      }
     } else {
       item.doc = lastDoc;
       if (item.kind === 'classconstant') {

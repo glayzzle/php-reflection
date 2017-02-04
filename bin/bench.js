@@ -12,8 +12,12 @@ var os = require('os');
 workspace = new repository(
   __dirname + '/../test/workspaces/magento2', {
   forkWorker: process.argv.indexOf('--fork') > -1,
-  exclude: ['bin']
+  exclude: ['bin'],
+  scanVars: process.argv.indexOf('--disable-vars') === -1,
+  scanExpr: process.argv.indexOf('--disable-expr') === -1,
+  scanDocs: process.argv.indexOf('--disable-docs') === -1
 });
+console.log('Configuration', workspace.options);
 var i = 0;
 workspace.on('error', function(e) {
   console.error(e);
@@ -49,6 +53,23 @@ workspace.scan().then(function() {
   elapsed_time('List of constants : ' + items.length);
   var ns = workspace.getNamespace('\\Magento\\Catalog\\Ui\\DataProvider\\Product\\Form\\Modifier');
   elapsed_time('Found Namespace : ' + (ns ? ns.name : 'KO'));
+  console.log('Read ' + workspace.counter.loaded + ' files / ' + workspace.counter.total + ' total files');
+  console.log('Parsed ' + Math.round(workspace.counter.size / 1024 / 1024) + 'Mb');
+  console.log('Extracted ' + workspace.counter.symbols + ' symbols');
+  var kindStats = {};
+  for(var f in workspace.files) {
+    var file = workspace.files[f];
+    for(var i = 0; i < file.nodes.length; i++) {
+      var node = file.nodes[i];
+      if (!(node.type in kindStats)) {
+        kindStats[node.type] = 1;
+      } else {
+        kindStats[node.type] ++;
+      }
+    }
+  }
+  console.log('Symbols stats : \n\n', kindStats);
   // tada (force workers to stop)
+  // console.log(JSON.stringify(workspace.cache(), null, 1));
   process.exit(0);
 });
