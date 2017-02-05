@@ -6,8 +6,8 @@
 'use strict';
 
 var inherits = require('util').inherits;
-var position = require('./position');
-var comment = require('./comment');
+var position = require('../utils/position');
+var comment = require('../utils/comment');
 
 /**
  * Generic node object (inherited by all objects)
@@ -278,7 +278,7 @@ node.builders = {};
  */
 node.create = function(type, parent, ast) {
   if (!node.builders.hasOwnProperty(type)) {
-    require('./' + type);
+    require('../nodes/' + type);
   }
   if (!node.builders.hasOwnProperty(type)) {
     throw new Error('"' + type + '" is not found');

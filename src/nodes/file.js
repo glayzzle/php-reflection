@@ -5,10 +5,10 @@
  */
 'use strict';
 
-var node = require('./node');
+var node = require('../data/node');
 var block = require('./block');
-var Scope = require('./scope');
-var comment = require('./comment');
+var Scope = require('../utils/scope');
+var comment = require('../utils/comment');
 
 /**
  * **Extends from [node](NODE.md)**

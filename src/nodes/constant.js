@@ -5,9 +5,9 @@
  */
 'use strict';
 
-var node = require('./node');
+var node = require('../data/node');
+var ptr = require('../data/ptr');
 var expr = require('./expr');
-var ptr = require('./ptr');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **

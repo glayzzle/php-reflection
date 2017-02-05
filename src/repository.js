@@ -11,11 +11,11 @@ var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
 var globToRegExp = require('glob-to-regexp');
-var parser = require('./parser');
 
-var file = require('./file');
-var node = require('./node');
-var block = require('./block');
+var parser = require('./utils/parser');
+var node = require('./data/node');
+var file = require('./nodes/file');
+var block = require('./nodes/block');
 
 /**
  *

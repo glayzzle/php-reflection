@@ -5,7 +5,7 @@
  */
 'use strict';
 
-var node = require('./node');
+var node = require('../data/node');
 var expr = require('./expr');
 
 /**

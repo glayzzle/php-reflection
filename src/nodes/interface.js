@@ -5,9 +5,8 @@
  */
 'use strict';
 
-var node = require('./node');
-var reference = require('./reference');
-
+var node = require('../data/node');
+var reference = require('../data/reference');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **

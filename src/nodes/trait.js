@@ -5,44 +5,37 @@
  */
 'use strict';
 
-var node = require('./node');
-var reference = require('./reference');
+var node = require('../data/node');
+var reference = require('../data/reference');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **
  *
- * Represents a class
+ * Represents a trait
  *
  * @public
- * @constructor Class
+ * @constructor Trait
  * @property {string} name
  * @property {string} fullName
- * @property {boolean} isAbstract
- * @property {boolean} isFinal
- * @property {reference<class>} extends {@link CLASS.md|:link:}
- * @property {interface[]} implements {@link INTERFACE.md|:link:}
+ * @property {reference<trait>} extends {@link CLASS.md|:link:}
+ * @property {constant[]} constants {@link PROPERTY.md|:link:}
  * @property {property[]} properties {@link PROPERTY.md|:link:}
  * @property {method[]} methods {@link METHOD.md|:link:}
- * @property {trait[]} traits {@link TRAIT.md|:link:}
  */
-var _class = node.extends('class');
+var trait = node.extends('trait');
 
 /**
  * @protected Consumes the current ast node
  */
-_class.prototype.consume = function(ast) {
+trait.prototype.consume = function(ast) {
 
   // handle name
   this.name = ast.name;
   this.fullName = this.getNamespace().name + '\\' + this.name;
 
-  // handle flags
-  this.isAbstract = ast.isAbstract;
-  this.isFinal = ast.isFinal;
-
   // handle extends
   if (ast.extends) {
-    this.extends = reference.toClass(this, ast.extends, 'extends');
+    this.extends = reference.toTrait(this, ast.extends, 'extends');
   } else {
     this.extends = false;
   }
@@ -61,15 +54,12 @@ _class.prototype.consume = function(ast) {
   this.constants = [];
   this.properties = [];
   this.methods = [];
-  this.traits = [];
 
   var lastDoc = null;
   for(var i = 0; i < ast.body.length; i++) {
     var item = ast.body[i];
     if (item.kind === 'doc') {
-      if (this.getRepository().options.scanDocs) {
-        lastDoc = item;
-      }
+      lastDoc = item;
     } else {
       item.doc = lastDoc;
       if (item.kind === 'classconstant') {
@@ -85,10 +75,9 @@ _class.prototype.consume = function(ast) {
           node.create('method', this, item)
         );
       }
-      // @todo use traits statements
       lastDoc = null;
     }
   }
 };
 
-module.exports = _class;
+module.exports = trait;
