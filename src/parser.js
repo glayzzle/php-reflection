@@ -56,7 +56,7 @@ module.exports = {
         engine.parser.suppressErrors = false;
         engine.parser.extractDoc = repository.options.scanDocs;
         engine.parser._errors = [];
-        engine.parser.filename = filename;
+        engine.parser.filename = node.getFile().filename;
         engine.parser.currentNamespace = [''];
         // @notice innerList state (node not extracted to flag ignored)
         engine.parser.token = node.state.token;
