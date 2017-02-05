@@ -11,7 +11,7 @@ var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
 var globToRegExp = require('glob-to-regexp');
-var parser = require('php-parser');
+var parser = require('./parser');
 
 var file = require('./file');
 var node = require('./node');
@@ -75,7 +75,9 @@ var repository = function(directory, options) {
     // just loads files when they are requested
     // define a function that receives the filename in argumen
     // and return the file cached structure
-    lazyCache: false
+    lazyCache: false,
+    // used for testing / dev without inspector
+    debug: false
   };
   // extends options
   if (options && typeof options === 'object') {
@@ -341,17 +343,8 @@ repository.prototype.parse = function(filename, encoding, stat) {
             var ast;
             if (!err) {
               try {
-                var reader = new parser({
-                  ast: {
-                    withPositions: true
-                  },
-                  parser: {
-                    extractDoc: self.options.scanDocs,
-                    suppressErrors: true
-                  }
-                });
-                ast = reader.parseCode(
-                  data.toString(encoding)
+                ast = parser.read(
+                  self, data.toString(encoding), filename
                 );
               } catch (e) {
                 err = e;
@@ -487,29 +480,17 @@ repository.prototype.getNamespace = function(name) {
 
 /**
  * Synchronize with specified offset
- * @return {boolean} True is node is in sync
+ * @return {boolean|Error} True is node was synced, or Error object if fail
  */
 repository.prototype.sync = function(filename, contents, offset) {
   if (!(filename in this.files)) {
     // not already in memory
-    // @todo use the lazy cache
     var ast;
     try {
-      var reader = new parser({
-        ast: {
-          withPositions: true
-        },
-        parser: {
-          extractDoc: this.options.scanDocs,
-          suppressErrors: true
-        }
-      });
-      ast = reader.parseCode(
-        contents, filename
-      );
+      ast = parser.read(this, contents, filename);
     } catch (e) {
       this.emit('error', e);
-      return false;
+      return e;
     }
     this.files[filename] = new file(this, filename, ast);
     this.files[filename].refresh();
@@ -519,28 +500,38 @@ repository.prototype.sync = function(filename, contents, offset) {
   }
   // @todo first implementation (not optimized for speed)
   // collect nodes
-  var file = this.files[filename];
+  var fileItem = this.files[filename];
   var syncNode = null;
   var start = offset[0];
   var end = offset[1];
-  for(var i = 0, size = file.nodes.length; i < size; i++) {
-    var node = file.nodes[i];
+  if (this.options.debug) console.log(
+    'detect', start, 'to', end,
+    '>' + contents.substring(start, end) + '<'
+  );
+  for(var i = 0, size = fileItem.nodes.length; i < size; i++) {
+    var node = fileItem.nodes[i];
     var position = node.position.offset;
     // x... [  ]
-    // var isNodeAfter = position.start > start && position.end > end;
+    var isNodeAfter = position.start > start && position.end > end;
     // [ ] x...
-    // var isNodeBefore = position.start > end;
+    var isNodeBefore = position.end < start;
     // [ x... ] or [ x.].. or x.[.. ] or x.[.]. 
-    // var isNodeIntersect = !isNodeAfter && !isNodeBefore;
+    var isNodeIntersect = !isNodeAfter && !isNodeBefore;
     // only [ x... ] 
-    var isNodeContainer = position.start <= start && position.end >= end;
-    if (isNodeContainer) {
+    // var isNodeContainer = position.start <= start && position.end >= end;
+    if (this.options.debug) console.log(
+      'check', 
+      node.type, 
+      position, 
+      '>' + contents.substring(position.start, position.end) + '<'
+    );
+    if (isNodeIntersect) {
       // locate nodes to be synced : 
       // [--[x..]--]
       // nodes that is not father of other nodes
       if (syncNode) {
-        // lets naively think that the start offset should be greated (included from text position)
-        if (syncNode.position.offset.start < position.start) {
+        // most specific node
+        if (position.start > syncNode.position.offset.start) {
           syncNode = node;
         }
       } else {
@@ -550,51 +541,34 @@ repository.prototype.sync = function(filename, contents, offset) {
   }
   if (!syncNode) {
     // refresh full file
-    syncNode = file;
+    syncNode = fileItem;
   }
-  
+  if (this.options.debug) console.log(
+    'sync from',
+    syncNode.position.offset.start, 
+    'to',
+    syncNode.position.offset.end
+  );
   var ast;
   try {
-    var reader = new parser({
-      ast: {
-        withPositions: true
-      },
-      parser: {
-        extractDoc: this.options.scanDocs,
-        suppressErrors: true
-      }
-    });
-
     if (syncNode.position.offset.start === 0) {
       // full refresh
-      ast = reader.parseCode(contents, filename);
+      ast = parser.read(this, contents, filename);
       // delete references
-      file.remove();
+      fileItem.remove();
       // create a new one
       this.files[filename] = new file(this, filename, ast);
       this.files[filename].refresh();
       this.files[filename].size = contents.length;
     } else {
-      // inject parsing state
-      reader.lexer.mode_eval = false;
-      reader.lexer.all_tokens = false;
-      reader.lexer.comment_tokens = this.options.scanDocs;
-      reader.lexer.setInput(contents);
-      reader.lexer.setState(syncNode.state);
-      reader.lexer.begin('ST_IN_SCRIPTING');
-      reader.parser._errors = [];
-      reader.parser.filename = filename;
-      reader.parser.currentNamespace = [''];
-      // @notice innerList state (node not extracted to flag ignored)
-      reader.parser.token = syncNode.state.token;
-      // generic entry point :
-      ast = reader.parser.read_top_statement();
-      file.removeNode(syncNode);
+      ast = parser.sync(this, contents, syncNode);
+      console.log(ast);
+      fileItem.removeNode(syncNode);
       syncNode.parent.consumeChild(ast);
     }
   } catch (e) {
     this.emit('error', e);
-    return false;
+    return e;
   }
   return true;
 };
