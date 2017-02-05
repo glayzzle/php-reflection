@@ -33,6 +33,11 @@ var node = function(parent, ast) {
   this.relations = [];
 
   if (ast) {
+
+    if (ast.state && ast.state.token) {
+      this.state = ast.state;
+    }
+
     // check if contains a position node
     if (ast.loc) {
       this.position = new position(ast.loc);
