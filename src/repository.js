@@ -15,6 +15,7 @@ var parser = require('./parser');
 
 var file = require('./file');
 var node = require('./node');
+var block = require('./block');
 
 /**
  *
@@ -531,7 +532,9 @@ repository.prototype.sync = function(filename, contents, offset) {
       // nodes that is not father of other nodes
       if (syncNode) {
         // most specific node
-        if (position.start > syncNode.position.offset.start) {
+        var isInner = position.start > syncNode.position.offset.start;
+        var isBlock = node instanceof block;
+        if (isBlock && isInner) {
           syncNode = node;
         }
       } else {
@@ -544,7 +547,7 @@ repository.prototype.sync = function(filename, contents, offset) {
     syncNode = fileItem;
   }
   if (this.options.debug) console.log(
-    'sync from',
+    'sync', syncNode.type, 'from',
     syncNode.position.offset.start, 
     'to',
     syncNode.position.offset.end
@@ -562,7 +565,8 @@ repository.prototype.sync = function(filename, contents, offset) {
       this.files[filename].size = contents.length;
     } else {
       ast = parser.sync(this, contents, syncNode);
-      console.log(ast);
+      if (this.options.debug) console.log(syncNode.parent.type, 'will eat', ast.kind);
+      // @fixme handle case when parent is not a block
       fileItem.removeNode(syncNode);
       syncNode.parent.consumeChild(ast);
     }
