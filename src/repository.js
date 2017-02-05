@@ -199,11 +199,11 @@ repository.prototype.scan = function(directory) {
               // ignore file (due to pattern)
               if (!matched) return done();
               // handle in-memory cache
-              if (self.files.hasOwnProperty(filename)) {
+              if (filename in self.files) {
                 // check if need to parse again
                 if (
                   self.options.cacheByFileDate &&
-                  self.files[filename].mtime === stat.mtime.getTime()
+                  self.files[filename].mtime > stat.mtime.getTime()
                 ) {
                   self.emit('cache', {
                     name: filename
@@ -230,8 +230,10 @@ repository.prototype.scan = function(directory) {
               ).then(function(file) {
                 self.counter.loading--;
                 self.counter.loaded++;
-                self.counter.size += file.size;
-                self.counter.symbols += file.nodes.length;
+                if (file) {
+                  self.counter.size += file.size;
+                  self.counter.symbols += file.nodes.length;
+                }
                 self.emit('progress', self.counter);
                 done();
               }, function(e) {
@@ -364,9 +366,6 @@ repository.prototype.parse = function(filename, encoding, stat) {
                 self.files[filename] = new file(self, filename, ast);
                 self.files[filename].refresh();
                 self.files[filename].size = data.length;
-                if (self.options.cacheByFileDate) {
-                  self.files[filename].mtime = data.length;
-                }
                 return done(self.files[filename]);
               } catch (e) {
                 delete self.files[filename];
@@ -374,7 +373,8 @@ repository.prototype.parse = function(filename, encoding, stat) {
                 return reject(e);
               }
             }
-          });
+          }
+        );
       }
     });
     return this.files[filename];
@@ -483,6 +483,120 @@ repository.prototype.getNamespace = function(name) {
   } else {
     return null;
   }
+};
+
+/**
+ * Synchronize with specified offset
+ * @return {boolean} True is node is in sync
+ */
+repository.prototype.sync = function(filename, contents, offset) {
+  if (!(filename in this.files)) {
+    // not already in memory
+    // @todo use the lazy cache
+    var ast;
+    try {
+      var reader = new parser({
+        ast: {
+          withPositions: true
+        },
+        parser: {
+          extractDoc: this.options.scanDocs,
+          suppressErrors: true
+        }
+      });
+      ast = reader.parseCode(
+        contents, filename
+      );
+    } catch (e) {
+      this.emit('error', e);
+      return false;
+    }
+    this.files[filename] = new file(this, filename, ast);
+    this.files[filename].refresh();
+    this.files[filename].size = contents.length;
+    // nothing to sync
+    return true;
+  }
+  // @todo first implementation (not optimized for speed)
+  // collect nodes
+  var file = this.files[filename];
+  var syncNode = null;
+  var start = offset[0];
+  var end = offset[1];
+  for(var i = 0, size = file.nodes.length; i < size; i++) {
+    var node = file.nodes[i];
+    var position = node.position.offset;
+    // x... [  ]
+    // var isNodeAfter = position.start > start && position.end > end;
+    // [ ] x...
+    // var isNodeBefore = position.start > end;
+    // [ x... ] or [ x.].. or x.[.. ] or x.[.]. 
+    // var isNodeIntersect = !isNodeAfter && !isNodeBefore;
+    // only [ x... ] 
+    var isNodeContainer = position.start <= start && position.end >= end;
+    if (isNodeContainer) {
+      // locate nodes to be synced : 
+      // [--[x..]--]
+      // nodes that is not father of other nodes
+      if (syncNode) {
+        // lets naively think that the start offset should be greated (included from text position)
+        if (syncNode.position.offset.start < position.start) {
+          syncNode = node;
+        }
+      } else {
+        syncNode = node;
+      }
+    }
+  }
+  if (!syncNode) {
+    // refresh full file
+    syncNode = file;
+  }
+  
+  var ast;
+  try {
+    var reader = new parser({
+      ast: {
+        withPositions: true
+      },
+      parser: {
+        extractDoc: this.options.scanDocs,
+        suppressErrors: true
+      }
+    });
+
+    if (syncNode.position.offset.start === 0) {
+      // full refresh
+      ast = reader.parseCode(contents, filename);
+      // delete references
+      file.remove();
+      // create a new one
+      this.files[filename] = new file(this, filename, ast);
+      this.files[filename].refresh();
+      this.files[filename].size = contents.length;
+    } else {
+      // inject parsing state
+      reader.lexer.mode_eval = false;
+      reader.lexer.all_tokens = false;
+      reader.lexer.comment_tokens = this.options.scanDocs;
+      reader.lexer.setInput(contents);
+      reader.lexer.setState(syncNode.state);
+      reader.lexer.begin('ST_IN_SCRIPTING');
+      reader.parser._errors = [];
+      reader.parser.filename = filename;
+      reader.parser.currentNamespace = [''];
+      // @notice innerList state (node not extracted to flag ignored)
+      reader.parser.token = syncNode.state.token;
+      // generic entry point :
+      ast = reader.parser.read_top_statement();
+      file.removeNode(syncNode);
+      syncNode.parent.consumeChild(ast);
+    }
+  } catch (e) {
+    this.emit('error', e);
+    return false;
+  }
+  return true;
 };
 
 
