@@ -25,7 +25,7 @@ var comment = require('./comment');
  */
 var File = node.extends(function file(repository, name, ast) {
   this.repository = repository;
-  this.mtime = 0;
+  this.mtime = Math.round((new Date()).getTime() / 1000);
   this.size = 0;
   this.crc32 = null;
   this.name = name;
@@ -112,6 +112,13 @@ File.prototype.getNamespaces = function() {
  */
 File.prototype.getClasses = function() {
   return this.getByType('class');
+};
+
+/**
+ * @return File
+ */
+File.prototype.removeNode = function(node) {
+  return this;
 };
 
 /**
