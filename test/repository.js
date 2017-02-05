@@ -1,5 +1,13 @@
 var should = require("should");
 
+process.on('unhandledRejection', function(e) {
+    if (e.stack) {
+        console.error(e.stack);
+    } else {
+        console.error(e);
+    }
+});
+
 describe('Repository class', function() {
 
     var repository = require('../src/repository');
@@ -27,14 +35,17 @@ describe('Repository class', function() {
     });
 
     describe('#scan', function() {
-        it('should scan directory', function (done) {
+        it('should scan directory', function (done, reject) {
             workspace.scan().then(function() {
                 workspace.files.should.have.property('test.php');
                 workspace.files.should.have.property('friend.php');
                 workspace.files.should.have.property('sub/empty.php');
                 workspace.files.should.not.have.property('bin/nok.php');
                 done();
-            }, done);
+            }).catch(function(e) {
+                console.error(e.stack);
+                reject(e);
+            });
         });
     });
 

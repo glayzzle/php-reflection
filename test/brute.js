@@ -3,9 +3,9 @@ var should = require("should");
 describe('Brute Force Tests', function() {
   var repository = require('../src/repository');
   var path = __dirname + '/workspaces/samples';
-  var workspace =  new repository(__dirname + '/workspaces/magento2', {
-    forkWorker: false
-  });
+  var workspace =  new repository(path // __dirname + '/workspaces/magento2'
+    ,{ forkWorker: false }
+  );
   this.timeout(0);
   var i = 0;
   workspace.on('error', function(e) {
