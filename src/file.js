@@ -23,7 +23,7 @@ var comment = require('./comment');
  * @property {Node[]} nodes {@link NODE.md|:link:} List of nodes
  * @property {Error} error {@link ERROR.md|:link:} Error node
  */
-var File = node.extends(function file(repository, name, ast) {
+var File = block.extends(function file(repository, name, ast) {
   this.repository = repository;
   this.mtime = Math.round((new Date()).getTime() / 1000);
   this.size = 0;
@@ -46,10 +46,12 @@ File.prototype.getByType = function(type) {
     this._indexNodeType = {};
     for (var i = 0; i < this.nodes.length; i++) {
       var item = this.nodes[i];
-      if (!this._indexNodeType.hasOwnProperty(item.type)) {
-        this._indexNodeType[item.type] = [];
+      if (item) {
+        if (!this._indexNodeType.hasOwnProperty(item.type)) {
+          this._indexNodeType[item.type] = [];
+        }
+        this._indexNodeType[item.type].push(item);
       }
-      this._indexNodeType[item.type].push(item);
     }
   }
   return this._indexNodeType.hasOwnProperty(type) ?
@@ -118,6 +120,37 @@ File.prototype.getClasses = function() {
  * @return File
  */
 File.prototype.removeNode = function(node) {
+  if (node.getFile() !== this) return;
+    // clean indexes
+    if (this._indexNodeType) {
+    if (node.type in this._indexNodeType) {
+      delete this._indexNodeType[node.type];
+    }
+    var nameIndex = null;
+    if ('fullName' in node) {
+      nameIndex = node.fullName;
+    } else if ('name' in node) {
+      nameIndex = node.name;
+    }
+    if (nameIndex) {
+      // clean name index
+      if (node.type in this._indexNodeName) {
+        if (nameIndex in this._indexNodeName[node.type]) {
+          delete this._indexNodeName[node.type][nameIndex];
+        }
+      }
+    }
+  }
+
+  // clean blocks
+  var offset = this.nodes.indexOf(node);
+  if (offset !== -1) {
+    // make a hole into array indexes in order to 
+    // avoid reindexing of all ptr
+    this.nodes[offset] = null;
+  }
+  // @todo should remove every ptr from their father structures
+  // @todo should destroy all reference resolutions
   return this;
 };
 
@@ -218,6 +251,7 @@ File.prototype.getScope = function(offset) {
  */
 File.prototype.remove = function() {
   // @todo
+  return this;
 };
 
 /**
