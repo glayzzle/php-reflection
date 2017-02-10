@@ -11,11 +11,10 @@ var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
 var globToRegExp = require('glob-to-regexp');
-
-var parser = require('./utils/parser');
 var node = require('./data/node');
 var file = require('./nodes/file');
 var block = require('./nodes/block');
+var defaultOptions = require('./repository/options');
 
 /**
  *
@@ -41,50 +40,11 @@ var repository = function(directory, options) {
     return new this(directory, options);
   }
   this.files = {};
-  // options
-  this.options = {
-    // list of excluded directory names
-    exclude: ['.git', '.svn', 'node_modules'],
-    // list of included directories
-    include: ['./'],
-    // list of php extension files
-    ext: [
-      '*.php', '*.php3', '*.php5', '*.phtml',
-      '*.inc', '*.class', '*.req'
-    ],
-    // extract vars from each scope (functions, classes)
-    // may use memory but could be usefull for resolving
-    // their type (on autocompletion)
-    scanVars: true,
-    // extract scopes from
-    scanExpr: true,
-    // extract documentation from
-    scanDocs: true,
-    // default parsing encoding
-    encoding: 'utf8',
-    // should spawn a worker process to avoir blocking
-    // the main loop (may be slower with small projects or single cpu)
-    forkWorker: require('os').cpus().length > 1,
-    // use the file mtime property to check changes
-    cacheByFileDate: true,
-    // use the file size to detect changes
-    cacheByFileSize: false,
-    // use an hash algorithm to detect changes
-    // if low cache hit, may slow down the parsing
-    cacheByFileHash: true,
-    // avoid to load the full cache repository
-    // just loads files when they are requested
-    // define a function that receives the filename in argumen
-    // and return the file cached structure
-    lazyCache: false,
-    // used for testing / dev without inspector
-    debug: false
-  };
+
   // extends options
-  if (options && typeof options === 'object') {
-    for (var k in options) {
-      this.options[k] = options[k];
-    }
+  this.options = {};
+  for(var k in defaultOptions) {
+    this.options[k] = options && k in options ? options[k] : defaultOptions[k];
   }
 
   // prepare extension filters
@@ -158,102 +118,7 @@ util.inherits(repository, EventEmitter);
  * @fires repository#progress
  * @fires repository#cache
  */
-repository.prototype.scan = function(directory) {
-  var pending = [];
-  var self = this;
-  if (!directory) {
-    directory = this.options.include;
-  }
-  if (Array.isArray(directory)) {
-    directory.forEach(function(dir) {
-      if (dir) {
-        pending.push(self.scan(dir));
-      }
-    });
-    return Promise.all(pending);
-  }
-  var root = path.resolve(this.directory, directory);
-  return new Promise(function(done, reject) {
-    fs.readdir(root, function(err, files) {
-      if (err) return reject(err);
-      files.forEach(function(file) {
-        pending.push(new Promise(function(done, reject) {
-          fs.stat(path.resolve(root, file), function(err, stat) {
-            if (err) reject(err);
-            var filename = path.join(directory, file);
-
-            if (stat.isDirectory()) {
-              if (
-                self.options.exclude.indexOf(file) > -1 ||
-                self.options.exclude.indexOf(filename) > -1
-              ) {
-                return done(); // ignore path
-              } else {
-                self.scan(filename).then(done, reject);
-              }
-            } else {
-              var matched = false;
-              for (var i = 0; i < self._regex.length; i++) {
-                if (self._regex[i].test(file)) {
-                  matched = true;
-                  break;
-                }
-              }
-              // ignore file (due to pattern)
-              if (!matched) return done();
-              // handle in-memory cache
-              if (filename in self.files) {
-                // check if need to parse again
-                if (
-                  self.options.cacheByFileDate &&
-                  self.files[filename].mtime > stat.mtime.getTime()
-                ) {
-                  self.emit('cache', {
-                    name: filename
-                  });
-                  return done(self.files[filename]);
-                }
-                // same size and
-                if (
-                  self.options.cacheByFileSize &&
-                  stat.size === self.files[filename].size
-                ) {
-                  self.emit('cache', {
-                    name: filename
-                  });
-                  return done(self.files[filename]);
-                }
-              }
-              self.counter.total++;
-              self.counter.loading++;
-              self.parse(
-                filename,
-                self.options.encoding,
-                stat
-              ).then(function(file) {
-                self.counter.loading--;
-                self.counter.loaded++;
-                if (file) {
-                  self.counter.size += file.size;
-                  self.counter.symbols += file.nodes.length;
-                }
-                self.emit('progress', self.counter);
-                done();
-              }, function(e) {
-                self.counter.loading--;
-                self.counter.total--;
-                self.counter.error++;
-                self.emit('progress', self.counter);
-                reject(e);
-              });
-            }
-          });
-        }));
-      });
-      Promise.all(pending).then(done, reject);
-    });
-  });
-};
+repository.prototype.scan = require('./repository/scan');
 
 /**
  * Parsing a file
@@ -266,116 +131,7 @@ repository.prototype.scan = function(directory) {
  * @fires repository#error
  * @fires repository#cache
  */
-repository.prototype.parse = function(filename, encoding, stat) {
-  if (!this.files.hasOwnProperty(filename)) {
-    var self = this;
-    if (!encoding) {
-      encoding = this.options.encoding;
-    }
-    this.emit('read', {
-      name: filename
-    });
-    this.files[filename] = new Promise(function(done, reject) {
-
-      if (typeof self.options.lazyCache === 'function') {
-        try {
-          // the lazy cache
-          // handles files loading from cache
-          // without needing to resolve all repository cache
-          var result = self.options.lazyCache(filename, stat);
-          if (result) {
-            // retrieved from cache
-            self.emit('cache', {
-              name: filename
-            });
-            if (typeof result.then === 'function') {
-              return result.then(function(file) {
-                self.files[filename] = file;
-                self.files[filename].refresh();
-                return done(file);
-              }, function(e) {
-                delete self.files[filename];
-                self.emit('error', e);
-                return reject(e);
-              });
-            } else {
-              self.files[filename] = result;
-              self.files[filename].refresh();
-              return done(result);
-            }
-          }
-          // if result is false, then continue loading
-        } catch(e) {
-          delete self.files[filename];
-          self.emit('error', e);
-          return reject(e);
-        }
-      }
-
-      if (self.options.forkWorker) {
-        // reads from a forked process
-        require('./worker')(filename, null, self.directory, self.options).then(function(cache) {
-          if (cache.hit) {
-            self.emit('cache', {
-              name: filename
-            });
-          } else {
-            self.files[filename] = file.import(self, cache);
-            self.files[filename].refresh();
-            self.emit('parse', {
-              name: filename,
-              file: self.files[filename]
-            });
-          }
-          return done(self.files[filename]);
-        }, function(e) {
-          delete self.files[filename];
-          self.emit('error', {
-            name: filename,
-            error: e
-          });
-          return reject(e);
-        });
-      } else {
-        // reads from the main process
-        fs.readFile(
-          path.resolve(self.directory, filename),
-          encoding, function(err, data) {
-            var ast;
-            if (!err) {
-              try {
-                ast = parser.read(
-                  self, data.toString(encoding), filename
-                );
-              } catch (e) {
-                err = e;
-              }
-            }
-            if (err) {
-              delete self.files[filename];
-              self.emit('error', err);
-              return reject(err);
-            } else {
-              try {
-                self.files[filename] = new file(self, filename, ast);
-                self.files[filename].refresh();
-                self.files[filename].size = data.length;
-                return done(self.files[filename]);
-              } catch (e) {
-                delete self.files[filename];
-                self.emit('error', e);
-                return reject(e);
-              }
-            }
-          }
-        );
-      }
-    });
-    return this.files[filename];
-  } else {
-    return this.refresh(filename, encoding, stat);
-  }
-};
+repository.prototype.parse = require('./repository/parse');
 
 /**
  * Lookup at each file and retrieves specified nodes
@@ -483,99 +239,7 @@ repository.prototype.getNamespace = function(name) {
  * Synchronize with specified offset
  * @return {boolean|Error} True is node was synced, or Error object if fail
  */
-repository.prototype.sync = function(filename, contents, offset) {
-  if (!(filename in this.files)) {
-    // not already in memory
-    var ast;
-    try {
-      ast = parser.read(this, contents, filename);
-    } catch (e) {
-      this.emit('error', e);
-      return e;
-    }
-    this.files[filename] = new file(this, filename, ast);
-    this.files[filename].refresh();
-    this.files[filename].size = contents.length;
-    // nothing to sync
-    return true;
-  }
-  // @todo first implementation (not optimized for speed)
-  // collect nodes
-  var fileItem = this.files[filename];
-  var syncNode = null;
-  var start = offset[0];
-  var end = offset[1];
-  if (this.options.debug) console.log(
-    'detect', start, 'to', end,
-    '>' + contents.substring(start, end) + '<'
-  );
-  for(var i = 0, size = fileItem.nodes.length; i < size; i++) {
-    var node = fileItem.nodes[i];
-    var position = node.position.offset;
-    // x... [  ]
-    var isNodeAfter = position.start > start && position.end > end;
-    // [ ] x...
-    var isNodeBefore = position.end < start;
-    // [ x... ] or [ x.].. or x.[.. ] or x.[.]. 
-    var isNodeIntersect = !isNodeAfter && !isNodeBefore;
-    // only [ x... ] 
-    // var isNodeContainer = position.start <= start && position.end >= end;
-    if (this.options.debug) console.log(
-      'check', 
-      node.type, 
-      position, 
-      '>' + contents.substring(position.start, position.end) + '<'
-    );
-    if (isNodeIntersect) {
-      // locate nodes to be synced : 
-      // [--[x..]--]
-      // nodes that is not father of other nodes
-      if (syncNode) {
-        // most specific node
-        var isInner = position.start > syncNode.position.offset.start;
-        var isBlock = node instanceof block;
-        if (isBlock && isInner) {
-          syncNode = node;
-        }
-      } else {
-        syncNode = node;
-      }
-    }
-  }
-  if (!syncNode) {
-    // refresh full file
-    syncNode = fileItem;
-  }
-  if (this.options.debug) console.log(
-    'sync', syncNode.type, 'from',
-    syncNode.position.offset.start, 
-    'to',
-    syncNode.position.offset.end
-  );
-  var ast;
-  try {
-    if (syncNode.position.offset.start === 0) {
-      // full refresh
-      ast = parser.read(this, contents, filename);
-      // delete references
-      fileItem.remove();
-      // create a new one
-      this.files[filename] = new file(this, filename, ast);
-      this.files[filename].refresh();
-      this.files[filename].size = contents.length;
-    } else {
-      ast = parser.sync(this, contents, syncNode);
-      if (this.options.debug) console.log(syncNode.parent.type, 'will eat', ast.kind);
-      // @fixme handle case when parent is not a block
-      fileItem.removeNode(syncNode);
-      syncNode.parent.consumeChild(ast);
-    }
-  } catch (e) {
-    this.emit('error', e);
-    return e;
-  }
-  return true;
-};
+repository.prototype.sync = require('./repository/sync');
 
 
 /**
