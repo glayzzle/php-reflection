@@ -49,6 +49,92 @@ describe('Repository class', function() {
         });
     });
 
+    describe('#sync', function() {
+        var filename = 'foo.php';
+        var states = [
+            [
+                '<?php',
+                'namespace {',
+                '\t$a = true;/*[*/', // <-- cursor here
+                '}'
+            ].join('\n'),
+            [
+                '<?php',
+                'namespace {',
+                '\t$a = true;',
+                '/*[*/\tfunction fooSync(/*]*/', // <-- cursor here
+                '}'
+            ].join('\n'),
+            [
+                '<?php',
+                'namespace {',
+                '\t$a = true;',
+                '/*[*/\tfunction fooSync($a) {',
+                '\t}/*]*/',
+                '}'
+            ].join('\n'),
+            [
+                '<?php',
+                'namespace {',
+                '\t$a = true;',
+                '\tfunction fooSync($a/*[*/, $b/*]*/) {',
+                '\t}',
+                '}'
+            ].join('\n'),
+        ];
+
+        function code(text) {
+            return text.replace(/\/\*\[\*\//g, '').replace(/\/\*\]\*\//g, '');
+        }
+
+        function cursor(text) {
+            var start = text.indexOf('/*[*/');
+            var end = text.indexOf('/*]*/');
+            if (start === -1) start = 0;
+            if (end === -1) end = start + 5;
+            return [start, end - 5];
+        }
+
+        it('create a new virtual entry', function () {
+            workspace.sync(
+                filename, code(states[0]), cursor(states[0])
+            ).should.be.exactly(true);
+        });
+
+        it('adding a parse error', function () {
+            (function() {
+                workspace.sync(
+                    filename, code(states[1]), cursor(states[1])
+                );
+            }).should.throw();
+        });
+
+        return; // @todo
+        it('create a fooSync function', function () {
+            workspace.options.debug = true;
+            workspace.sync(
+                filename, code(states[2]), cursor(states[2])
+            ).should.be.exactly(true);
+            var fn = workspace.getFirstByName('function', 'fooSync');
+            console.log(fn);
+            fn.name.should.be.exactly('fooSync');
+            fn.args.length.should.be.exactly(1);
+            fn.args[0].name.should.be.exactly('a');
+        });
+
+        it('add an argument', function () {
+            workspace.options.debug = true;
+            workspace.sync(
+                filename, code(states[2]), cursor(states[2])
+            ).should.be.exactly(true);
+            var fn = workspace.getByName('function', 'fooSync');
+            fn.name.should.be.exactly('fooSync');
+            fn.args.length.should.be.exactly(2);
+            fn.args[0].name.should.be.exactly('a');
+            fn.args[1].name.should.be.exactly('b');
+        });
+    });
+
     describe('#cache/get', function() {
         var fs = require('fs');
         it('should get cache', function () {

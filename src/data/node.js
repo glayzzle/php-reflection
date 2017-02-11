@@ -5,6 +5,7 @@
  */
 'use strict';
 
+var point = require('grafine/src/point');
 var inherits = require('util').inherits;
 var position = require('../utils/position');
 var comment = require('../utils/comment');
@@ -21,43 +22,41 @@ var comment = require('../utils/comment');
  * @property {position|null} position {@link POSITION.md|:link:} Current node position
  * @property {comment|null} doc {@link COMMENT.md|:link:} Node attached commebnt
  */
-var node = function(parent, ast) {
+var node = function(file, parent, ast) {
 
-  if (!parent) return;
+    point.apply(this, [file]);
 
-  this.parent = parent;
-  if (!this.type && this.constructor.name.length > 0) {
-    this.type = this.constructor.name;
-  }
-
-  this.relations = [];
-
-  if (ast) {
-
-    if (ast.state && ast.state.token) {
-      this.state = ast.state;
+    if (parent) {
+        this.set('parent', parent);
     }
 
-    // check if contains a position node
-    if (ast.loc) {
-      this.position = new position(ast.loc);
+    if (!this.type && this.constructor.name.length > 0) {
+        this.type = this.constructor.name;
     }
 
-    // check if contains a doc node
-    if (typeof ast.doc === 'object' && ast.doc !== null) {
-      this.doc = new comment(this, ast.doc);
-    }
-  }
+    if (ast) {
+        if (ast.state && ast.state.token) {
+            this.state = ast.state;
+        }
 
-  if (this.type !== 'file') {
-    // automatic reference
-    this.getFile().nodes.push(this);
-  }
-  if (ast) {
-    this.consume(ast);
-  }
+        // check if contains a position node
+        if (ast.loc) {
+            this.position = new position(ast.loc);
+        }
+
+        // check if contains a doc node
+        if (typeof ast.doc === 'object' && ast.doc !== null) {
+            this.doc = new comment(ast.doc);
+        }
+    }
+
+
+    if (ast) {
+        this.consume(ast);
+    }
 };
 
+inherits(node, point);
 
 /**
  * Scan relations nodes and retrieves related nodes
@@ -79,14 +78,7 @@ node.prototype.getByRelationType = function(type) {
  * @return {file} {@link FILE.md|:link:}
  */
 node.prototype.getFile = function() {
-  if (!this._file) {
-    if (this.type === 'file') {
-      this._file = this;
-    } else {
-      this._file = this.parent.getFile();
-    }
-  }
-  return this._file;
+    return this.graph;
 };
 
 /**
@@ -94,11 +86,7 @@ node.prototype.getFile = function() {
  * @return {Repository} {@link REPOSITORY.md|:link:}
  */
 node.prototype.getRepository = function() {
-  var file = this.getFile();
-  if (file) {
-    return file.repository;
-  }
-  return null;
+  return this.graph.graph;
 };
 
 
@@ -111,7 +99,7 @@ node.prototype.getNamespace = function() {
     return this;
   }
   if (!this._namespace) {
-    this._namespace = this.parent.getNamespace();
+    this._namespace = this.properties.parent.getNamespace();
   }
   return this._namespace;
 };
@@ -122,7 +110,7 @@ node.prototype.getNamespace = function() {
  */
 node.prototype.getBlock = function() {
   if (this.parent) {
-    return this.parent.getBlock();
+    return this.properties.parent.getBlock();
   }
   return null;
 };
@@ -133,103 +121,31 @@ node.prototype.getBlock = function() {
 node.prototype.consume = function(ast) {};
 
 /**
- * @private
- * Takes nodes instances and transform them in an object
- * @param {node|Object|Array} self
- * @return {Object|null}
+ * Node helper for importing data
+ * @todo to implement
  */
-var deshydate = function(self) {
-
-  if (!self) return null;
-
-  // primitives
-  if (typeof self === 'string') return self;
-  if (typeof self.getTime === 'function') return self.getTime();
-  if (typeof self === 'boolean') return self;
-  if (typeof self === 'number') return self;
-
-  var result = null;
-
-  // try to export array
-  if (Array.isArray(self)) {
-    result = [];
-    for (var i = 0; i < self.length; i++) {
-      var n = deshydate(self[i]);
-      if (n) {
-        result.push(n);
-      }
-    }
-    return result.length > 0 ? result : null;
-  }
-
-  // objects filter
-  if (typeof self === 'object' && !(self instanceof node)) {
-    if (typeof self.export === 'function') {
-      return self.export();
-    } else {
-      return null;
-    }
-  }
-
-  // try to export object
-  result = {};
-  for (var k in self) {
-    if (k === 'parent' || k[0] === '_') continue;
-    var n = self[k];
-    if (n instanceof node) {
-      result[k] = n.export();
-      if (!result[k]) {
-        delete result[k];
-      }
-    } else if (Array.isArray(n)) {
-      if (n.length > 0) {
-        result[k] = [];
-        n.forEach(function(item) {
-          item = deshydate(item);
-          if (item) {
-            result[k].push(item);
-          }
-        });
-        if (result[k].length === 0) {
-          delete result[k];
-        }
-      }
-    } else if (typeof n !== 'function') {
-      var item = deshydate(n);
-      if (item)
-        result[k] = item;
-    }
-  }
-  if (Object.keys(result).length > 0) {
+node.import = function(file, data) {
+    var result = node.create(file, data.type);
+    result.type = data.type;
+    result.state = data.node[0];
+    result.position = position.import(data.node[1]);
+    result.doc = data.node[2] ? doc.import(data.node[2]) : null;
     return result;
-  }
-  return null;
 };
-
-/**
- * @private
- * Take an object and create its instances
- */
-var hydrate = function(object) {};
-
-/**
- * Node helper for importing data
- * @todo to implement
- */
-node.import = function(repository, data) {};
-
-/**
- * Node helper for importing data
- * @todo to implement
- */
-node.prototype.refresh = function() {};
 
 /**
  * Gets a POJO representation of the current node that can be serialized / {@link #import|unserialized}
  * @return {Object|null}
  */
 node.prototype.export = function() {
-  return deshydate(this);
+    var result = point.prototype.export.apply(this, []);
+    result.type = this.type;
+    result.node = [
+        this.state,
+        this.position.export(),
+        this.doc ? this.doc.export() : null
+    ];
+    return result;
 };
 
 
@@ -276,7 +192,7 @@ node.builders = {};
  * @return {node}
  * @throws {Error} if the specified type is not fond
  */
-node.create = function(type, parent, ast) {
+node.create = function (type, file, parent, ast) {
   if (!node.builders.hasOwnProperty(type)) {
     require('../nodes/' + type);
   }
@@ -288,11 +204,11 @@ node.create = function(type, parent, ast) {
 };
 
 /** @private recursive extends */
-function declareExtends(base) {
-  return function(ctor) {
+function declareExtends (base) {
+  return function (ctor) {
     var _super = ctor;
     if (typeof ctor !== 'function') {
-      _super = function(parent, ast) {
+      _super = function (parent, ast) {
         this.type = ctor;
         base.apply(this, arguments);
       };
@@ -302,10 +218,9 @@ function declareExtends(base) {
     }
     // recursive extends
     _super.extends = declareExtends(_super);
-    inherits(_super, base);
+    inherits (_super, base);
     return _super;
   };
 }
-;
 
 module.exports = node;

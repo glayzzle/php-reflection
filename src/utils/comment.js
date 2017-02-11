@@ -17,30 +17,31 @@ var reader = new DocParser();
  * @property {tag[]} tags
  * @property {annotation[]} annotations
  */
-var comment = function(node, ast) {
-  this.type = node.type;
-  try {
-    var doc = reader.parse(ast.lines);
-  } catch(e) {
-    console.error(e.stack);
-    console.log('Source : \n* ' + ast.lines.join('\n* '));
-    return;
-  }
-  this.summary = doc.summary;
-  this.tags = {};
-  this.annotations = [];
-  for(var i = 0; i < doc.body.length; i++) {
-    var child = doc.body[i];
-    if (child.kind === 'annotation') {
-      this.annotations.push(child);
-    } else {
-      var name = child.kind.toLowerCase();
-      if (!this.tags.hasOwnProperty(name)) {
-        this.tags[name] = [];
-      }
-      this.tags[name].push(child);
+var comment = function(ast) {
+    if (ast) {
+        try {
+            var doc = reader.parse(ast.lines);
+        } catch(e) {
+            console.error(e.stack);
+            console.log('Source : \n* ' + ast.lines.join('\n* '));
+            return;
+        }
+        this.summary = doc.summary;
+        this.tags = {};
+        this.annotations = [];
+        for(var i = 0; i < doc.body.length; i++) {
+            var child = doc.body[i];
+            if (child.kind === 'annotation') {
+                this.annotations.push(child);
+            } else {
+                var name = child.kind.toLowerCase();
+                if (!this.tags.hasOwnProperty(name)) {
+                    this.tags[name] = [];
+                }
+                this.tags[name].push(child);
+            }
+        }
     }
-  }
 };
 
 /**
@@ -183,7 +184,22 @@ comment.prototype.getArgument = function(tag, offset, name) {
  * @protected Helper for exporting this object
  */
 comment.prototype.export = function() {
-  return this;
+  return [
+      this.summary,
+      this.tags,
+      this.annotations
+  ];
+};
+
+/**
+ * @protected Helper for exporting this object
+ */
+comment.import = function(data) {
+    var result = new comment();
+    result.summary = data[0];
+    result.tags = data[1];
+    result.annotations = data[2];
+    return result;
 };
 
 // exports the comment API
