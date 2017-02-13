@@ -5,7 +5,7 @@
  */
 'use strict';
 
-var point = require('grafine/src/point');
+var grafine = require('grafine');
 var inherits = require('util').inherits;
 var position = require('../utils/position');
 var comment = require('../utils/comment');
@@ -22,9 +22,9 @@ var comment = require('../utils/comment');
  * @property {position|null} position {@link POSITION.md|:link:} Current node position
  * @property {comment|null} doc {@link COMMENT.md|:link:} Node attached commebnt
  */
-var node = function(file, parent, ast) {
+var node = function(repository, parent, ast) {
 
-    point.apply(this, [file]);
+    grafine.point.apply(this, [file]);
 
     if (parent) {
         this.set('parent', parent);
@@ -50,13 +50,11 @@ var node = function(file, parent, ast) {
         }
     }
 
-
     if (ast) {
         this.consume(ast);
     }
 };
-
-inherits(node, point);
+inherits(node, grafine.point);
 
 /**
  * Scan relations nodes and retrieves related nodes

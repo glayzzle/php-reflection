@@ -5,12 +5,12 @@
  */
 'use strict';
 
-var fs = require('fs');
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
 var globToRegExp = require('glob-to-regexp');
+var db = require('grafine');
 var node = require('./data/node');
 var file = require('./nodes/file');
 var block = require('./nodes/block');
@@ -35,41 +35,44 @@ var defaultOptions = require('./repository/options');
  * @property {Object} counter
  */
 var repository = function(directory, options) {
-  // direct function call
-  if (typeof this === 'function') {
+    // direct function call
+    if (typeof this === 'function') {
     return new this(directory, options);
-  }
-  this.files = {};
+    }
 
-  // extends options
-  this.options = {};
-  for(var k in defaultOptions) {
-    this.options[k] = options && k in options ? options[k] : defaultOptions[k];
-  }
+    // extends options
+    this.options = {};
+    for(var k in defaultOptions) {
+        this.options[k] = options && k in options ?
+            options[k] : defaultOptions[k]
+        ;
+    }
 
-  // prepare extension filters
-  this._regex = [];
-  for (var i = 0; i < this.options.ext.length; i++) {
-    this._regex.push(
-      globToRegExp(
-        this.options.ext[i]
-      )
-    );
-  }
+    // Create the storage
+    this.db = new db(this.options.shards);
+    this.db.
 
-  // counting things
-  this.counter = {
-    total: 0,
-    loading: 0,
-    loaded: 0,
-    error: 0,
-    symbols: 0,
-    size: 0
-  };
-  this.directory = path.resolve(directory);
+    // prepare extension filters
+    this._regex = [];
+    for (var i = 0; i < this.options.ext.length; i++) {
+        this._regex.push(
+            globToRegExp(this.options.ext[i])
+        );
+    }
 
-  // init EventEmitter
-  EventEmitter.call(this);
+    // counting things
+    this.counter = {
+        total: 0,
+        loading: 0,
+        loaded: 0,
+        error: 0,
+        symbols: 0,
+        size: 0
+    };
+    this.directory = path.resolve(directory);
+
+    // init EventEmitter
+    EventEmitter.call(this);
 };
 util.inherits(repository, EventEmitter);
 
@@ -375,28 +378,6 @@ repository.prototype.rename = function(oldName, newName) {
  * @public
  * @return {Promise}
  */
-repository.prototype.refresh = function(filename, encoding, stat) {
-  if (!this.files.hasOwnProperty(filename)) {
-    return this.parse(filename, encoding, stat);
-  } else {
-    if (this.files[filename] instanceof Promise) {
-      return this.files[filename];
-    }
-    /*var self = this;
-    var crc32 = this.options.cacheByFileHash ?
-      this.files[filename].crc32 : null;
-    this.files[filename] = new Promise(function(done, reject) {
-      fs.readFile(
-        path.join(self.directory, filename),
-        encoding, function(err, data) {
-          // @todo
-          done();
-        });
-    });*/
-    return new Promise(function(done, reject) {
-      done(); // this.files[filename];
-    });
-  }
-};
+repository.prototype.refresh = require('./repository/refresh');
 
 module.exports = repository;

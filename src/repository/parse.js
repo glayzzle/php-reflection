@@ -5,7 +5,9 @@
  */
 'use strict';
 
-var parser = require('../utils/parser');
+var parser  = require('../utils/parser');
+var fs      = require('fs');
+var worker  = require('../worker');
 
 /**
  * Parsing a file
@@ -66,7 +68,7 @@ module.exports = function(filename, encoding, stat) {
 
       if (self.options.forkWorker) {
         // reads from a forked process
-        require('./worker')(filename, null, self.directory, self.options).then(function(cache) {
+        worker(filename, null, self.directory, self.options).then(function(cache) {
           if (cache.hit) {
             self.emit('cache', {
               name: filename

@@ -41,5 +41,7 @@ module.exports = {
     // and return the file cached structure
     lazyCache: false,
     // used for testing / dev without inspector
-    debug: false
+    debug: false,
+    // used in order to shard big projects
+    shards: 255
   };
