@@ -11,34 +11,44 @@
  */
 
 var grafine = require('grafine');
+var inherits = require('util').inherits;
+var node = require('./node');
 
 // replace the point class with the generic node class
-grafine.point = require('./node');
+grafine.point = node;
 
 // extends constructor
 var graphCtor = grafine.graph;
-grafine.graph = function(shards, lazyCache) {
-    graphCtor.apply(this, [shards]);
-    this.lazyCache = lazyCache;
+grafine.graph = function(repository) {
+    graphCtor.apply(this, [repository.options.shards]);
+    this.repository = repository;
 };
 inherits(grafine.graph, graphCtor);
 
 // creating the shard
 var graphCreateShard = grafine.graph.prototype.createShard;
 grafine.graph.prototype.createShard = function(id) {
-    if (typeof this.lazyCache === 'function') {
-        return this.lazyCache('shard', id);
+    var shard = graphCreateShard.apply(this, [id]);
+    if (typeof this.repository.options.lazyCache === 'function') {
+        var result = this.repository.options.lazyCache('shard', id);
+        if (result) {
+            shard.import(result);
+        }
     }
-    return graphCreateShard.apply(this, [id]);
+    return shard;
 };
 
 // creating the index
 var graphCreateIndex = grafine.graph.prototype.createIndex;
 grafine.graph.prototype.createIndex = function(id) {
-    if (typeof this.lazyCache === 'function') {
-        return this.lazyCache('index', id);
+    var index = graphCreateIndex.apply(this, [id]);
+    if (typeof this.repository.options.lazyCache === 'function') {
+        var result = this.repository.options.lazyCache('index', id);
+        if (result) {
+            index.import(result);
+        }
     }
-    return graphCreateIndex.apply(this, [id]);
+    return index;
 };
 
 module.exports = grafine;
