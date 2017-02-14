@@ -13,7 +13,9 @@ var comment = require('../utils/comment');
 /**
  * Generic node object (inherited by all objects)
  *
- * @public @constructor {node}
+ * @public
+ * @constructor {node}
+ * @param {file} parent The parent node
  * @param {node} parent The parent node
  * @param {array} ast The current AST node
  *
@@ -22,16 +24,20 @@ var comment = require('../utils/comment');
  * @property {position|null} position {@link POSITION.md|:link:} Current node position
  * @property {comment|null} doc {@link COMMENT.md|:link:} Node attached commebnt
  */
-var node = function(repository, parent, ast) {
+var node = function(graph, file, parent, ast) {
 
-    grafine.point.apply(this, [file]);
-
-    if (parent) {
-        this.set('parent', parent);
-    }
+    grafine.point.apply(this, [graph]);
 
     if (!this.type && this.constructor.name.length > 0) {
         this.type = this.constructor.name;
+    }
+
+    if (file) {
+        this.set('file', file);
+    }
+
+    if (parent) {
+        this.set('parent', parent);
     }
 
     if (ast) {
@@ -48,27 +54,24 @@ var node = function(repository, parent, ast) {
         if (typeof ast.doc === 'object' && ast.doc !== null) {
             this.doc = new comment(ast.doc);
         }
-    }
 
-    if (ast) {
+        // reads the AST
         this.consume(ast);
+
+        // indexes the symbol with its name
+        if (this.fullName) {
+            this.index(this.type, this.fullName);
+        }
     }
 };
 inherits(node, grafine.point);
 
 /**
- * Scan relations nodes and retrieves related nodes
- * @param {String} type
- * @return {node[]}
+ * Gets the current repository
+ * @return {repository} {@link REPOSITORY.md|:link:}
  */
-node.prototype.getByRelationType = function(type) {
-  var nodes = [];
-  this.relations.forEach(function(item) {
-    if (item.type === type) {
-      nodes.push(item.from);
-    }
-  });
-  return nodes;
+node.prototype.getRepository = function() {
+    return this.graph.repository;
 };
 
 /**
@@ -76,30 +79,44 @@ node.prototype.getByRelationType = function(type) {
  * @return {file} {@link FILE.md|:link:}
  */
 node.prototype.getFile = function() {
-    return this.graph;
+    if (!this._file) {
+        var uuid = this.first('file');
+        if (uuid) {
+            this._file = this.graph.get(uuid);
+        }
+    }
+    return this._file;
 };
 
 /**
- * Gets the current repository
- * @return {Repository} {@link REPOSITORY.md|:link:}
+ * Gets the parent node
+ * @return {node} {@link NODE.md|:link:}
  */
-node.prototype.getRepository = function() {
-  return this.graph.graph;
+node.prototype.getParent = function() {
+    if (!this._parent) {
+        var uuid = this.first('parent');
+        if (uuid) {
+            this._parent = this.graph.get(uuid);
+        }
+    }
+    return this._parent;
 };
-
 
 /**
  * Gets the current namespace
  * @return {namespace} {@link NAMESPACE.md|:link:}
  */
 node.prototype.getNamespace = function() {
-  if (this.type === 'namespace') {
-    return this;
-  }
-  if (!this._namespace) {
-    this._namespace = this.properties.parent.getNamespace();
-  }
-  return this._namespace;
+    if (this.type === 'namespace') {
+        return this;
+    }
+    if (!this._namespace) {
+        var parent = this.getParent();
+        if (parent) {
+            this._namespace = parent.getNamespace();
+        }
+    }
+    return this._namespace;
 };
 
 /**
@@ -107,10 +124,16 @@ node.prototype.getNamespace = function() {
  * @return {block} {@link BLOCK.md|:link:}
  */
 node.prototype.getBlock = function() {
-  if (this.parent) {
-    return this.properties.parent.getBlock();
-  }
-  return null;
+    if (this.type === 'block') {
+        return this;
+    }
+    if (!this._block) {
+        var parent = this.getParent();
+        if (parent) {
+            this._block = parent.getBlock();
+        }
+    }
+    return this._block;
 };
 
 /**
@@ -120,14 +143,16 @@ node.prototype.consume = function(ast) {};
 
 /**
  * Node helper for importing data
- * @todo to implement
  */
-node.import = function(file, data) {
-    var result = node.create(file, data.type);
-    result.type = data.type;
-    result.state = data.node[0];
-    result.position = position.import(data.node[1]);
-    result.doc = data.node[2] ? doc.import(data.node[2]) : null;
+node.import = function(data, graph) {
+    var result = node.create(data._t, graph);
+    result.type = data._t;
+    result.state = data._n[0];
+    result.position = position.import(data._n[1]);
+    result.doc = data._n[2] ? doc.import(data._n[2]) : null;
+    grafine.point.prototype.import.apply(
+        result, [data]
+    );
     return result;
 };
 
@@ -137,8 +162,8 @@ node.import = function(file, data) {
  */
 node.prototype.export = function() {
     var result = point.prototype.export.apply(this, []);
-    result.type = this.type;
-    result.node = [
+    result._t = this.type;
+    result._n = [
         this.state,
         this.position.export(),
         this.doc ? this.doc.export() : null
@@ -190,7 +215,7 @@ node.builders = {};
  * @return {node}
  * @throws {Error} if the specified type is not fond
  */
-node.create = function (type, file, parent, ast) {
+node.create = function (type, graph, file, parent, ast) {
   if (!node.builders.hasOwnProperty(type)) {
     require('../nodes/' + type);
   }
@@ -198,7 +223,7 @@ node.create = function (type, file, parent, ast) {
     throw new Error('"' + type + '" is not found');
   }
 
-  return new node.builders[type](parent, ast);
+  return new node.builders[type](graph, file, parent, ast);
 };
 
 /** @private recursive extends */
