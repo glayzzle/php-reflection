@@ -10,7 +10,7 @@ var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
 var globToRegExp = require('glob-to-regexp');
-var db = require('grafine');
+var db = require('./data/db');
 var node = require('./data/node');
 var file = require('./nodes/file');
 var block = require('./nodes/block');
@@ -49,8 +49,7 @@ var repository = function(directory, options) {
     }
 
     // Create the storage
-    this.db = new db(this.options.shards);
-    this.db.
+    this.db = new db(this);
 
     // prepare extension filters
     this._regex = [];
@@ -164,6 +163,9 @@ repository.prototype.getByType = function(type, limit) {
  * @return {node[]} {@link NODE.md|:link:}
  */
 repository.prototype.getByName = function(type, name, limit) {
+    var criteria = {};
+    criteria[type] = name;
+
   var result = [];
   for (var k in this.files) {
     if (this.files[k] instanceof file) {
@@ -183,14 +185,13 @@ repository.prototype.getByName = function(type, name, limit) {
  * @return {node|null} {@link NODE.md|:link:}
  */
 repository.prototype.getFirstByName = function(type, name) {
-  var result = null;
-  for (var k in this.files) {
-    if (this.files[k] instanceof file) {
-      result = this.files[k].getFirstByName(type, name);
-      if (result) return result;
+    var criteria = {};
+    criteria[type] = name;
+    var items = this.db.search(criteria);
+    if (items.length > 0) {
+        return this.db.get(items[0]);
     }
-  }
-  return null;
+    return null;
 };
 
 /**
@@ -207,35 +208,50 @@ repository.prototype.getFirstByName = function(type, name) {
  * @return {namespace|null} {@link NAMESPACE.md|:link:}
  */
 repository.prototype.getNamespace = function(name) {
-  if (name[0] !== '\\')
-    name = '\\' + name;
-  if (name.length > 1 && name.substring(-1) === '\\') {
-    name = name.substring(0, name.length - 1);
-  }
-  var items = this.getByName('namespace', name);
-  if (items.length > 0) {
-    var result = node.create('namespace');
-    items.forEach(function(ns) {
-      if (ns.constants.length > 0) {
-        result.constants = result.constants.concat(ns.constants);
-      }
-      if (ns.functions.length > 0) {
-        result.functions = result.functions.concat(ns.functions);
-      }
-      if (ns.classes.length > 0) {
-        result.classes = result.classes.concat(ns.classes);
-      }
-      if (ns.traits.length > 0) {
-        result.traits = result.traits.concat(ns.traits);
-      }
-      if (ns.interfaces.length > 0) {
-        result.interfaces = result.interfaces.concat(ns.interfaces);
-      }
+
+    if (name[0] !== '\\') {
+        name = '\\' + name;
+    }
+
+    if (name.length > 1 && name.substring(-1) === '\\') {
+        name = name.substring(0, name.length - 1);
+    }
+
+    var items = this.db.search({
+        namespace: name
     });
-    return result;
-  } else {
-    return null;
-  }
+
+    if (items.length > 0) {
+
+        // retrieves first item
+        if (items.length === 1) {
+            return this.db.get(items[0]);
+        }
+
+        // create a virtual aggregated node of all namespace elements
+        var result = node.create('namespace', this);
+
+        items.forEach(function(ns) {
+        if (ns.constants.length > 0) {
+        result.constants = result.constants.concat(ns.constants);
+        }
+        if (ns.functions.length > 0) {
+        result.functions = result.functions.concat(ns.functions);
+        }
+        if (ns.classes.length > 0) {
+        result.classes = result.classes.concat(ns.classes);
+        }
+        if (ns.traits.length > 0) {
+        result.traits = result.traits.concat(ns.traits);
+        }
+        if (ns.interfaces.length > 0) {
+        result.interfaces = result.interfaces.concat(ns.interfaces);
+        }
+        });
+        return result;
+    } else {
+        return null;
+    }
 };
 
 /**
@@ -251,8 +267,8 @@ repository.prototype.sync = require('./repository/sync');
  * @return {repository}
  */
 repository.prototype.cleanAll = function() {
-  this.files = {};
-  return this;
+    this.db = new db(this);
+    return this;
 };
 
 /**
@@ -261,13 +277,14 @@ repository.prototype.cleanAll = function() {
  * @return {repository}
  */
 repository.prototype.remove = function(filename) {
-  if (this.files.hasOwnProperty(filename)) {
-    if (this.files[filename] instanceof file) {
-      this.files[filename].remove();
+    var items = this.db.search({
+        file: filename
+    });
+    for(var i = 0; i < items.length; i++) {
+        var item = this.db.get(items[i]);
+        item.delete();
     }
-    delete this.files[filename];
-  }
-  return this;
+    return this;
 };
 
 /**
@@ -277,12 +294,28 @@ repository.prototype.remove = function(filename) {
  * @return {repository}
  */
 repository.prototype.each = function(cb) {
-  for (var name in this.files) {
-    if (this.files[name] instanceof file) {
-      cb.apply(this, this.files[name], name);
+    for(var i = 0; i < this.db.indexes.length; i++) {
+        var entry = this.db.indexes[i];
+        if (!e)
+        if (entry && 'file' in entry.index) {
+            var files = filesIndex.index.file;
+            for(var name in files) {
+                var nodes = files[name];
+                if (nodes.length !== 1) {
+                    for(var i = 0; i < nodes.length; i++) {
+                        cb(this.db.get(nodes[i]), name);
+                    }
+                } else {
+                    cb(this.db.get(nodes[0]), name);
+                }
+            }
+        }
     }
-  }
-  return this;
+    var filesIndex = this.db.getIndex('file');
+    if (filesIndex && 'file' in filesIndex.index) {
+
+    }
+    return this;
 };
 
 /**
