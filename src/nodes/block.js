@@ -6,7 +6,6 @@
 'use strict';
 
 var node = require('../data/node');
-var ptr = require('../data/ptr');
 var comment = require('../utils/comment');
 
 /**
@@ -187,8 +186,8 @@ block.prototype.consumeChild = function(ast) {
 
     // variables (by assignment)
     else if (
-      ast.kind === 'assign' && 
-      ast.left.kind === 'variable' && 
+      ast.kind === 'assign' &&
+      ast.left.kind === 'variable' &&
       this.getRepository().options.scanVars
     ) {
       this.variables.push(

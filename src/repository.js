@@ -5,9 +5,9 @@
  */
 'use strict';
 
-var path = require('path');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
+var path = require('path');
 
 var globToRegExp = require('glob-to-regexp');
 var db = require('./data/db');
@@ -37,7 +37,7 @@ var defaultOptions = require('./repository/options');
 var repository = function(directory, options) {
     // direct function call
     if (typeof this === 'function') {
-    return new this(directory, options);
+        return new this(directory, options);
     }
 
     // extends options
@@ -49,7 +49,7 @@ var repository = function(directory, options) {
     }
 
     // Create the storage
-    this.db = new db(this);
+    this.db = new db.graph(this);
 
     // prepare extension filters
     this._regex = [];

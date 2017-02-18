@@ -7,7 +7,7 @@
 
 var parser  = require('../utils/parser');
 var fs      = require('fs');
-var worker  = require('../worker');
+var worker  = null;
 
 /**
  * Parsing a file
@@ -67,6 +67,9 @@ module.exports = function(filename, encoding, stat) {
       }
 
       if (self.options.forkWorker) {
+        if (!worker) {
+            worker = require('../worker');
+        }
         // reads from a forked process
         worker(filename, null, self.directory, self.options).then(function(cache) {
           if (cache.hit) {

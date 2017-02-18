@@ -5,6 +5,9 @@
  */
 'use strict';
 
+var path = require('path');
+var fs = require('fs');
+
 /**
  * Scan the current directory to add PHP files to parser
  * @public
