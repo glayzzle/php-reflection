@@ -5,7 +5,7 @@
  */
 'use strict';
 
-var grafine = require('grafine');
+var point = require('grafine').point;
 var inherits = require('util').inherits;
 var position = require('../utils/position');
 var comment = require('../utils/comment');
@@ -26,45 +26,14 @@ var comment = require('../utils/comment');
  */
 var node = function(graph, file, parent, ast) {
 
-    grafine.point.apply(this, [graph]);
+    point.apply(this, [graph]);
 
     if (!this.type && this.constructor.name.length > 0) {
         this.type = this.constructor.name;
     }
 
-    if (file) {
-        this.set('file', file);
-    }
-
-    if (parent) {
-        this.set('parent', parent);
-    }
-
-    if (ast) {
-        if (ast.state && ast.state.token) {
-            this.state = ast.state;
-        }
-
-        // check if contains a position node
-        if (ast.loc) {
-            this.position = new position(ast.loc);
-        }
-
-        // check if contains a doc node
-        if (typeof ast.doc === 'object' && ast.doc !== null) {
-            this.doc = new comment(ast.doc);
-        }
-
-        // reads the AST
-        this.consume(ast);
-
-        // indexes the symbol with its name
-        if (this.fullName) {
-            this.index(this.type, this.fullName);
-        }
-    }
 };
-inherits(node, grafine.point);
+inherits(node, point);
 
 /**
  * Gets the current repository
@@ -139,7 +108,39 @@ node.prototype.getBlock = function() {
 /**
  * @protected Consumes the current ast node
  */
-node.prototype.consume = function(ast) {};
+node.prototype.consume = function(file, parent, ast) {
+
+    if (file) {
+        this.set('file', file);
+    }
+
+    if (parent) {
+        this.set('parent', parent);
+    }
+
+    if (ast) {
+        if (ast.state && ast.state.token) {
+            this.state = ast.state;
+        }
+
+        // check if contains a position node
+        if (ast.loc) {
+            this.position = new position(ast.loc);
+        }
+
+        // check if contains a doc node
+        if (typeof ast.doc === 'object' && ast.doc !== null) {
+            this.doc = new comment(ast.doc);
+        }
+
+        // indexes the symbol with its name
+        if (this.fullName) {
+            this.index(this.type, this.fullName);
+        } else if (this.name) {
+            this.index(this.type, this.name);
+        }
+    }
+};
 
 /**
  * Node helper for importing data
@@ -215,7 +216,7 @@ node.builders = {};
  * @return {node}
  * @throws {Error} if the specified type is not fond
  */
-node.create = function (type, graph, file, parent, ast) {
+node.create = function (type, graph) {
   if (!node.builders.hasOwnProperty(type)) {
     require('../nodes/' + type);
   }
@@ -223,7 +224,7 @@ node.create = function (type, graph, file, parent, ast) {
     throw new Error('"' + type + '" is not found');
   }
 
-  return new node.builders[type](graph, file, parent, ast);
+  return new node.builders[type](graph);
 };
 
 /** @private recursive extends */

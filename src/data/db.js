@@ -25,6 +25,22 @@ grafine.graph = function(repository) {
 };
 inherits(grafine.graph, graphCtor);
 
+/**
+ * Create a node
+ */
+ var graphCreatePoint = grafine.graph.prototype.create;
+grafine.graph.prototype.create = function(type, parent, ast) {
+    var file = null;
+    if (parent) {
+        file = parent.getFile();
+    }
+    var point = node.create(type, this);
+    point = graphCreatePoint.apply(this, [point]);
+    point.consume(file, parent, ast);
+    return point;
+};
+
+
 // creating the shard
 var graphCreateShard = grafine.graph.prototype.createShard;
 grafine.graph.prototype.createShard = function(id) {
