@@ -5,8 +5,8 @@
  */
 'use strict';
 
-var block = require('./block');
-var expr = require('./expr');
+var Block = require('./block');
+var Expr = require('./expr');
 
 /**
  * ** Extends from {@link BLOCK.md|:link: block} **
@@ -20,21 +20,17 @@ var expr = require('./expr');
  * @constructor Declare
  * @property {Object} options List of key/value declarations
  */
-var Declare = block.extends('declare');
+var Declare = Block.extends('declare');
 
 /**
  * @protected reads each declared option
  */
-Declare.prototype.consume = function(ast) {
-
-  // @fixme object are not exported as cache
-  this.options = {};
-  for(var k in ast.what) {
-    this.options[k] = expr.resolve(this, ast.what[k]);
-  }
-
-  // Iterator over each namespace item
-  this.scanForChilds(ast.children);
+Declare.prototype.consume = function(file, parent, ast) {
+    this.options = {};
+    for(var k in ast.what) {
+        this.options[k] = Expr.resolve(this, ast.what[k]);
+    }
+    Block.prototype.consume.apply(this, arguments);
 };
 
 module.exports = Declare;
