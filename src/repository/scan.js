@@ -59,27 +59,28 @@ module.exports = function(directory) {
               }
               // ignore file (due to pattern)
               if (!matched) return done();
+              var fileNode = self.getFile(filename);
               // handle in-memory cache
-              if (filename in self.files) {
+              if (fileNode) {
                 // check if need to parse again
                 if (
                   self.options.cacheByFileDate &&
-                  self.files[filename].mtime > stat.mtime.getTime()
+                  fileNode.mtime > stat.mtime.getTime()
                 ) {
                   self.emit('cache', {
                     name: filename
                   });
-                  return done(self.files[filename]);
+                  return done(fileNode);
                 }
                 // same size and
                 if (
                   self.options.cacheByFileSize &&
-                  stat.size === self.files[filename].size
+                  stat.size === fileNode.size
                 ) {
                   self.emit('cache', {
                     name: filename
                   });
-                  return done(self.files[filename]);
+                  return done(fileNode);
                 }
               }
               self.counter.total++;
