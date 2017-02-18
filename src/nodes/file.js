@@ -138,8 +138,7 @@ File.prototype.getNamespace = function(name) {
  */
 File.prototype.consume = function(file, parent, ast) {
 
-    // super constructor
-    Node.prototype.consume.apply(this, arguments);
+    // default values (for caching)
     this.mtime    = 0;
     this.size     = 0;
     this.crc32    = null;
@@ -158,20 +157,17 @@ File.prototype.consume = function(file, parent, ast) {
     // self reference
     var self = this;
 
-    console.log(this);
-    process.exit();
-
     // scan each document node
     ast.children.forEach(function(item) {
         if (item.kind) {
             if (item.kind === 'declare') {
-                node.create('declare', self, item);
+                self.graph.create('declare', self, item);
             } else if (item.kind === 'namespace') {
                 if (doc) {
                     item.doc = doc;
                     doc = null;
                 }
-                node.create('namespace', self, item);
+                self.graph.create('namespace', self, item);
             } else if (item.kind === 'doc') {
                 doc = item;
             } else {
@@ -187,7 +183,7 @@ File.prototype.consume = function(file, parent, ast) {
 
     // create an empty namespace
     if (root.length > 0) {
-        node.create('namespace', this, {
+        this.graph.create('namespace', this, {
             'kind': 'namespace',
             'name': {
                 'kind': 'identifier',
@@ -196,6 +192,8 @@ File.prototype.consume = function(file, parent, ast) {
             'children': root
         });
     }
+
+    Node.prototype.consume.apply(this, arguments);
 };
 
 /**
