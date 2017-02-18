@@ -7,7 +7,8 @@
 
 /**
  * This class contains the state at a specified offset into a file
- * @public @constructor scope
+ * @public 
+ * @constructor Scope
  * @property {file} file {@link FILE.md|:link:}
  * @property {Integer} offset
  * @property {namespace} namespace {@link NAMESPACE.md|:link:}
@@ -17,47 +18,47 @@
  * @property {method|null} method {@link METHOD.md|:link:}
  * @property {function|null} function {@link FUNCTION.md|:link:}
  */
-var scope = function(file, offset) {
+var Scope = function(file, offset) {
 
-  this.file = file;
-  this.offset = offset;
-  this.namespace = null;
-  this.class = null;
-  this.trait = null;
-  this.interface = null;
-  this.method = null;
-  this.function = null;
-  this.variables = [];
+    this.file = file;
+    this.offset = offset;
+    this.namespace = null;
+    this.class = null;
+    this.trait = null;
+    this.interface = null;
+    this.method = null;
+    this.function = null;
+    this.variables = [];
 
-  // scanning file scope
-  for (var i = 0; i < file.nodes.length; i++) {
-    var node = file.nodes[i];
-    if (node.position && node.position.hit(offset)) {
-      if (node.type === 'namespace') {
-        this.namespace = node;
-        this.variables = this.variables.concat(node.variables);
-      } else if (node.type === 'class') {
-        this.class = node;
-      } else if (node.type === 'interface') {
-        this.interface = node;
-      } else if (node.type === 'trait') {
-        this.trait = node;
-      } else if (node.type === 'function') {
-        this.function = node;
-      } else if (node.type === 'method') {
-        this.method = node;
-      } else if (node.variables) {
-        this.variables = this.variables.concat(node.variables);
-      }
-    }
-  }
+    // scanning file scope
+    file.eachNode(function(node) {
+        if (node.position && node.position.hit(offset)) {
+            if (node.type === 'namespace') {
+                this.namespace = node;
+                // this.variables = this.variables.concat(node.variables);
+            } else if (node.type === 'class') {
+                this.class = node;
+            } else if (node.type === 'interface') {
+                this.interface = node;
+            } else if (node.type === 'trait') {
+                this.trait = node;
+            } else if (node.type === 'function') {
+                this.function = node;
+            } else if (node.type === 'method') {
+                this.method = node;
+            } else if (node.variables) {
+                // this.variables = this.variables.concat(node.variables);
+            }
+        }
+    });
+
 };
 
 /**
  * Gets variables depending on current state
  * @return {variable[]|null} {@link VARIABLE.md|:link:}
  */
-scope.prototype.getVariables = function() {
+Scope.prototype.getVariables = function() {
   // scope restricted
   if (this.method) {
     return this.method.variables;
@@ -68,4 +69,4 @@ scope.prototype.getVariables = function() {
   return this.variables;
 };
 
-module.exports = scope;
+module.exports = Scope;
