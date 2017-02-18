@@ -31,7 +31,7 @@ module.exports = {
     // use the file mtime property to check changes
     cacheByFileDate: true,
     // use the file size to detect changes
-    cacheByFileSize: false,
+    cacheByFileSize: true,
     // use an hash algorithm to detect changes
     // if low cache hit, may slow down the parsing
     cacheByFileHash: true,
