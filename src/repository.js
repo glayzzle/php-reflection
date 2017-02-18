@@ -166,16 +166,16 @@ repository.prototype.getByName = function(type, name, limit) {
     var criteria = {};
     criteria[type] = name;
 
-  var result = [];
-  for (var k in this.files) {
-    if (this.files[k] instanceof file) {
-      var items = this.files[k].getByName(type, name, limit);
-      if (items.length > 0) {
-        result = result.concat(items);
-      }
+    var result = [];
+    for (var k in this.files) {
+        if (this.files[k] instanceof file) {
+            var items = this.files[k].getByName(type, name, limit);
+            if (items.length > 0) {
+                result = result.concat(items);
+            }
+        }
     }
-  }
-  return result;
+    return result;
 };
 
 /**
@@ -232,21 +232,23 @@ repository.prototype.getNamespace = function(name) {
         var result = node.create('namespace', this);
 
         items.forEach(function(ns) {
-        if (ns.constants.length > 0) {
-        result.constants = result.constants.concat(ns.constants);
-        }
-        if (ns.functions.length > 0) {
-        result.functions = result.functions.concat(ns.functions);
-        }
-        if (ns.classes.length > 0) {
-        result.classes = result.classes.concat(ns.classes);
-        }
-        if (ns.traits.length > 0) {
-        result.traits = result.traits.concat(ns.traits);
-        }
-        if (ns.interfaces.length > 0) {
-        result.interfaces = result.interfaces.concat(ns.interfaces);
-        }
+            /** @todo
+            if (ns.constants.length > 0) {
+            result.constants = result.constants.concat(ns.constants);
+            }
+            if (ns.functions.length > 0) {
+            result.functions = result.functions.concat(ns.functions);
+            }
+            if (ns.classes.length > 0) {
+            result.classes = result.classes.concat(ns.classes);
+            }
+            if (ns.traits.length > 0) {
+            result.traits = result.traits.concat(ns.traits);
+            }
+            if (ns.interfaces.length > 0) {
+            result.interfaces = result.interfaces.concat(ns.interfaces);
+            }
+            */
         });
         return result;
     } else {
@@ -267,8 +269,85 @@ repository.prototype.sync = require('./repository/sync');
  * @return {repository}
  */
 repository.prototype.cleanAll = function() {
-    this.db = new db(this);
+    this.db = new db.graph(this);
     return this;
+};
+
+/**
+ * Iterate over each symbol
+ * @public
+ * @param {function} cb A closure : `function(node, name)`
+ * @return {repository}
+ */
+repository.prototype.each = function(type, cb) {
+    this.db.readIndex(type, function(items) {
+        for(var name in items) {
+            var nodes = items[name];
+            if (nodes.length !== 1) {
+                for(var i = 0; i < nodes.length; i++) {
+                    cb(this.db.get(nodes[i]), name);
+                }
+            } else {
+                cb(this.db.get(nodes[0]), name);
+            }
+        }
+    });
+    return this;
+};
+
+/**
+ * Gets the scope for the specified offset
+ * @public
+ * @return {scope}
+ */
+repository.prototype.getScope = function(filename, offset) {
+    var file = this.getFile(filename);
+    if (file) {
+        return file.getScope(offset);
+    } else {
+        return null;
+    }
+};
+
+/**
+ * Retrieves a file object
+ * @public
+ * @param {String} filename The filename to retrieve
+ * @return {file|null} Returns the file if exists, or null if not defined
+ */
+repository.prototype.getFile = function(filename) {
+    var items = this.db.search({
+        file: filename
+    });
+    if (items && items.length > 0) {
+        return this.db.get(items[0]);
+    } else {
+        return null;
+    }
+};
+
+/**
+ * Retrieves a file object
+ * @public
+ * @param {String} filename The filename to retrieve
+ * @return {file|null} Returns the file if exists, or null if not defined
+ */
+repository.prototype.hasFile = function(filename) {
+    var items = this.db.search({
+        file: filename
+    });
+    return (items && items.length > 0);
+};
+
+
+/**
+ * Iterate over each file
+ * @public
+ * @param {function} cb A closure : `function(file, name)`
+ * @return {repository}
+ */
+repository.prototype.eachFile = function(cb) {
+    return this.each('file', cb);
 };
 
 /**
@@ -276,7 +355,7 @@ repository.prototype.cleanAll = function() {
  * @public
  * @return {repository}
  */
-repository.prototype.remove = function(filename) {
+repository.prototype.removeFile = function(filename) {
     var items = this.db.search({
         file: filename
     });
@@ -288,108 +367,6 @@ repository.prototype.remove = function(filename) {
 };
 
 /**
- * Iterate over each file
- * @public
- * @param {function} cb A closure : `function(file, name)`
- * @return {repository}
- */
-repository.prototype.each = function(cb) {
-    for(var i = 0; i < this.db.indexes.length; i++) {
-        var entry = this.db.indexes[i];
-        if (!e)
-        if (entry && 'file' in entry.index) {
-            var files = filesIndex.index.file;
-            for(var name in files) {
-                var nodes = files[name];
-                if (nodes.length !== 1) {
-                    for(var i = 0; i < nodes.length; i++) {
-                        cb(this.db.get(nodes[i]), name);
-                    }
-                } else {
-                    cb(this.db.get(nodes[0]), name);
-                }
-            }
-        }
-    }
-    var filesIndex = this.db.getIndex('file');
-    if (filesIndex && 'file' in filesIndex.index) {
-
-    }
-    return this;
-};
-
-/**
- * Gets the scope for the specified offset
- * @public
- * @return {scope}
- */
-repository.prototype.scope = function(filename, offset) {
-  if (
-    this.files.hasOwnProperty(filename) &&
-    this.files[filename] instanceof file
-  ) {
-    return this.files[filename].getScope(offset);
-  } else {
-    return null;
-  }
-};
-
-/**
- * Retrieves a file object
- * @public
- * @param {String} filename The filename to retrieve
- * @return {file|null} Returns the file if exists, or null if not defined
- */
-repository.prototype.get = function(filename) {
-  if (
-    this.files.hasOwnProperty(filename) &&
-    this.files[filename] instanceof file
-  ) {
-    return this.files[filename];
-  } else {
-    return null;
-  }
-};
-
-
-/**
- * Gets/Sets the files repository
- * @public
- * @param {object} data Sets the specified data
- * @return {repository|object} Retrieves the cache (if data not set)
- */
-repository.prototype.cache = function(data) {
-  if (typeof data !== 'undefined') {
-    // sets the data
-    this.files = {};
-    if (data) {
-      this.directory = data.directory;
-      // creating files from structure
-      for (var name in data.files) {
-        this.files[name] = file.import(this, data[name]);
-      }
-      // rebuild object links
-      for (var name in this.files) {
-        this.files[name].refresh();
-      }
-    }
-    return this;
-  } else {
-    // gets the data
-    var result = {
-      directory: this.directory,
-      files: {}
-    };
-    for (var name in this.files) {
-      if (this.files[name] instanceof file) {
-        result.files[name] = this.files[name].export();
-      }
-    }
-    return result;
-  }
-};
-
-/**
  * Rename a file
  * @public
  * @param {string} oldName The original filename
@@ -397,12 +374,11 @@ repository.prototype.cache = function(data) {
  * @return {repository}
  */
 repository.prototype.rename = function(oldName, newName) {
-  if (this.files.hasOwnProperty(oldName)) {
-    this.files[newName] = this.files[oldName];
-    this.files[newName].name = newName;
-    delete this.files[oldName];
-  }
-  return this;
+    var file = this.getFile(oldName);
+    if (file) {
+        file.setName(newName);
+    }
+    return this;
 };
 
 
