@@ -48,6 +48,9 @@ node.prototype.getRepository = function() {
  * @return {file} {@link FILE.md|:link:}
  */
 node.prototype.getFile = function() {
+    if (this.type === 'file') {
+        return this;
+    }
     if (!this._file) {
         var uuid = this.first('file');
         if (uuid) {
@@ -92,17 +95,17 @@ node.prototype.getNamespace = function() {
  * Gets the parent block
  * @return {block} {@link BLOCK.md|:link:}
  */
-node.prototype.getBlock = function() {
-    if (this.type === 'block') {
-        return this;
-    }
-    if (!this._block) {
-        var parent = this.getParent();
-        if (parent) {
-            this._block = parent.getBlock();
+node.prototype.eachChild = function(cb) {
+    var childs = this.related.parent;
+    if (childs && childs.length > 0) {
+        for(var i = 0; i < childs.length; i++) {
+            var child = this.graph.get(childs[i]);
+            if (child) {
+                cb(child, i);
+            }
         }
     }
-    return this._block;
+    return this;
 };
 
 /**
