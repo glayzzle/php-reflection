@@ -58,6 +58,7 @@ var repository = function(directory, options) {
             globToRegExp(this.options.ext[i])
         );
     }
+    this._pending = {};
 
     // counting things
     this.counter = {

@@ -23,16 +23,7 @@ var comment = require('../utils/comment');
  * @property {trait[]} traits {@link TRAIT.md|:link:} List of defined traits
  * @property {block[]} blocks {@link BLOCK.md|:link:} List of variable scoped blocks
  */
-var block = node.extends(function block(parent, ast) {
-  this.variables = [];
-  this.defines = [];
-  this.functions = [];
-  this.classes = [];
-  this.interfaces = [];
-  this.traits = [];
-  this.blocks = [];
-  node.apply(this, arguments);
-});
+var block = node.extends('block');
 
 /**
  * @protected Gets the current block
@@ -44,8 +35,10 @@ block.prototype.getBlock = function() {
 /**
  * @protected Consumes the current ast node
  */
-block.prototype.consume = function(ast) {
-  this.scanForChilds(ast);
+block.prototype.consume = function(file, parent, ast) {
+    // super constructor
+    node.prototype.consume.apply(this, [file, parent, ast]);
+    this.scanForChilds(ast);
 };
 
 /**
