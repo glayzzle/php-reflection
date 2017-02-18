@@ -5,8 +5,7 @@
  */
 'use strict';
 
-var block = require('./block');
-var ptr = require('../data/ptr');
+var Block = require('./block');
 
 /**
  * **Extends from [block](BLOCK.md)**
@@ -18,20 +17,46 @@ var ptr = require('../data/ptr');
  * @constructor {Namespace}
  *
  * @property {String} name The namespace full name
- * @property {use[]} uses {@link USE.md|:link:} List of imported (or used namespaces)
- * @property {constant[]} constants {@link CONSTANT.md|:link:} List of constants
  */
-var Namespace = block.extends('namespace');
-
+var Namespace = Block.extends('namespace');
 
 /**
  * @protected Consumes the current ast node
  */
-Namespace.prototype.consume = function(ast) {
-  this.name = '\\' + ast.name.name;
-  this.uses = {};
-  this.constants = [];
-  this.scanForChilds(ast.children);
+Namespace.prototype.consume = function(file, parent, ast) {
+    this.name = '\\' + ast.name.name;
+    Block.prototype.consume.apply(this, arguments);
+};
+
+/**
+ * Retrieves a list of use nodes
+ */
+Namespace.prototype.getUses = function() {
+    var result = [];
+    var uses = this.get('uses');
+    if (uses.length > 0) {
+        for(var i = 0; i < uses.length; i++) {
+            var item = this.graph.get(uses[i]);
+            if (item) result.push(item);
+        }
+    }
+    return result;
+};
+
+/**
+ * Resolves an alias class if defines in use statements
+ */
+Namespace.prototype.resolveAlias = function(alias) {
+    var uses = this.get('uses');
+    if (uses.length > 0) {
+        for(var i = 0; i < uses.length; i++) {
+            var item = this.graph.get(uses[i]);
+            if (item && alias in item.aliases) {
+                return item.aliases[alias];
+            }
+        }
+    }
+    return null;
 };
 
 /**
@@ -41,20 +66,21 @@ Namespace.prototype.consume = function(ast) {
  * @return {String}
  */
 Namespace.prototype.resolveClassName = function(name) {
-  if (name.kind && name.kind === 'identifier') {
-    if (name.resolution === 'fqn') {
-      return name.name;
-    } else if (name.resolution === 'rn') {
-      return this.name + '\\' + name.name;
-    } else {
-      // resolve with use
-      if (this.uses[name.name]) {
-        return this.uses[name.name];
-      }
-      // relative to current namespace
-      return this.name + '\\' + name.name;
+    if (name.kind && name.kind === 'identifier') {
+        if (name.resolution === 'fqn') {
+            return name.name;
+        } else if (name.resolution === 'rn') {
+            return this.name + '\\' + name.name;
+        } else {
+            // resolve with use statements
+            var alias = this.resolveAlias(name.name);
+            if (alias) {
+                return alias;
+            }
+            // relative to current namespace
+            return this.name + '\\' + name.name;
+        }
     }
-  }
 };
 
 module.exports = Namespace;
