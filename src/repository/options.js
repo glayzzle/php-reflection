@@ -42,6 +42,29 @@ module.exports = {
     lazyCache: false,
     // used for testing / dev without inspector
     debug: false,
-    // used in order to shard big projects
-    shards: 255
-  };
+    // used in order to shard big projects into separate files
+    shardSize: 256,
+    // used in order group together symbol from a same file
+    shardCapacity: 512
+};
+
+/**
+ *
+ * @todo MAKE TESTS TO CALIBRATE THESE VALUES
+ *
+ * Sharding Size options :
+ *
+ * 50   - Small project (less 1k files)
+ * 256  - Medium project (less 5k files)
+ * 512  - Big project (less 10k files)
+ * 1024 - Very big project (about 20k files)
+ * etc...
+ *
+ * Sharding Capacity options (get from average file size) :
+ *
+ * 128  - Small files (about 10ko)
+ * 256  - Medium files (about 20ko)
+ * 512  - Big files (about 50ko)
+ * 1024 - Very big files (about 100ko)
+ * etc...
+ */

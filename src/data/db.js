@@ -20,7 +20,10 @@ grafine.point = node;
 // extends constructor
 var graphCtor = grafine.graph;
 grafine.graph = function(repository) {
-    graphCtor.apply(this, [repository.options.shards]);
+    graphCtor.apply(this, [
+        repository.options.shardSize,
+        repository.options.shardCapacity
+    ]);
     this.repository = repository;
 };
 inherits(grafine.graph, graphCtor);
