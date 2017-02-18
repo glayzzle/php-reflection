@@ -25,6 +25,7 @@ var Namespace = Block.extends('namespace');
  */
 Namespace.prototype.consume = function(file, parent, ast) {
     this.name = '\\' + ast.name.name;
+    this.index(this.type, this.name);
     Block.prototype.consume.apply(this, arguments);
 };
 
