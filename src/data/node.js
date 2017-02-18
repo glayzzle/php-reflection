@@ -135,13 +135,6 @@ node.prototype.consume = function(file, parent, ast) {
         if (typeof ast.doc === 'object' && ast.doc !== null) {
             this.doc = new comment(ast.doc);
         }
-
-        // indexes the symbol with its name
-        if (this.fullName) {
-            this.index(this.type, this.fullName);
-        } else if (this.name) {
-            this.index(this.type, this.name);
-        }
     }
 };
 
