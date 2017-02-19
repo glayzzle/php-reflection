@@ -76,7 +76,9 @@ var table = new Int32Array([
 ]);
 
 module.exports = function crc32(buf) {
-    if (!Buffer.isBuffer(buf)) buf = Buffer.from(buf);
+    if (!Buffer.isBuffer(buf)) {
+        buf = Buffer.from ? Buffer.from(buf) : new Buffer(buf);
+    }
     var crc = 0, byte;
     for (var i = 0, size = buf.length; i < size; i++) {
         byte = buf[i];
