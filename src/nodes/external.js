@@ -26,10 +26,10 @@ var External = Node.extends('external');
  * @protected Consumes the current ast node
  */
 External.prototype.consume = function(file, parent, ast) {
-  this.strict = ast.require;
-  this.once = ast.once;
-  this.target = Expr.resolve(this, ast.target);
-  Node.prototype.consume.apply(this, arguments);
+    Node.prototype.consume.apply(this, arguments);
+    this.strict = ast.require;
+    this.once = ast.once;
+    this.target = Expr.resolve(this, ast.target);
 };
 
 /**
@@ -37,21 +37,21 @@ External.prototype.consume = function(file, parent, ast) {
  * @return {File|Promise} {@link FILE.md|:link:}
  */
 External.prototype.getTargetFile = function() {
-  if (typeof this.target === 'string') {
-    if (!this._file) {
-      // @todo this part should be rewrite
-      this._file = this.getRepository().getFile(this.target);
-      if (!this._file) {
-        return this.getRepository().parse(
-          this.target
-        ).then(function(file) {
-          this._file = file;
-        }.bind(this));
-      }
+    if (typeof this.target === 'string') {
+        if (!this._file) {
+            // @todo this part should be rewrite
+            this._file = this.getRepository().getFile(this.target);
+            if (!this._file) {
+                return this.getRepository().parse(
+                    this.target
+                ).then(function(file) {
+                    this._file = file;
+                }.bind(this));
+            }
+        }
+        return this._file;
     }
-    return this._file;
-  }
-  return null;
+    return null;
 };
 
 module.exports = External;
