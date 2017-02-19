@@ -5,9 +5,8 @@
  */
 'use strict';
 
-var node = require('../data/node');
-var ptr = require('../data/ptr');
-var expr = require('./expr');
+var Node = require('../data/node');
+var Expr = require('./expr');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **
@@ -20,26 +19,28 @@ var expr = require('./expr');
  * @property {String} fullName
  * @property {expr} value {@link EXPR.md|:link:}
  */
-var Constant = node.extends('constant');
+var Constant = Node.extends('constant');
 
 
 /**
  * @protected Consumes the current ast node
  */
-Constant.prototype.consume = function(ast) {
-  this.name = ast.name;
+Constant.prototype.consume = function(file, parent, ast) {
 
-  if (this.parent.type === 'class') {
-    this.fullName = this.parent.fullName + '::' + this.name;
-  } else if (this.parent.type === 'namespace') {
-    this.fullName = this.parent.name + '::' + this.name;
-  } else {
-    this.fullName = this.name;
-  }
+    Node.prototype.consume.apply(this, arguments);
 
-  if (ast.value) {
-    this.value = expr.resolve(this, ast.value);
-  }
+    this.name = ast.name;
+
+    if (this.getParent()._type === 'namespace') {
+        this.fullName = this.getParent().fullName + '::' + this.name;
+    } else {
+        this.fullName = this.getNamespace().name + '::' + this.name;
+    }
+    this.indexName(this.fullName);
+
+    if (ast.value) {
+        this.value = Expr.resolve(this, ast.value);
+    }
 };
 
 
