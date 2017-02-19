@@ -229,8 +229,8 @@ function declareExtends (base) {
     var _super = ctor;
     if (typeof ctor !== 'function') {
       _super = function (parent, ast) {
-        this.type = ctor;
         base.apply(this, arguments);
+        this.type = ctor;
       };
       node.builders[ctor] = _super;
     } else {
