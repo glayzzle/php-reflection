@@ -20,15 +20,19 @@ describe('Repository class', function() {
           exclude: ['bin']
         });
         it('properties', function () {
-            workspace.files.should.be.Object();
+            workspace.db.should.be.Object();
+            workspace.options.should.be.Object();
             workspace.directory.should.be.exactly(path);
+            workspace.options.forkWorker.should.be.exactly(false);
+            workspace.options.exclude.length.should.be.exactly(1);
+            workspace.options.exclude[0].should.be.exactly('bin');
         });
     });
 
     describe('#parse', function() {
         it('should read test.php', function (done) {
             workspace.parse('test.php').then(function(file) {
-                file.name.should.be.exactly('test.php');
+                file.getName().should.be.exactly('test.php');
                 done();
             }, done);
         });
@@ -37,10 +41,10 @@ describe('Repository class', function() {
     describe('#scan', function() {
         it('should scan directory', function (done, reject) {
             workspace.scan().then(function() {
-                workspace.files.should.have.property('test.php');
-                workspace.files.should.have.property('friend.php');
-                workspace.files.should.have.property('sub/empty.php');
-                workspace.files.should.not.have.property('bin/nok.php');
+                workspace.hasFile('test.php').should.be.exactly(true);
+                workspace.hasFile('friend.php').should.be.exactly(true);
+                workspace.hasFile('sub/empty.php').should.be.exactly(true);
+                workspace.hasFile('bin/nok.php').should.be.exactly(false);
                 done();
             }).catch(function(e) {
                 console.error(e.stack);

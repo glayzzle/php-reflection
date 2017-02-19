@@ -36,11 +36,15 @@ module.exports = function(filename, encoding, stat) {
       encoding = this.options.encoding;
     }
 
+    var fullFilename = path.resolve(this.directory, filename);
+
+    if (!stat) {
+        stat = fs.statSync(fullFilename);
+    }
+
+
     if (fileNode) {
         isFresh = true;
-        if (!stat) {
-            stat = fs.statSync(filename);
-        }
         // checking statistics
         if (
           this.options.cacheByFileDate &&
@@ -101,7 +105,6 @@ module.exports = function(filename, encoding, stat) {
                 );
             } else {
                 // reads from the main process
-                var fullFilename = path.resolve(self.directory, filename);
                 fs.readFile(fullFilename, encoding, function(err, data) {
                     var ast, crcIntVal = 0;
                     if (!err) {
