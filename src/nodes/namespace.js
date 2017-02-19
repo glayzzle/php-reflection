@@ -30,6 +30,19 @@ Namespace.prototype.consume = function(file, parent, ast) {
 };
 
 /**
+ * Converts a namespace relative object name to a fully qualified name
+ * @return {String}
+ */
+Namespace.prototype.getFQN = function(name) {
+    if (name.name) name = name.name;
+    if (this.name === '\\') {
+        return '\\' + name;
+    }
+    return this.name + '\\' + name;
+};
+
+
+/**
  * Retrieves a list of use nodes
  */
 Namespace.prototype.getUses = function() {

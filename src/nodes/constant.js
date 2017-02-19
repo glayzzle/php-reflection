@@ -31,10 +31,14 @@ Constant.prototype.consume = function(file, parent, ast) {
 
     this.name = ast.name;
 
-    if (this.getParent()._type === 'namespace') {
+    if (
+        this.getParent()._type === 'class' ||
+        this.getParent()._type === 'interface' ||
+        this.getParent()._type === 'trait'
+    ) {
         this.fullName = this.getParent().fullName + '::' + this.name;
     } else {
-        this.fullName = this.getNamespace().name + '::' + this.name;
+        this.fullName = this.getNamespace().getFQN(this.name);
     }
     this.indexName(this.fullName);
 

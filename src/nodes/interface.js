@@ -75,7 +75,7 @@ Interface.prototype.consume = function(file, parent, ast) {
 
     // handle name
     this.name = ast.name;
-    this.fullName = this.getNamespace().name + '\\' + this.name;
+    this.fullName = this.getNamespace().getFQN(this.name);
 
     this.indexName(this.name);
 

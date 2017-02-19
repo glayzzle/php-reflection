@@ -61,7 +61,7 @@ Func.prototype.consume = function(file, parent, ast) {
         }
     } else {
         this.name = ast.name;
-        this.fullName = this.getNamespace().name + '\\' + this.name;
+        this.fullName = this.getNamespace().getFQN(this.name);
         this.indexName(this.fullName);
     }
 
