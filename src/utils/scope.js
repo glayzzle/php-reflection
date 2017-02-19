@@ -33,24 +33,33 @@ var Scope = function(file, offset) {
     // scanning file scope
     file.eachNode(function(node) {
         if (node.position && node.position.hit(offset)) {
-            if (node.type === 'namespace') {
+            if (node._type === 'namespace') {
                 this.namespace = node;
-                // this.variables = this.variables.concat(node.variables);
-            } else if (node.type === 'class') {
+                this.variables = this.variables.concat(
+                    file._db.resolve(
+                        node.get('variables')
+                    )
+                );
+            } else if (node._type === 'class') {
                 this.class = node;
-            } else if (node.type === 'interface') {
+            } else if (node._type === 'interface') {
                 this.interface = node;
-            } else if (node.type === 'trait') {
+            } else if (node._type === 'trait') {
                 this.trait = node;
-            } else if (node.type === 'function') {
+            } else if (node._type === 'function') {
                 this.function = node;
-            } else if (node.type === 'method') {
+            } else if (node._type === 'method') {
                 this.method = node;
-            } else if (node.variables) {
-                // this.variables = this.variables.concat(node.variables);
+            } else {
+                var variables = node.get('variables');
+                if (variables && variables.length > 0) {
+                    this.variables = this.variables.concat(
+                        file._db.resolve(variables)
+                    );
+                }
             }
         }
-    });
+    }.bind(this));
 
 };
 
@@ -59,14 +68,14 @@ var Scope = function(file, offset) {
  * @return {variable[]|null} {@link VARIABLE.md|:link:}
  */
 Scope.prototype.getVariables = function() {
-  // scope restricted
-  if (this.method) {
-    return this.method.variables;
-  } else if (this.function) {
-    return this.function.variables;
-  }
-  // global scope
-  return this.variables;
+    // scope restricted
+    if (this.method) {
+        return this.method.getVariables();
+    } else if (this.function) {
+        return this.function.getVariables();
+    }
+    // global scope
+    return this.variables;
 };
 
 module.exports = Scope;
