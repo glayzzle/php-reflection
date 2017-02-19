@@ -113,29 +113,28 @@ describe('Repository class', function() {
             }).should.throw();
         });
 
-        return; // @todo
         it('create a fooSync function', function () {
-            workspace.options.debug = true;
             workspace.sync(
                 filename, code(states[2]), cursor(states[2])
             ).should.be.exactly(true);
-            var fn = workspace.getFirstByName('function', 'fooSync');
-            console.log(fn);
+            var fn = workspace.getFirstByName('function', '\\fooSync');
             fn.name.should.be.exactly('fooSync');
-            fn.args.length.should.be.exactly(1);
-            fn.args[0].name.should.be.exactly('a');
+            var args = fn.getArguments();
+            args.length.should.be.exactly(1);
+            args[0].name.should.be.exactly('a');
         });
 
         it('add an argument', function () {
             workspace.options.debug = true;
             workspace.sync(
-                filename, code(states[2]), cursor(states[2])
+                filename, code(states[3]), cursor(states[3])
             ).should.be.exactly(true);
-            var fn = workspace.getByName('function', 'fooSync');
+            var fn = workspace.getFirstByName('function', '\\fooSync');
             fn.name.should.be.exactly('fooSync');
-            fn.args.length.should.be.exactly(2);
-            fn.args[0].name.should.be.exactly('a');
-            fn.args[1].name.should.be.exactly('b');
+            var args = fn.getArguments();
+            args.length.should.be.exactly(2);
+            args[0].name.should.be.exactly('a');
+            args[1].name.should.be.exactly('b');
         });
     });
 
