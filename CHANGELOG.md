@@ -1,3 +1,18 @@
+## [Version 2.1.0](https://github.com/glayzzle/php-reflection/releases/tag/v2.1.0) (2017-2-19)
+
+### Minor Changes
+
+- https://github.com/glayzzle/php-reflection/issues/12 finish to implement nodes replacement: [`c61106e`](https://github.com/glayzzle/php-reflection/commit/c61106e)
+- implement recusive deletion (node and its childs): [`7ff0740`](https://github.com/glayzzle/php-reflection/commit/7ff0740)
+- https://github.com/glayzzle/php-reflection/issues/12 add tests on incremental parsing: [`b3924c8`](https://github.com/glayzzle/php-reflection/commit/b3924c8)
+- add a new getFQN helper on namespace: [`3e4704f`](https://github.com/glayzzle/php-reflection/commit/3e4704f)
+
+### Patches
+
+- fix variable kind detection: [`84fa325`](https://github.com/glayzzle/php-reflection/commit/84fa325)
+
+[...full changes](https://github.com/glayzzle/php-reflection/compare/v2.0.0...v2.1.0)
+
 ## [Version 2.0.0](https://github.com/glayzzle/php-reflection/releases/tag/v2.0.0) (2017-2-19)
 
 ### Major Changes
