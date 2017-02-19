@@ -79,12 +79,10 @@ module.exports = function(filename, contents, offset) {
             fileNode.crc32 = crc32(contents);
         } else {
             ast = parser.sync(this, contents, syncNode);
-            if (this.options.debug) console.log(
-                syncNode.parent.type, 'will eat', ast.kind
-            );
             // @fixme handle case when parent is not a block
-            fileItem.removeNode(syncNode);
-            syncNode.getParent().consumeChild(ast);
+            var parent = syncNode.getParent();
+            syncNode.delete();
+            parent.consumeChild(ast);
         }
     } catch (e) {
         this.emit('error', e);
