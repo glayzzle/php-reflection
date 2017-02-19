@@ -4,8 +4,8 @@
  * @url http://glayzzle.com
  */
 
-var block = require('./block');
-var ptr = require('../data/ptr');
+var Node = require('../data/node');
+var Block = require('./block');
 
 /**
  * **Extends from [block](BLOCK.md)**
@@ -22,37 +22,61 @@ var ptr = require('../data/ptr');
  * @property {variable[]} args List of arguments
  * @property {variable[]} uses List of used variables
  */
-var fn = block.extends('function');
+var Func = Block.extends('function');
+
+/**
+ * Gets the list of function arguments
+ */
+Func.prototype.getArguments = function() {
+    return this._db.resolve(
+        this.get('args')
+    );
+};
+
+/**
+ * Gets the list of function variables
+ */
+Func.prototype.getVariables = function() {
+    var items = this.getArguments();
+    /** @todo */
+    return items;
+};
+
 
 /**
  * @protected Consumes the current ast node
  */
-fn.prototype.consume = function(ast) {
-  this.isClosure = ast.kind === 'closure';
-  this.uses = [];
-  if (this.isClosure) {
-    this.fullName = this.name = '#closure';
-    for(var i = 0; i < ast.uses.length; i++) {
-      // @fixme : should refer to an existing variable (if any)
-      this.uses.push(
-        ptr.create('variable', this, ast.uses[i])
-      );
+Func.prototype.consume = function(file, parent, ast) {
+    Node.prototype.consume.apply(this, [file, parent, ast]);
+    this.isClosure = ast.kind === 'closure';
+
+    if (this.isClosure) {
+        this.fullName = this.name = '#closure';
+        for(var i = 0; i < ast.uses.length; i++) {
+            // @fixme : should refer to an existing variable (if any)
+            this.add(
+                'uses',
+                this._db.create('variable', this, ast.arguments[i])
+            );
+        }
+    } else {
+        this.name = ast.name;
+        this.fullName = this.getNamespace().name + '\\' + this.name;
+        this.indexName(this.fullName);
     }
-  } else {
-    this.name = ast.name;
-    this.fullName = this.getNamespace().name + '\\' + this.name;
-  }
-  // define arguments
-  this.args = [];
-  for(var i = 0; i < ast.arguments.length; i++) {
-    this.args.push(
-      ptr.create('variable', this, ast.arguments[i])
-    );
-  }
-  // parse inner body
-  if (ast.body && ast.body.children) {
-    this.scanForChilds(ast.body.children);
-  }
+
+    // define arguments
+    for(var i = 0; i < ast.arguments.length; i++) {
+        this.add(
+            'args',
+            this._db.create('variable', this, ast.arguments[i])
+        );
+    }
+
+    // parse inner body
+    if (ast.body && ast.body.children) {
+        this.scanForChilds(ast.body.children);
+    }
 };
 
-module.exports = fn;
+module.exports = Func;
