@@ -374,7 +374,7 @@ repository.prototype.removeFile = function(filename) {
  * @param {string} newName The new filename
  * @return {repository}
  */
-repository.prototype.rename = function(oldName, newName) {
+repository.prototype.renameFile = function(oldName, newName) {
     var file = this.getFile(oldName);
     if (file) {
         file.setName(newName);
