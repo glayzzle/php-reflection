@@ -45,7 +45,7 @@ File.prototype.getName = function() {
  * @return {Node[]}
  */
 File.prototype.eachNode = function(cb) {
-    var childs = this.related.file;
+    var childs = this._related.file;
     if (childs && childs.length > 0) {
         for(var i = 0; i < childs.length; i++) {
             var child = this._db.get(childs[i]);
