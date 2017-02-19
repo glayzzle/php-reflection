@@ -5,7 +5,7 @@
  */
 'use strict';
 
-var block = require('./block');
+var Block = require('./block');
 
 /**
  * **Extends from [block](BLOCK.md)**
@@ -16,15 +16,15 @@ var block = require('./block');
  * @constructor Expr
  * @property {Array} ast List of AST nodes (as plain arrays)
  */
-var Expr = block.extends('expr');
+var Expr = Block.extends('expr');
 
 
 /**
  * @protected Consumes the current ast node
  */
-Expr.prototype.consume = function(ast) {
-  this.ast = ast;
-  this.scanForChilds(ast);
+Expr.prototype.consume = function(file, parent, ast) {
+    Block.prototype.consume.apply(this, arguments);
+    this.ast = ast;
 };
 
 
