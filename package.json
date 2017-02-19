@@ -27,8 +27,8 @@
   "dependencies": {
     "doc-parser": "^0.4.4",
     "glob-to-regexp": "^0.3.0",
-    "grafine": "^1.0.2",
-    "php-parser": "^1.0.4"
+    "grafine": "^1.1.2",
+    "php-parser": "^2.0.0-pre5"
   },
   "devDependencies": {
     "coveralls": "^2.11.15",
