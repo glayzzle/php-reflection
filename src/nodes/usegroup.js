@@ -23,6 +23,7 @@ var UseGroup = Node.extends('usegroup');
  * @protected Consumes the current ast node
  */
 UseGroup.prototype.consume = function(file, parent, ast) {
+    Node.prototype.consume.apply(this, arguments);
     this.aliases = {};
     var prefix = ast.name ? ast.name.name : '';
     for(var i = 0; i < ast.items.length; i++) {
@@ -35,7 +36,6 @@ UseGroup.prototype.consume = function(file, parent, ast) {
         }
         this.aliases[alias] = prefix + name;
     }
-    Node.prototype.consume(this, arguments);
 };
 
 module.exports = UseGroup;

@@ -5,8 +5,8 @@
  */
 'use strict';
 
-var block = require('./block');
-var ptr = require('../data/ptr');
+var Node = require('../data/node');
+var Block = require('./block');
 
 /**
  * **Extends from [block](BLOCK.md)**
@@ -26,32 +26,68 @@ var ptr = require('../data/ptr');
  * @property {Boolean} isPublic
  * @property {variable[]} args List of arguments
  */
-var Method = block.extends('method');
+var Method = Block.extends('method');
+
+/**
+ * Gets the definition object
+ * @return {Class|Interface|Trait}
+ */
+Method.prototype.getClass = function() {
+    return this.getParent();
+};
+
+/**
+ * Gets the definition object
+ * @return {Class|Interface|Trait}
+ */
+Method.prototype.getArguments = function() {
+    return this._db.resolve(
+        this.get('args')
+    );
+};
+
+/**
+ * Gets the definition object
+ * @return {Class|Interface|Trait}
+ */
+Method.prototype.getVariables = function() {
+    var items = this.getArguments();
+    // @todo
+    return items;
+};
 
 /**
  * @protected Consumes the current ast node
  */
-Method.prototype.consume = function(ast) {
-  this.name = ast.name;
-  this.fullName = this.parent.fullName + '::' + this.name;
-  // flags
-  this.isStatic = ast.isStatic;
-  this.isFinal = ast.isFinal;
-  this.isAbstract = ast.isAbstract;
-  this.isPublic = ast.visibility === 'public';
-  this.isProtected = ast.visibility === 'protected';
-  this.isPrivate = ast.visibility === 'private';
-  // define arguments
-  this.args = [];
-  for(var i = 0; i < ast.arguments.length; i++) {
-    this.args.push(
-      ptr.create('variable', this, ast.arguments[i])
-    );
-  }
-  // parse inner body
-  if (ast.body && ast.body.children) {
-    this.scanForChilds(ast.body.children);
-  }
+Method.prototype.consume = function(file, parent, ast) {
+
+    Node.prototype.consume.apply(this, arguments);
+
+    this.name = ast.name;
+    this.fullName = this.getParent().fullName + '::' + this.name;
+
+    // flags
+    this.isStatic = ast.isStatic;
+    this.isFinal = ast.isFinal;
+    this.isAbstract = ast.isAbstract;
+    this.isPublic = ast.visibility === 'public';
+    this.isProtected = ast.visibility === 'protected';
+    this.isPrivate = ast.visibility === 'private';
+
+    // define arguments
+    this.args = [];
+    for(var i = 0; i < ast.arguments.length; i++) {
+        this.add(
+            'args',
+            this._db.create('variable', this, ast.arguments[i])
+        );
+    }
+
+    if (!this.isAbstract) {
+        this.consumeAST(ast.body);
+    }
+
+    // @todo extract return type
 };
 
 module.exports = Method;

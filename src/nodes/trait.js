@@ -5,8 +5,8 @@
  */
 'use strict';
 
-var node = require('../data/node');
-var reference = require('../data/reference');
+var Node = require('../data/node');
+var Class = require('./class');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **
@@ -22,62 +22,31 @@ var reference = require('../data/reference');
  * @property {property[]} properties {@link PROPERTY.md|:link:}
  * @property {method[]} methods {@link METHOD.md|:link:}
  */
-var trait = node.extends('trait');
+var Trait = Node.extends('trait');
+
+
+/**
+ * Force relations to refresh
+ */
+Trait.prototype.refreshRelations = function() {
+    // @todo
+};
 
 /**
  * @protected Consumes the current ast node
  */
-trait.prototype.consume = function(ast) {
+Trait.prototype.consume = function(file, parent, ast) {
+    Node.prototype.consume.apply(this, arguments);
 
-  // handle name
-  this.name = ast.name;
-  this.fullName = this.getNamespace().name + '\\' + this.name;
+    // handle name
+    this.name = ast.name;
+    this.fullName = this.getNamespace().name + '\\' + this.name;
+    this.indexName(this.fullName);
 
-  // handle extends
-  if (ast.extends) {
-    this.extends = reference.toTrait(this, ast.extends, 'extends');
-  } else {
-    this.extends = false;
-  }
-
-  // handle implements
-  this.implements = [];
-  if (ast.implements && ast.implements.length > 0) {
-    for (var i = 0; i < ast.implements.length; i++) {
-      this.implements.push(
-        reference.toInterface(this, ast.implements[i], 'implements')
-      );
+    // reads inner contents
+    if (ast.body) {
+        Class.prototype.consumeClassBody.apply(this, [ast.body]);
     }
-  }
-
-  // the class definition
-  this.constants = [];
-  this.properties = [];
-  this.methods = [];
-
-  var lastDoc = null;
-  for(var i = 0; i < ast.body.length; i++) {
-    var item = ast.body[i];
-    if (item.kind === 'doc') {
-      lastDoc = item;
-    } else {
-      item.doc = lastDoc;
-      if (item.kind === 'classconstant') {
-        this.constants.push(
-          node.create('constant', this, item)
-        );
-      } else if (item.kind === 'property') {
-        this.properties.push(
-          node.create('property', this, item)
-        );
-      } else if (item.kind === 'method') {
-        this.methods.push(
-          node.create('method', this, item)
-        );
-      }
-      lastDoc = null;
-    }
-  }
 };
 
-module.exports = trait;
+module.exports = Trait;

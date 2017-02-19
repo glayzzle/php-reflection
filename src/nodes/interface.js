@@ -5,8 +5,8 @@
  */
 'use strict';
 
-var node = require('../data/node');
-var reference = require('../data/reference');
+var Node = require('../data/node');
+var Block = require('./block');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **
@@ -23,32 +23,79 @@ var reference = require('../data/reference');
  * @property {property[]} properties {@link PROPERTY.md|:link:}
  * @property {method[]} methods {@link METHOD.md|:link:}
  */
-var Interface = node.extends('interface');
+var Interface = Block.extends('interface');
 
+
+/**
+ * Gets the extended class
+ */
+Interface.prototype.getExtends = function() {
+    if (this.extends) {
+        return this._db.resolve(
+            this.get('extends')
+        );
+    }
+    return null;
+};
+
+/**
+ * Gets the list of methods
+ */
+Interface.prototype.getMethods = function(includeParents) {
+    // @todo
+    return null;
+};
+
+/**
+ * Force relations to refresh
+ */
+Interface.prototype.refreshRelations = function() {
+    if (this.extends) {
+        this.remove('extends');
+        for(var i = 0; i < this.extends.length; i++) {
+            var results = this._db.search({
+                interface: this.extends[i]
+            });
+            if (results.length > 0) {
+                var item = this._db.get(items[i]);
+                if (item) {
+                    this.add('extends', item);
+                }
+            }
+        }
+    }
+};
 
 /**
  * @protected Consumes the current ast node
  */
-Interface.prototype.consume = function(ast) {
+Interface.prototype.consume = function(file, parent, ast) {
 
-  // handle name
-  this.name = ast.name;
-  this.fullName = this.getNamespace().name + '\\' + this.name;
+    Node.prototype.consume.apply(this, arguments);
 
-  // handle flags
-  this.isFinal = ast.isFinal;
+    // handle name
+    this.name = ast.name;
+    this.fullName = this.getNamespace().name + '\\' + this.name;
 
-  // handle extends
-  if (ast.extends) {
-    this.extends = [];
-    for(var i = 0; i < ast.extends.length; i++) {
-      this.extends.push(
-        reference.toInterface(this, ast.extends[i], 'extends')
-      );
+    this.indexName(this.name);
+
+    // handle extends
+    if (ast.extends) {
+        this.extends = [];
+        for(var i = 0; i < ast.extends.length; i++) {
+            this.extends.push(
+                this.getNamespace().resolveClassName(
+                    ast.extends[i]
+                )
+            );
+        }
+    } else {
+        this.extends = false;
     }
-  } else {
-    this.extends = false;
-  }
+
+    if (ast.body) {
+        this.consumeAST.apply(ast.body);
+    }
 };
 
 module.exports = Interface;

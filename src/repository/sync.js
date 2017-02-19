@@ -50,7 +50,7 @@ module.exports = function(filename, contents, offset) {
     // var isNodeContainer = position.start <= start && position.end >= end;
     if (this.options.debug) console.log(
       'check',
-      node.type,
+      node._type,
       position,
       '>' + contents.substring(position.start, position.end) + '<'
     );

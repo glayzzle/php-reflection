@@ -5,8 +5,8 @@
  */
 'use strict';
 
-var node = require('../data/node');
-var expr = require('./expr');
+var Node = require('../data/node');
+var Expr = require('./expr');
 
 /**
  * **Extends from {@link NODE.md|:link: node}**
@@ -23,21 +23,26 @@ var expr = require('./expr');
  * @property {Boolean} isPublic
  * @property {expr} value {@link EXPR.md|:link:}
  */
-var Property = node.extends('property');
+var Property = Node.extends('property');
 
 /**
  * @protected Consumes the current ast node
  */
-Property.prototype.consume = function(ast) {
-  this.name = ast.name;
-  this.fullName = this.parent.fullName + '::' + this.name;
-  this.isStatic = ast.isStatic;
-  this.isPrivate = ast.visibility === 'private';
-  this.isPublic = ast.visibility === 'public';
-  this.isProtected = ast.visibility === 'protected';
-  if (ast.value) {
-    this.value = expr.resolve(this, ast.value);
-  }
+Property.prototype.consume = function(file, parent, ast) {
+    Node.prototype.consume.apply(this, arguments);
+    this.name = ast.name;
+    this.fullName = this.getParent().fullName + '::' + this.name;
+
+    this.isStatic = ast.isStatic;
+    this.isPrivate = ast.visibility === 'private';
+    this.isPublic = ast.visibility === 'public';
+    this.isProtected = ast.visibility === 'protected';
+
+    if (ast.value) {
+        this.value = Expr.resolve(this, ast.value);
+    }
+
+    // @todo extract type
 };
 
 module.exports = Property;

@@ -25,8 +25,8 @@ var Namespace = Block.extends('namespace');
  */
 Namespace.prototype.consume = function(file, parent, ast) {
     this.name = '\\' + ast.name.name;
-    this.index(this.type, this.name);
     Block.prototype.consume.apply(this, arguments);
+    this.indexName(this.name);
 };
 
 /**
@@ -37,7 +37,7 @@ Namespace.prototype.getUses = function() {
     var uses = this.get('uses');
     if (uses.length > 0) {
         for(var i = 0; i < uses.length; i++) {
-            var item = this.graph.get(uses[i]);
+            var item = this._db.get(uses[i]);
             if (item) result.push(item);
         }
     }
@@ -51,7 +51,7 @@ Namespace.prototype.resolveAlias = function(alias) {
     var uses = this.get('uses');
     if (uses.length > 0) {
         for(var i = 0; i < uses.length; i++) {
-            var item = this.graph.get(uses[i]);
+            var item = this._db.get(uses[i]);
             if (item && alias in item.aliases) {
                 return item.aliases[alias];
             }
@@ -73,6 +73,7 @@ Namespace.prototype.resolveClassName = function(name) {
         } else if (name.resolution === 'rn') {
             return this.name + '\\' + name.name;
         } else {
+            // @todo : resolve self, static keywords
             // resolve with use statements
             var alias = this.resolveAlias(name.name);
             if (alias) {
