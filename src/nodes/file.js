@@ -48,7 +48,7 @@ File.prototype.eachNode = function(cb) {
     var childs = this.related.file;
     if (childs && childs.length > 0) {
         for(var i = 0; i < childs.length; i++) {
-            var child = this.graph.get(childs[i]);
+            var child = this._db.get(childs[i]);
             if (child) {
                 cb(child, i);
             }
@@ -65,8 +65,8 @@ File.prototype.getFirstByName = function(type, name) {
     var childs = this.related.file;
     if (childs && childs.length > 0) {
         for(var i = 0; i < childs.length; i++) {
-            var child = this.graph.get(childs[i]);
-            if (child && child.type === type) {
+            var child = this._db.get(childs[i]);
+            if (child && child._type === type) {
                 if (child.fullName === name || child.name === name) {
                     return child;
                 }
@@ -84,7 +84,7 @@ File.prototype.getByType = function(type) {
     var childs = this.related.file;
     var result = [];
     this.eachNode(function(node) {
-        if (node.type === type) {
+        if (node._type === type) {
             result.push(node);
         }
     });
@@ -138,6 +138,8 @@ File.prototype.getNamespace = function(name) {
  */
 File.prototype.consume = function(file, parent, ast) {
 
+    Node.prototype.consume.apply(this, arguments);
+
     // default values (for caching)
     this.mtime    = 0;
     this.size     = 0;
@@ -161,13 +163,13 @@ File.prototype.consume = function(file, parent, ast) {
     ast.children.forEach(function(item) {
         if (item.kind) {
             if (item.kind === 'declare') {
-                self.graph.create('declare', self, item);
+                self._db.create('declare', self, item);
             } else if (item.kind === 'namespace') {
                 if (doc) {
                     item.doc = doc;
                     doc = null;
                 }
-                self.graph.create('namespace', self, item);
+                self._db.create('namespace', self, item);
             } else if (item.kind === 'doc') {
                 doc = item;
             } else {
@@ -183,7 +185,7 @@ File.prototype.consume = function(file, parent, ast) {
 
     // create an empty namespace
     if (root.length > 0) {
-        this.graph.create('namespace', this, {
+        this._db.create('namespace', this, {
             'kind': 'namespace',
             'name': {
                 'kind': 'identifier',
@@ -193,7 +195,6 @@ File.prototype.consume = function(file, parent, ast) {
         });
     }
 
-    Node.prototype.consume.apply(this, arguments);
 };
 
 /**
