@@ -154,7 +154,7 @@ node.import = function(data, graph) {
     var result = node.create(data._t, graph);
     result_type = data._t;
     result.state = data._n[0];
-    result.position = position.import(data._n[1]);
+    result.position = data._n[1] ? position.import(data._n[1]) : null;
     result.doc = data._n[2] ? doc.import(data._n[2]) : null;
     point.prototype.import.apply(
         result, [data]
@@ -171,7 +171,7 @@ node.prototype.export = function() {
     result._t = this._type;
     result._n = [
         this.state,
-        this.position.export(),
+        this.position ? this.position.export() : null,
         this.doc ? this.doc.export() : null
     ];
     return result;

@@ -139,26 +139,20 @@ describe('Repository class', function() {
         });
     });
 
-    describe('#cache/get', function() {
+    describe('#serialise', function() {
         var fs = require('fs');
-        it('should get cache', function () {
-            var cache = workspace.cache();
+        var filename = __dirname + '/cache/sample.json';
+        it('should get', function () {
+            var cache = workspace.db.export();
             cache.should.be.Object();
-            cache.directory.should.be.exactly(path);
-            cache.files.should.be.Object();
-            cache.files['test.php'].should.be.Object();
             // saves the file to cache
-            fs.writeFileSync(
-                __dirname + '/cache/sample.json',
-                JSON.stringify(cache, null, 2)
-            );
+            fs.writeFileSync(filename, JSON.stringify(cache, null, 2));
         });
-    });
-
-    describe('#cache/set', function() {
-        var fs = require('fs');
-        it('should set cache', function () {
-            // @todo
+        it('should set', function () {
+            var cache = JSON.stringify(
+                fs.readFileSync(filename, 'utf8')
+            );
+            workspace.db.import(cache);
         });
     });
 
