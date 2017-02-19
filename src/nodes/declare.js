@@ -26,11 +26,11 @@ var Declare = Block.extends('declare');
  * @protected reads each declared option
  */
 Declare.prototype.consume = function(file, parent, ast) {
+    Block.prototype.consume.apply(this, arguments);
     this.options = {};
     for(var k in ast.what) {
         this.options[k] = Expr.resolve(this, ast.what[k]);
     }
-    Block.prototype.consume.apply(this, arguments);
 };
 
 module.exports = Declare;
