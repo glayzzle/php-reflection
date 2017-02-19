@@ -72,8 +72,7 @@ Block.prototype.consumeChild = function(ast) {
 
     // handle class definition
     if (ast.kind === 'doc') {
-        this._lastDoc = item;
-
+        this._lastDoc = ast;
     } else {
 
         // attach last doc node to current node
