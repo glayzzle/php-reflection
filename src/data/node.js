@@ -107,14 +107,22 @@ node.prototype.getNamespace = function() {
 node.prototype.eachChild = function(cb) {
     var childs = this._related.parent;
     if (childs && childs.length > 0) {
+        childs = this._db.resolve(childs);
         for(var i = 0; i < childs.length; i++) {
-            var child = this._db.get(childs[i]);
-            if (child) {
-                cb(child, i);
-            }
+            cb(childs[i], i);
         }
     }
     return this;
+};
+
+/**
+ * Recursive delete of current node and its childs
+ */
+node.prototype.delete = function() {
+    this.eachChild(function(node) {
+        node.delete();
+    });
+    return point.prototype.delete.apply(this, arguments);
 };
 
 /**
