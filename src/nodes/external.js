@@ -5,8 +5,8 @@
  */
 'use strict';
 
-var node = require('../data/node');
-var expr = require('./expr');
+var Node = require('../data/node');
+var Expr = require('./expr');
 
 /**
  * ** Extends from {@link NODE.md|:link: node} **
@@ -19,16 +19,17 @@ var expr = require('./expr');
  * @property {Boolean} once If true it's a include_once or require_once statement
  * @property {Boolean} strict If true then it's a require statement
  */
-var External = node.extends('external');
+var External = Node.extends('external');
 
 
 /**
  * @protected Consumes the current ast node
  */
-External.prototype.consume = function(ast) {
+External.prototype.consume = function(file, parent, ast) {
   this.strict = ast.require;
   this.once = ast.once;
-  this.target = expr.resolve(this, ast.target);
+  this.target = Expr.resolve(this, ast.target);
+  Node.prototype.consume.apply(this, arguments);
 };
 
 /**
@@ -38,7 +39,8 @@ External.prototype.consume = function(ast) {
 External.prototype.getTargetFile = function() {
   if (typeof this.target === 'string') {
     if (!this._file) {
-      this._file = this.getRepository().get(this.target);
+      // @todo this part should be rewrite
+      this._file = this.getRepository().getFile(this.target);
       if (!this._file) {
         return this.getRepository().parse(
           this.target
