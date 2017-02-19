@@ -44,7 +44,7 @@ Class.prototype.getImplements = function() {
     if (this.implements.length > 0) {
         var items = this.get('implements');
         for(var i = 0; i < items.length; i++) {
-            var item = this.graph.get(items[i]);
+            var item = this._db.get(items[i]);
             if (item) {
                 result.push(item);
             }
@@ -59,11 +59,11 @@ Class.prototype.getImplements = function() {
 Class.prototype.refreshRelations = function() {
     // lookup extends
     if (this.extends) {
-        var results = this.graph.search({
+        var results = this._db.search({
             class: this.extends
         });
         if (results.length > 0) {
-            parent = this.graph.get(results[0]);
+            parent = this._db.get(results[0]);
             if (parent) {
                 this.set('extends', parent);
             }
@@ -72,11 +72,11 @@ Class.prototype.refreshRelations = function() {
     // lookup implements
     this.remove('implements');
     for(var i = 0; i < this.implements.length; i++) {
-        var results = this.graph.search({
+        var results = this._db.search({
             interface: this.implements[i]
         });
         if (results.length > 0) {
-            var item = this.graph.get(items[i]);
+            var item = this._db.get(items[i]);
             if (item) {
                 this.add('implements', item);
             }
@@ -89,7 +89,7 @@ Class.prototype.refreshRelations = function() {
  */
 Class.prototype.getProperties = function(includeParents) {
     var result = {};
-    var properties = this.graph.resolve(
+    var properties = this._db.resolve(
         this.get('properties')
     );
     if (properties) {
@@ -116,7 +116,7 @@ Class.prototype.getProperties = function(includeParents) {
  */
 Class.prototype.getMethods = function(includeParents) {
     var result = {};
-    var methods = this.graph.resolve(
+    var methods = this._db.resolve(
         this.get('methods')
     );
     if (methods) {
@@ -143,7 +143,7 @@ Class.prototype.getMethods = function(includeParents) {
  */
 Class.prototype.getConstants = function(includeParents) {
     var result = {};
-    var constants = this.graph.resolve(
+    var constants = this._db.resolve(
         this.get('constants')
     );
     if (constants) {
@@ -170,10 +170,13 @@ Class.prototype.getConstants = function(includeParents) {
  */
 Class.prototype.consume = function(file, parent, ast) {
 
+    // parent call
+    Node.prototype.consume.apply(this, arguments);
+
     // handle name
     this.name = ast.name;
     this.fullName = this.getNamespace().name + '\\' + this.name;
-    this.index(this.type, this.fullName);
+    this.indexName(this.fullName);
 
     // handle flags
     this.isAbstract = ast.isAbstract;
@@ -200,9 +203,19 @@ Class.prototype.consume = function(file, parent, ast) {
         }
     }
 
+    // reads inner statements
+    if (ast.body) {
+        this.consumeClassBody(ast.body);
+    }
+};
+
+/**
+ * Consumes class body statements
+ */
+Class.prototype.consumeClassBody = function(body) {
     var lastDoc = null;
-    for(var i = 0; i < ast.body.length; i++) {
-        var item = ast.body[i];
+    for(var i = 0; i < body.length; i++) {
+        var item = body[i];
         if (item.kind === 'doc') {
             lastDoc = item;
         } else {
@@ -210,25 +223,23 @@ Class.prototype.consume = function(file, parent, ast) {
             if (item.kind === 'classconstant') {
                 this.add(
                     'constants',
-                    this.graph.create('constant', this, item)
+                    this._db.create('constant', this, item)
                 );
             } else if (item.kind === 'property') {
                 this.add(
                     'properties',
-                    this.graph.create('property', this, item)
+                    this._db.create('property', this, item)
                 );
             } else if (item.kind === 'method') {
                 this.add(
                     'methods',
-                    this.graph.create('method', this, item)
+                    this._db.create('method', this, item)
                 );
             }
             // @todo use traits statements
             lastDoc = null;
         }
     }
-    // parent call
-    Node.prototype.consume(this, arguments);
 };
 
 module.exports = Class;
