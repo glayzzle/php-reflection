@@ -28,19 +28,28 @@ var node = function(graph, file, parent, ast) {
 
     point.apply(this, [graph]);
 
-    if (!this.type && this.constructor.name.length > 0) {
-        this.type = this.constructor.name;
+    if (!this._type && this.constructor.name.length > 0) {
+        this._type = this.constructor.name;
     }
 
 };
 inherits(node, point);
 
 /**
+ * Index current node name
+ * @return {Node} {@link NODE.md|:link:}
+ */
+node.prototype.indexName = function(name) {
+    this.index(this._type, name);
+    return this;
+};
+
+/**
  * Gets the current repository
  * @return {repository} {@link REPOSITORY.md|:link:}
  */
 node.prototype.getRepository = function() {
-    return this.graph.repository;
+    return this._db.repository;
 };
 
 /**
@@ -48,13 +57,13 @@ node.prototype.getRepository = function() {
  * @return {file} {@link FILE.md|:link:}
  */
 node.prototype.getFile = function() {
-    if (this.type === 'file') {
+    if (this._type === 'file') {
         return this;
     }
     if (!this._file) {
         var uuid = this.first('file');
         if (uuid) {
-            this._file = this.graph.get(uuid);
+            this._file = this._db.get(uuid);
         }
     }
     return this._file;
@@ -68,7 +77,7 @@ node.prototype.getParent = function() {
     if (!this._parent) {
         var uuid = this.first('parent');
         if (uuid) {
-            this._parent = this.graph.get(uuid);
+            this._parent = this._db.get(uuid);
         }
     }
     return this._parent;
@@ -79,7 +88,7 @@ node.prototype.getParent = function() {
  * @return {namespace} {@link NAMESPACE.md|:link:}
  */
 node.prototype.getNamespace = function() {
-    if (this.type === 'namespace') {
+    if (this._type === 'namespace') {
         return this;
     }
     if (!this._namespace) {
@@ -96,10 +105,10 @@ node.prototype.getNamespace = function() {
  * @return {block} {@link BLOCK.md|:link:}
  */
 node.prototype.eachChild = function(cb) {
-    var childs = this.related.parent;
+    var childs = this._related.parent;
     if (childs && childs.length > 0) {
         for(var i = 0; i < childs.length; i++) {
-            var child = this.graph.get(childs[i]);
+            var child = this._db.get(childs[i]);
             if (child) {
                 cb(child, i);
             }
@@ -143,11 +152,11 @@ node.prototype.consume = function(file, parent, ast) {
  */
 node.import = function(data, graph) {
     var result = node.create(data._t, graph);
-    result.type = data._t;
+    result_type = data._t;
     result.state = data._n[0];
     result.position = position.import(data._n[1]);
     result.doc = data._n[2] ? doc.import(data._n[2]) : null;
-    grafine.point.prototype.import.apply(
+    point.prototype.import.apply(
         result, [data]
     );
     return result;
@@ -159,7 +168,7 @@ node.import = function(data, graph) {
  */
 node.prototype.export = function() {
     var result = point.prototype.export.apply(this, []);
-    result._t = this.type;
+    result._t = this._type;
     result._n = [
         this.state,
         this.position.export(),
@@ -213,34 +222,34 @@ node.builders = {};
  * @throws {Error} if the specified type is not fond
  */
 node.create = function (type, graph) {
-  if (!node.builders.hasOwnProperty(type)) {
-    require('../nodes/' + type);
-  }
-  if (!node.builders.hasOwnProperty(type)) {
-    throw new Error('"' + type + '" is not found');
-  }
+    if (!node.builders.hasOwnProperty(type)) {
+        require('../nodes/' + type);
+    }
+    if (!node.builders.hasOwnProperty(type)) {
+        throw new Error('"' + type + '" is not found');
+    }
 
-  return new node.builders[type](graph);
+    return new node.builders[type](graph);
 };
 
 /** @private recursive extends */
 function declareExtends (base) {
-  return function (ctor) {
-    var _super = ctor;
-    if (typeof ctor !== 'function') {
-      _super = function (parent, ast) {
-        base.apply(this, arguments);
-        this.type = ctor;
-      };
-      node.builders[ctor] = _super;
-    } else {
-      node.builders[_super.name] = _super;
-    }
-    // recursive extends
-    _super.extends = declareExtends(_super);
-    inherits (_super, base);
-    return _super;
-  };
+    return function (ctor) {
+        var _super = ctor;
+        if (typeof ctor !== 'function') {
+            _super = function (parent, ast) {
+                base.apply(this, arguments);
+                this._type = ctor;
+            };
+            node.builders[ctor] = _super;
+        } else {
+            node.builders[_super.name] = _super;
+        }
+        // recursive extends
+        _super.extends = declareExtends(_super);
+        inherits (_super, base);
+        return _super;
+    };
 }
 
 module.exports = node;
