@@ -82,7 +82,7 @@ Variable.prototype.consume = function(file, parent, ast) {
         } else {
             this.type = null;
         }
-    } else if (this.kind === 'parameter') {
+    } else if (ast.kind === 'parameter') {
         this.name = ast.name;
         if (ast.type) {
             this.type = this.getNamespace().resolveClassName(ast.type);
@@ -101,11 +101,8 @@ Variable.prototype.consume = function(file, parent, ast) {
                 this.type = null;
             }
         }
-    } else if (this.kind === 'variable') {
+    } else if (ast.kind === 'variable') {
         this.name = ast.name;
-    }
-    if (this.name) {
-        this.indexName(this.name);
     }
 };
 
