@@ -7,15 +7,16 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Test avec bench",
-            "program": "${workspaceRoot}/bin/bench.js",
+            "name": "Run mocha tests",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceRoot}"
         },
         {
             "type": "node",
-            "request": "attach",
-            "name": "Attacher au processus",
-            "port": 5858
+            "request": "launch",
+            "name": "Test avec bench",
+            "program": "${workspaceRoot}/bin/bench.js",
+            "cwd": "${workspaceRoot}"
         }
     ]
 }
