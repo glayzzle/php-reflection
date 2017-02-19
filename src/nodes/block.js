@@ -29,8 +29,8 @@ var Block = Node.extends('block');
  * @protected Consumes the current ast node
  */
 Block.prototype.consume = function(file, parent, ast) {
-    this.consumeAST(ast);
     Node.prototype.consume.apply(this, [file, parent, ast]);
+    this.consumeAST(ast);
 };
 
 /**
@@ -83,39 +83,39 @@ Block.prototype.consumeChild = function(ast) {
 
         // scan a class
         if (ast.kind === 'class') {
-            var cls = this.graph.create('class', this, ast);
+            var cls = this._db.create('class', this, ast);
             this.add('classes', cls);
-            if (this.type !== 'namespace') {
+            if (this._type !== 'namespace') {
                 this.getNamespace().add('classes', cls);
             }
         }
 
         // consome interface
         else if (ast.kind === 'interface') {
-            var int = this.graph.create('interface', this, ast);
+            var int = this._db.create('interface', this, ast);
             this.add('interfaces', int);
-            if (this.type !== 'namespace') {
+            if (this._type !== 'namespace') {
                 this.getNamespace().add('interfaces', cls);
             }
         }
 
         // consome trait
         else if (ast.kind === 'trait') {
-            var trait = this.graph.create('trait', this, ast);
+            var trait = this._db.create('trait', this, ast);
             this.add('traits', trait);
-            if (this.type !== 'namespace') {
+            if (this._type !== 'namespace') {
                 this.getNamespace().add('traits', trait);
             }
         }
 
         // consome a namespace (from inner statements like declare)
         else if (ast.kind === 'namespace') {
-            this.graph.create('namespace', this.getFile(), ast);
+            this._db.create('namespace', this.getFile(), ast);
         }
 
         // consome include statements
         else if (ast.kind === 'include') {
-            this.graph.create('external', this, ast);
+            this._db.create('external', this, ast);
         }
 
         // consume IF nodes
@@ -123,11 +123,11 @@ Block.prototype.consumeChild = function(ast) {
             if (this.getRepository().options.scanExpr) {
                 // IF BODY
                 if (ast.body) {
-                    this.graph.create('block', this, ast.body);
+                    this._db.create('block', this, ast.body);
                 }
                 // ELSE STATEMENT
                 if (ast.alternate) {
-                    this.graph.create('block', this, ast.body);
+                    this._db.create('block', this, ast.body);
                 }
             } else {
                 // inner scan only (ignore blocks)
@@ -141,16 +141,16 @@ Block.prototype.consumeChild = function(ast) {
 
             if (this.getRepository().options.scanExpr) {
                 // BODY
-                this.graph.create('block', this, ast.body);
+                this._db.create('block', this, ast.body);
                 // CATCH
                 if (Array.isArray(ast.catches)) {
                     ast.catches.forEach(function(item) {
-                        this.graph.create('block', this, item.body);
+                        this._db.create('block', this, item.body);
                     }.bind(this));
                 }
                 // FINALLY
                 if (ast.allways) {
-                    this.graph.create('block', this, ast.allways);
+                    this._db.create('block', this, ast.allways);
                 }
             } else {
                 // inner scan only (ignore blocks)
@@ -162,9 +162,9 @@ Block.prototype.consumeChild = function(ast) {
 
         // functions
         else if (ast.kind === 'function') {
-            var fn = this.graph.create('function', this, ast);
+            var fn = this._db.create('function', this, ast);
             this.add('functions', fn);
-            if (this.type !== 'namespace') {
+            if (this._type !== 'namespace') {
                 this.getNamespace().add('functions', fn);
             }
         }
@@ -177,7 +177,7 @@ Block.prototype.consumeChild = function(ast) {
         ) {
             this.add(
                 'variables',
-                this.graph.create('variable', this, ast)
+                this._db.create('variable', this, ast)
             );
         }
 
@@ -185,7 +185,7 @@ Block.prototype.consumeChild = function(ast) {
         else if (ast.kind === 'call' && ast.what.name === 'define') {
             this.add(
                 'defines',
-                this.graph.create('define', this, ast)
+                this._db.create('define', this, ast)
             );
         }
 
@@ -193,7 +193,7 @@ Block.prototype.consumeChild = function(ast) {
         else if (ast.kind === 'constant') {
             this.getNamespace().add(
                 'constants',
-                this.graph.create('constant', this, ast)
+                this._db.create('constant', this, ast)
             );
         }
 
@@ -201,7 +201,7 @@ Block.prototype.consumeChild = function(ast) {
         else if (ast.kind === 'usegroup') {
             this.getNamespace().add(
                 'uses',
-                this.graph.create('usegroup', this, ast)
+                this._db.create('usegroup', this, ast)
             );
         }
 
