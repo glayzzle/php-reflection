@@ -142,19 +142,16 @@ repository.prototype.parse = require('./repository/parse');
  * @param {Number} limit
  * @return {node[]} {@link NODE.md|:link:}
  */
-repository.prototype.getByType = function(type, limit) {
-  if (!limit) limit = 100;
-  var result = [];
-  for (var k in this.files) {
-    if (this.files[k] instanceof file) {
-      result = result.concat(this.files[k].getByType(type));
-      if (limit > 0 && result.length > limit) {
-        result = result.slice(0, limit);
-        break;
-      }
-    }
-  }
-  return result;
+repository.prototype.getByType = function(type) {
+    var result = [];
+    this.db.readIndex(type, function(name, items) {
+        if (items.length > 1) {
+            result = result.concat(items);
+        } else {
+            result.push(items[0]);
+        }
+    });
+    return this.db.resolve(result);
 }
 
 /**
@@ -166,17 +163,11 @@ repository.prototype.getByType = function(type, limit) {
 repository.prototype.getByName = function(type, name, limit) {
     var criteria = {};
     criteria[type] = name;
-
-    var result = [];
-    for (var k in this.files) {
-        if (this.files[k] instanceof file) {
-            var items = this.files[k].getByName(type, name, limit);
-            if (items.length > 0) {
-                result = result.concat(items);
-            }
-        }
+    var result = this.db.search(criteria);
+    if (result.length > limit) {
+        result = result.slice(0, limit);
     }
-    return result;
+    return this.db.resolve(result);
 };
 
 /**
@@ -230,26 +221,41 @@ repository.prototype.getNamespace = function(name) {
         }
 
         // create a virtual aggregated node of all namespace elements
-        var result = node.create('namespace', this);
+        var result = node.create('namespace', this.db);
+        result.name = name;
 
-        items.forEach(function(ns) {
-            /** @todo
-            if (ns.constants.length > 0) {
-            result.constants = result.constants.concat(ns.constants);
+        // combine each namespace data (cross files)
+        this.db.resolve(items).forEach(function(item) {
+            // combine properties
+            for(var k in item._properties) {
+                if (k in result._properties) {
+                    if (!(item._properties[k] instanceof Array)) {
+                        result._properties[k].push(
+                            item._properties[k]
+                        );
+                    } else {
+                        result._properties[k] = result._properties[k].concat(
+                            item._properties[k]
+                        );
+                    }
+                } else {
+                    if (!(item._properties[k] instanceof Array)) {
+                        result._properties[k] = [item._properties[k]];
+                    } else {
+                        result._properties[k] = item._properties[k];
+                    }
+                }
             }
-            if (ns.functions.length > 0) {
-            result.functions = result.functions.concat(ns.functions);
+            // combine relations
+            for(var k in item._related) {
+                if (k in result._related) {
+                    result._related[k] = result._related[k].concat(
+                        item._related[k]
+                    );
+                } else {
+                    result._related[k] = item._related[k];
+                }
             }
-            if (ns.classes.length > 0) {
-            result.classes = result.classes.concat(ns.classes);
-            }
-            if (ns.traits.length > 0) {
-            result.traits = result.traits.concat(ns.traits);
-            }
-            if (ns.interfaces.length > 0) {
-            result.interfaces = result.interfaces.concat(ns.interfaces);
-            }
-            */
         });
         return result;
     } else {
