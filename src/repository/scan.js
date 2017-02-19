@@ -94,8 +94,8 @@ module.exports = function(directory) {
                 self.counter.loaded++;
                 if (file) {
                   self.counter.size += file.size;
-                  if (file.related.file) {
-                      self.counter.symbols += file.related.file.length;
+                  if (file._related.file) {
+                      self.counter.symbols += file._related.file.length;
                   }
                 }
                 self.emit('progress', self.counter);
