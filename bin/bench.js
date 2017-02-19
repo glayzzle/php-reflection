@@ -43,32 +43,19 @@ var elapsed_time = function(note){
 };
 workspace.scan().then(function() {
   elapsed_time('Scan finished');
-  var items = workspace.getByType('trait', -1);
+  var items = workspace.getByType('trait');
   elapsed_time('List of traits : ' + items.length);
-  items = workspace.getByType('class', -1);
+  items = workspace.getByType('class');
   elapsed_time('List of classes : ' + items.length);
-  items = workspace.getByType('interface', -1);
+  items = workspace.getByType('interface');
   elapsed_time('List of interfaces : ' + items.length);
-  items = workspace.getByType('constant', -1);
+  items = workspace.getByType('constant');
   elapsed_time('List of constants : ' + items.length);
   var ns = workspace.getNamespace('\\Magento\\Catalog\\Ui\\DataProvider\\Product\\Form\\Modifier');
   elapsed_time('Found Namespace : ' + (ns ? ns.name : 'KO'));
   console.log('Read ' + workspace.counter.loaded + ' files / ' + workspace.counter.total + ' total files');
   console.log('Parsed ' + Math.round(workspace.counter.size / 1024 / 1024) + 'Mb');
   console.log('Extracted ' + workspace.counter.symbols + ' symbols');
-  var kindStats = {};
-  for(var f in workspace.files) {
-    var file = workspace.files[f];
-    for(var i = 0; i < file.nodes.length; i++) {
-      var node = file.nodes[i];
-      if (!(node.type in kindStats)) {
-        kindStats[node.type] = 1;
-      } else {
-        kindStats[node.type] ++;
-      }
-    }
-  }
-  console.log('Symbols stats : \n\n', kindStats);
   // tada (force workers to stop)
   // console.log(JSON.stringify(workspace.cache(), null, 1));
   process.exit(0);
