@@ -1,3 +1,17 @@
+## [Version 2.2.0](https://github.com/glayzzle/php-reflection/releases/tag/v2.2.0) (2017-2-22)
+
+### Major Changes
+
+- the sync method is now a promise: [`0e1cf11`](https://github.com/glayzzle/php-reflection/commit/0e1cf11)
+- change the API / expose all classes: [`8da17c7`](https://github.com/glayzzle/php-reflection/commit/8da17c7)
+
+### Minor Changes
+
+- update the typescript definition: [`d34a3c8`](https://github.com/glayzzle/php-reflection/commit/d34a3c8)
+- release: [`0e32a77`](https://github.com/glayzzle/php-reflection/commit/0e32a77)
+
+[...full changes](https://github.com/glayzzle/php-reflection/compare/v2.1.0...v2.2.0)
+
 ## [Version 2.1.0](https://github.com/glayzzle/php-reflection/releases/tag/v2.1.0) (2017-2-19)
 
 ### Minor Changes
