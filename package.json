@@ -1,8 +1,8 @@
 {
   "name": "php-reflection",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Enables to parse php files and from AST extracts code informations (namespaces, classes, functions ...)",
-  "main": "src/repository.js",
+  "main": "index.js",
   "scripts": {
     "test": "node node_modules/mocha/bin/_mocha test/*",
     "cover": "node --stack-size=5000 node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- test/*"
@@ -25,10 +25,10 @@
   },
   "homepage": "https://github.com/glayzzle/php-reflection#readme",
   "dependencies": {
-    "doc-parser": "^0.4.4",
+    "doc-parser": "^0.4.7",
     "glob-to-regexp": "^0.3.0",
-    "grafine": "^1.1.3",
-    "php-parser": "^2.0.0-pre5"
+    "grafine": "^1.1.4",
+    "php-parser": "^2.0.0-pre6"
   },
   "devDependencies": {
     "coveralls": "^2.11.15",
