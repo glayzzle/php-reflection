@@ -1,5 +1,5 @@
 module.exports = {
-    Reflection: require('./src/reflection'),
+    Repository: require('./src/repository'),
     Scope: require('./src/utils/scope'),
     Position: require('./src/utils/position'),
     Comment: require('./src/utils/comment'),
