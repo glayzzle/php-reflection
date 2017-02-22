@@ -1,3 +1,14 @@
+## [Version 2.2.1](https://github.com/glayzzle/php-reflection/releases/tag/v2.2.1) (2017-2-22)
+
+### Patches
+
+- fix repository class resolution: [`5ec49c3`](https://github.com/glayzzle/php-reflection/commit/5ec49c3)
+- correct tests in order to use promises on sync: [`d06300b`](https://github.com/glayzzle/php-reflection/commit/d06300b)
+- rename fileNode into fileItem: [`c3bf3f7`](https://github.com/glayzzle/php-reflection/commit/c3bf3f7)
+- update repository constructor: [`b3cc04d`](https://github.com/glayzzle/php-reflection/commit/b3cc04d)
+
+[...full changes](https://github.com/glayzzle/php-reflection/compare/v2.2.0...v2.2.1)
+
 ## [Version 2.2.0](https://github.com/glayzzle/php-reflection/releases/tag/v2.2.0) (2017-2-22)
 
 ### Major Changes

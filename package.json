@@ -1,6 +1,6 @@
 {
   "name": "php-reflection",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Enables to parse php files and from AST extracts code informations (namespaces, classes, functions ...)",
   "main": "index.js",
   "scripts": {
