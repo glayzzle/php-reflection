@@ -16,8 +16,8 @@ npm install php-reflection --save
 # Usage
 
 ```js
-var repository = require('php-reflection');
-var workspace = new repository('/home/devbox/my-project', {
+var reflection = require('php-reflection');
+var workspace = new reflection.Repository('/home/devbox/my-project', {
     // actual default options :
     exclude: ['.git', '.svn'],
     include: ['./'],
