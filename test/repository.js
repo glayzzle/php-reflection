@@ -99,42 +99,47 @@ describe('Repository class', function() {
             return [start, end - 5];
         }
 
-        it('create a new virtual entry', function () {
+        it('create a new virtual entry', function (done, reject) {
             workspace.sync(
                 filename, code(states[0]), cursor(states[0])
-            ).should.be.exactly(true);
+            ).then(function() {
+                done();
+            }, reject);
         });
 
-        it('adding a parse error', function () {
-            (function() {
-                workspace.sync(
-                    filename, code(states[1]), cursor(states[1])
-                );
-            }).should.throw();
+        it('adding a parse error', function (done, reject) {
+            workspace.sync(
+                filename, code(states[1]), cursor(states[1])
+            ).then(reject, function() {
+                done();
+            });
         });
 
-        it('create a fooSync function', function () {
+        it('create a fooSync function', function (done, reject) {
             workspace.sync(
                 filename, code(states[2]), cursor(states[2])
-            ).should.be.exactly(true);
-            var fn = workspace.getFirstByName('function', '\\fooSync');
-            fn.name.should.be.exactly('fooSync');
-            var args = fn.getArguments();
-            args.length.should.be.exactly(1);
-            args[0].name.should.be.exactly('a');
+            ).then(function() {
+                var fn = workspace.getFirstByName('function', '\\fooSync');
+                fn.name.should.be.exactly('fooSync');
+                var args = fn.getArguments();
+                args.length.should.be.exactly(1);
+                args[0].name.should.be.exactly('a');
+                done();
+            }, reject);
         });
 
-        it('add an argument', function () {
-            workspace.options.debug = true;
+        it('add an argument', function (done, reject) {
             workspace.sync(
                 filename, code(states[3]), cursor(states[3])
-            ).should.be.exactly(true);
-            var fn = workspace.getFirstByName('function', '\\fooSync');
-            fn.name.should.be.exactly('fooSync');
-            var args = fn.getArguments();
-            args.length.should.be.exactly(2);
-            args[0].name.should.be.exactly('a');
-            args[1].name.should.be.exactly('b');
+            ).then(function() {
+                var fn = workspace.getFirstByName('function', '\\fooSync');
+                fn.name.should.be.exactly('fooSync');
+                var args = fn.getArguments();
+                args.length.should.be.exactly(2);
+                args[0].name.should.be.exactly('a');
+                args[1].name.should.be.exactly('b');
+                done();
+            }, reject);
         });
     });
 
