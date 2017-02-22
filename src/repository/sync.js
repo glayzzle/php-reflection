@@ -73,11 +73,11 @@ module.exports = function(filename, contents, offset) {
                 var mtime = fileItem.mtime;
                 fileItem.delete();
                 // create a new one
-                fileNode = self.db.create('file', null, ast);
-                fileNode.setName(filename);
-                fileNode.size = contents.length;
-                fileNode.mtime = mtime;
-                fileNode.crc32 = crc32(contents);
+                fileItem = self.db.create('file', null, ast);
+                fileItem.setName(filename);
+                fileItem.size = contents.length;
+                fileItem.mtime = mtime;
+                fileItem.crc32 = crc32(contents);
             } else {
                 ast = parser.sync(this, contents, syncNode);
                 // @fixme handle case when parent is not a block
@@ -89,6 +89,6 @@ module.exports = function(filename, contents, offset) {
             this.emit('error', e);
             reject(e);
         }
-        return done(fileNode);
+        return done(fileItem);
     }.bind(this));
 };
