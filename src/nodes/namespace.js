@@ -24,7 +24,7 @@ var Namespace = Block.extends('namespace');
  * @protected Consumes the current ast node
  */
 Namespace.prototype.consume = function(file, parent, ast) {
-    this.name = '\\' + ast.name.name;
+    this.name = '\\' + ast.name;
     Block.prototype.consume.apply(this, arguments);
     this.indexName(this.name);
 };

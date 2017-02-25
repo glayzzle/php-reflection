@@ -1,6 +1,6 @@
 {
   "name": "php-reflection",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Enables to parse php files and from AST extracts code informations (namespaces, classes, functions ...)",
   "main": "index.js",
   "scripts": {
@@ -28,7 +28,7 @@
     "doc-parser": "^0.4.7",
     "glob-to-regexp": "^0.3.0",
     "grafine": "^1.1.4",
-    "php-parser": "^2.0.0-pre6"
+    "php-parser": "^2.0.0-pre7"
   },
   "devDependencies": {
     "coveralls": "^2.11.15",

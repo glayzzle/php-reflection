@@ -25,10 +25,10 @@ var UseGroup = Node.extends('usegroup');
 UseGroup.prototype.consume = function(file, parent, ast) {
     Node.prototype.consume.apply(this, arguments);
     this.aliases = {};
-    var prefix = ast.name ? ast.name.name : '';
+    var prefix = ast.name ? ast.name : '';
     for(var i = 0; i < ast.items.length; i++) {
         var alias = ast.items[i].alias;
-        var name = ast.items[i].name.name;
+        var name = ast.items[i].name;
         if (name[0] !== '\\') name = '\\' + name;
         if (!alias) {
             alias = name.split('\\');
