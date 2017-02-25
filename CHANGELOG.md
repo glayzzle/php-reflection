@@ -1,3 +1,11 @@
+## [Version 2.2.2](https://github.com/glayzzle/php-reflection/releases/tag/v2.2.2) (2017-2-25)
+
+### Patches
+
+- fix identifier usage on namespace & use statements / release 2.0.0-pre7: [`4b992cf`](https://github.com/glayzzle/php-reflection/commit/4b992cf)
+
+[...full changes](https://github.com/glayzzle/php-reflection/compare/v2.2.1...v2.2.2)
+
 ## [Version 2.2.1](https://github.com/glayzzle/php-reflection/releases/tag/v2.2.1) (2017-2-22)
 
 ### Patches
