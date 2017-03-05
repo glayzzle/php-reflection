@@ -35,6 +35,9 @@ var comment = function(ast) {
                 this.annotations.push(child);
             } else {
                 var name = child.kind.toLowerCase();
+                if (typeof child.name === 'string') {
+                    name = child.name.toLowerCase();
+                }
                 if (!this.tags.hasOwnProperty(name)) {
                     this.tags[name] = [];
                 }
