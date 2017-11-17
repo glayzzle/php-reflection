@@ -170,6 +170,23 @@ repository.prototype.getByName = function(type, name, limit) {
     return this.db.resolve(result);
 };
 
+
+/**
+ * Lookup at each file and retrieves named elements
+ * @param {String} type
+ * @param {Number} limit
+ * @return {node[]} {@link NODE.md|:link:}
+ */
+repository.prototype.searchByName = function(type, name, limit) {
+  var criteria = {};
+  criteria[type] = name + '%';
+  var result = this.db.search(criteria);
+  if (result.length > limit) {
+      result = result.slice(0, limit);
+  }
+  return this.db.resolve(result);
+};
+
 /**
  * Lookup at each file and retrieves named elements
  * @param {String} type
