@@ -27,7 +27,7 @@ module.exports = {
     encoding: 'utf8',
     // should spawn a worker process to avoir blocking
     // the main loop (may be slower with small projects or single cpu)
-    forkWorker: require('os').cpus().length > 1,
+    forkWorker: false, // require('os').cpus().length > 1,
     // use the file mtime property to check changes
     cacheByFileDate: true,
     // use the file size to detect changes
