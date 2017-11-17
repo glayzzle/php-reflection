@@ -1,3 +1,19 @@
+## [Version 2.3.0](https://github.com/glayzzle/php-reflection/releases/tag/v2.3.0) (2017-11-17)
+
+### New features
+
+- disable forkWorker by default: [`0eec6d4`](https://github.com/glayzzle/php-reflection/commit/0eec6d4)
+- add support on search wildcard: [`9e97a03`](https://github.com/glayzzle/php-reflection/commit/9e97a03)
+- add getters: [`6a3744c`](https://github.com/glayzzle/php-reflection/commit/6a3744c)
+- update tsc definition: [`8ba4334`](https://github.com/glayzzle/php-reflection/commit/8ba4334)
+
+### Bug fixes
+
+- fix name property when value is null: [`666513a`](https://github.com/glayzzle/php-reflection/commit/666513a)
+- use latest versions: [`9b109e1`](https://github.com/glayzzle/php-reflection/commit/9b109e1)
+
+[...full changes](https://github.com/glayzzle/php-reflection/compare/v2.2.2...v2.3.0)
+
 ## [Version 2.2.2](https://github.com/glayzzle/php-reflection/releases/tag/v2.2.2) (2017-2-25)
 
 ### Patches
