@@ -27,6 +27,8 @@ declare module "php-reflection" {
 
 
     export interface Options {
+        // enables the debug mode
+        debug?: Boolean;
         // list of excluded directory names
         exclude?: String[];
         // list of included directories
@@ -39,6 +41,8 @@ declare module "php-reflection" {
         scanVars?: Boolean;
         // extract scopes from
         scanExpr?: Boolean;
+        // extract documentation from
+        scanDocs?: Boolean;
         // default parsing encoding
         encoding?: String;
         // should spawn a worker process to avoir blocking
@@ -67,30 +71,30 @@ declare module "php-reflection" {
      */
     export class Position {
         start: {
-            line: Number;
-            column: Number;
+            line: number;
+            column: number;
         };
         end: {
-            line: Number;
-            column: Number;
+            line: number;
+            column: number;
         };
         offset: {
-            start: Number;
-            end: Number;
+            start: number;
+            end: number;
         };
         export(): any;
         import(data: any): Position;
-        hit(offet: Number);
+        hit(offet: number);
     }
 
     export class Comment {
-        summary: String;
+        summary: string;
         tags: any;
         annotations: Annotation[];
-        getAnnotation(name: String): Annotation;
-        getAnnotations(name: String): Annotation[];
-        getTag(name: String): Tag;
-        getTags(name: String): Tag[];
+        getAnnotation(name: string): Annotation;
+        getAnnotations(name: string): Annotation[];
+        getTag(name: string): Tag;
+        getTags(name: string): Tag[];
 
     }
 
@@ -98,73 +102,139 @@ declare module "php-reflection" {
         position: Position;
         doc: Comment;
         protected consume(file:File, parent: Node, ast: any): void;
-        indexName(name: String): Node;
+        indexName(name: string): Node;
         getRepository(): Repository;
         getFile(): File;
         getParent(): Node;
         getNamespace(): Namespace;
-        eachChild(cb: (child: Node, index: Number) => void): Node;
-        static extends(type: String): Node;
-        static create(type: String, graph: graph): Node;
+        eachChild(cb: (child: Node, index: number) => void): Node;
+        static extends(type: string): Node;
+        static create(type: string, graph: graph): Node;
     }
 
     export class Block extends Node {
+        /**
+         * Gets a list of defined variables
+         */
+        getVariables(): Variable[];
     }
 
+    export class Expr extends Block {
+      toPHP(): string;
+      static resolve(parent:Node, ast:any):Expr|string|number|boolean;
+    }
+
+    export class External extends Node {
+      once: boolean;
+      strict: boolean;
+      target: Expr|string;
+      getTargetFile(): Promise<File>;
+    }
+
+    export class UseGroup extends Node {
+      aliases: Map<string, string>;
+    }
+
+    export class Define extends Node {
+      caseInsensitive: boolean;
+      getName(): string;
+      getValue(): Expr|string|number|boolean;
+    }
 
     export class Namespace extends Block {
+
+        /**
+         * Retrieves a list of classes
+         */
+        getClasses(): Class[];  
+        
+        /**
+         * Retrieves a list of interfaces
+         */
+        getInterfaces(): Interface[];
+
+        /**
+         * Retrieves a list of interfaces
+         */
+        getTraits(): Trait[];
+
+
+        getFunctions(): Function[];
+
+        getUses(): UseGroup[];
+
+        getConstants(): Constant[];
+
+        getDefines(): Define[];
+        /**
+         * Converts a namespace relative object name to a fully qualified name
+         */
+        getFQN(name:string): string;
+        /**
+         * Resolves an alias class if defined in use statements
+         */
+        resolveAlias(alias: string): string;
+        /**
+         * Retrieves a class alias from `use` statements 
+         */
+        findAlias(name: string): string;
+        /**
+         * Resolves a class name if it's relative, using aliases
+         * or adding current namespace prefix.
+         */
+        resolveClassName(name: string): string;
     }
 
     export class File extends point {
         getRepository(): Repository;
-        setName(name: String): File;
-        getName(): String;
-        eachNode(cb: (child: Node, index: Number) => void): File;
-        getFirstByName(type: String, name: String): Node;
-        getByType(type: String): Node[];
+        setName(name: string): File;
+        getName(): string;
+        eachNode(cb: (child: Node, index: number) => void): File;
+        getFirstByName(type: string, name: string): Node;
+        getByType(type: string): Node[];
         getNamespaces(): Namespace[];
         getClasses(): Class[];
         getInterfaces(): Interface[];
-        getIncludes(): Node[];
-        getClass(name: String): Class;
-        getNamespace(name: String): Namespace;
-        getScope(offset: Number): Scope;
+        getIncludes(): External[];
+        getClass(name: string): Class;
+        getNamespace(name: string): Namespace;
+        getScope(offset: number): Scope;
     }
 
     export class Function extends Block {
-        name: String;
-        fullName: String;
-        isClosure: Boolean;
+        name: string;
+        fullName: string;
+        isClosure: boolean;
         getArguments(): Variable[];
         getVariables(): Variable[];
     }
 
     export class Method extends Block {
-        name: String;
-        fullName: String;
-        isStatic: Boolean;
-        isFinal: Boolean;
-        isAbstract: Boolean;
-        isPublic: Boolean;
-        isProtected: Boolean;
-        isPrivate: Boolean;
+        name: string;
+        fullName: string;
+        isStatic: boolean;
+        isFinal: boolean;
+        isAbstract: boolean;
+        isPublic: boolean;
+        isProtected: boolean;
+        isPrivate: boolean;
         getArguments(): Variable[];
         getVariables(): Variable[];
         getClass(): Class|Trait|Interface;
     }
 
     export class Class extends Node {
-        name: String;
-        fullName: String;
-        extends: String;
-        implements: String[];
+        name: string;
+        fullName: string;
+        extends: string;
+        implements: string[];
         isAbstract: Boolean;
         isFinal: Boolean;
         getExtends(): Class;
         getImplements(): Interface[];
-        getProperties(includeParents?: Boolean): Property[];
-        getConstants(includeParents?: Boolean): Constant[];
-        getMethods(includeParents?: Boolean): Method[];
+        getProperties(includeParents?: boolean): Property[];
+        getConstants(includeParents?: boolean): Constant[];
+        getMethods(includeParents?: boolean): Method[];
     }
 
     export class Trait extends Node {
@@ -174,20 +244,20 @@ declare module "php-reflection" {
     }
 
     export class Constant extends Node {
-        name: String;
+        name: string;
     }
 
     export class Variable extends Node {
-        name: String;
+        name: string;
     }
 
     export class Property extends Node {
-        name: String;
+        name: string;
     }
 
     export class Scope {
         file: File;
-        offset: Number[];
+        offset: number[];
         namespace: Namespace;
         class: Class;
         trait: Trait;
@@ -202,27 +272,28 @@ declare module "php-reflection" {
      * The repository
      */
     export class Repository extends EventEmitter {
-        directory: String;
+        directory: string;
         options: Options;
         db: graph;
-        constructor(directory:String, config: Options);
-        constructor(directory:String);
-        scan(directory: String): Promise<Boolean>;
+        constructor(directory:string, config: Options);
+        constructor(directory:string);
+        scan(directory: string): Promise<Boolean>;
         scan(): Promise<Boolean>;
-        parse(filename: String, encoding?: String, stat?: any): Promise<File>;
-        getByType(type: String): Node[];
-        getByName(type: String, name: String, limit?: Number): Node[];
-        getFirstByName(type: String, name: String): Node;
-        getNamespace(name: String): Namespace;
-        sync(filename: String, contents: String, offset?: Number[]): Promise<File>;
+        parse(filename: string, encoding?: string, stat?: any): Promise<File>;
+        getByType(type: string): Node[];
+        getByName(type: string, name: string, limit?: number): Node[];
+        searchByName(type: string, name: string, limit?: number): Node[];
+        getFirstByName(type: string, name: string): Node;
+        getNamespace(name: string): Namespace;
+        sync(filename: string, contents: string, offset?: number[]): Promise<File>;
         cleanAll(): Repository;
-        each(type: String, cb: (node:Node, name: String) => void): Repository;
-        getScope(filename: String, offset: any): Scope;
-        getFile(filename: String): File;
-        hasFile(filename: String): Boolean;
-        eachFile(cb: (node:File, name: String) => void): Repository;
-        removeFile(filename: String): Repository;
-        renameFile(oldName: String, newName: String): Repository;
+        each(type: string, cb: (node:Node, name: string) => void): Repository;
+        getScope(filename: string, offset: any): Scope;
+        getFile(filename: string): File;
+        hasFile(filename: string): boolean;
+        eachFile(cb: (node:File, name: string) => void): Repository;
+        removeFile(filename: string): Repository;
+        renameFile(oldName: string, newName: string): Repository;
         refresh(): Promise<File>;
     }
 }
