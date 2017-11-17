@@ -61,6 +61,13 @@ Block.prototype.scanForChilds = function(ast) {
     }
 };
 
+
+Block.prototype.getVariables = function() {
+  return this._db.resolve(this.get('variables'));
+};
+
+
+
 /**
  * Generic consumer of a list of nodes
  * @abstract @protected
@@ -110,12 +117,18 @@ Block.prototype.consumeChild = function(ast) {
 
         // consome a namespace (from inner statements like declare)
         else if (ast.kind === 'namespace') {
-            this._db.create('namespace', this.getFile(), ast);
+            this.getFile().add(
+                'namespaces', 
+                this._db.create('namespace', this.getFile(), ast)
+            );
         }
 
         // consome include statements
         else if (ast.kind === 'include') {
-            this._db.create('external', this, ast);
+            this.getFile().add(
+                'externals', 
+                this._db.create('external', this, ast)
+            );
         }
 
         // consume IF nodes

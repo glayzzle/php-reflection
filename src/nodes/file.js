@@ -95,8 +95,9 @@ File.prototype.getByType = function(type) {
  * @return {Namespace[]}
  */
 File.prototype.getNamespaces = function() {
-    return this.getByType('namespace');
+    return this._db.resolve(this.get('namespaces'));
 };
+
 
 /**
  * @return {Class[]}
@@ -116,7 +117,7 @@ File.prototype.getInterfaces = function() {
  * @return {External[]}
  */
 File.prototype.getIncludes = function() {
-    return this.getByType('external');
+    return this._db.resolve(this.get('externals'));
 };
 
 /**

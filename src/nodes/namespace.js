@@ -35,6 +35,13 @@ Namespace.prototype.consume = function(file, parent, ast) {
  */
 Namespace.prototype.getFQN = function(name) {
     if (name.name) name = name.name;
+    if (name[0] === '\\') {
+      return name;
+    }
+    let fromAlias = this.resolveAlias(name);
+    if (fromAlias) {
+      return fromAlias;
+    }
     if (this.name === '\\') {
         return '\\' + name;
     }
@@ -43,34 +50,79 @@ Namespace.prototype.getFQN = function(name) {
 
 
 /**
+ * Retrieves a list of classes
+ */
+Namespace.prototype.getClasses = function() {
+  return this._db.resolve(this.get('classes'));
+};  
+
+/**
+ * Retrieves a list of interfaces
+ */
+Namespace.prototype.getInterfaces = function() {
+  return this._db.resolve(this.get('interfaces'));
+};
+
+/**
+ * Retrieves a list of interfaces
+ */
+Namespace.prototype.getTraits = function() {
+  return this._db.resolve(this.get('traits'));
+};
+
+
+Namespace.prototype.getFunctions = function() {
+  return this._db.resolve(this.get('functions'));
+};
+
+Namespace.prototype.getUses = function() {
+  return this._db.resolve(this.get('uses'));
+};
+
+Namespace.prototype.getConstants = function() {
+  return this._db.resolve(this.get('constants'));
+};
+
+Namespace.prototype.getDefines = function() {
+  return this._db.resolve(this.get('defines'));
+};
+
+
+/**
  * Retrieves a list of use nodes
  */
 Namespace.prototype.getUses = function() {
-    var result = [];
-    var uses = this.get('uses');
-    if (uses.length > 0) {
-        for(var i = 0; i < uses.length; i++) {
-            var item = this._db.get(uses[i]);
-            if (item) result.push(item);
+  return this._db.resolve(this.get('uses'));
+};
+
+/**
+ * Resolves an alias class if defined in use statements
+ */
+Namespace.prototype.resolveAlias = function(alias) {
+    var uses = this.getUses();
+    for(var i = 0; i < uses.length; i++) {
+        var item = uses[i];
+        if (item && alias in item.aliases) {
+            return item.aliases[alias];
         }
     }
-    return result;
+    return null;
 };
 
 /**
  * Resolves an alias class if defines in use statements
  */
-Namespace.prototype.resolveAlias = function(alias) {
-    var uses = this.get('uses');
-    if (uses.length > 0) {
-        for(var i = 0; i < uses.length; i++) {
-            var item = this._db.get(uses[i]);
-            if (item && alias in item.aliases) {
-                return item.aliases[alias];
-            }
+Namespace.prototype.findAlias = function(className) {
+  var uses = this.getUses();
+  for(var i = 0; i < uses.length; i++) {
+      var item = uses[i];
+      for(var name in item.aliases) {
+        if (item.aliases[name] === className) {
+          return name;
         }
-    }
-    return null;
+      }
+  }
+  return null;
 };
 
 /**

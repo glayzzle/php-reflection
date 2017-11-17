@@ -49,9 +49,8 @@ External.prototype.getTargetFile = function() {
                 }.bind(this));
             }
         }
-        return this._file;
     }
-    return null;
+    return Promise.resolve(this._file);
 };
 
 module.exports = External;
