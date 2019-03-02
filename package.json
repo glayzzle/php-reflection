@@ -26,7 +26,7 @@
   "homepage": "https://github.com/glayzzle/php-reflection#readme",
   "dependencies": {
     "doc-parser": "^0.4.7",
-    "glob-to-regexp": "^0.3.0",
+    "glob-to-regexp": "^0.4.0",
     "grafine": "^2.0.0",
     "php-parser": "^2.1.0"
   },
