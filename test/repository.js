@@ -36,6 +36,20 @@ describe('Repository class', function() {
                 done();
             }, done);
         });
+
+        it('should read namespace of SimpleInterface.php', function (done) {
+            workspace.parse('src/SimpleInterface.php').then(function(file) {
+                var namespace = file.getByType('namespace');
+                namespace.length.should.be.exactly(1);
+
+                namespace = namespace.shift();
+                namespace.name.should.be.exactly('\\');
+
+                done();
+            }).catch(function(e) {
+                done(e);
+            });
+        });
     });
 
     describe('#scan', function() {
