@@ -175,6 +175,11 @@ Class.prototype.consume = function(file, parent, ast) {
 
     // handle name
     this.name = ast.name;
+    // Anonymous classes have name is null
+    if (this.name === null) {
+        this.name = '';
+    }
+
     this.fullName = this.getNamespace().getFQN(this.name);
     this.indexName(this.fullName);
 

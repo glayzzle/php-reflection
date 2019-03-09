@@ -81,7 +81,6 @@ File.prototype.getFirstByName = function(type, name) {
  * @return {Node[]}
  */
 File.prototype.getByType = function(type) {
-    var childs = this.related.file;
     var result = [];
     this.eachNode(function(node) {
         if (node._type === type) {
