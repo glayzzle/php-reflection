@@ -84,7 +84,7 @@ declare module "php-reflection" {
         };
         export(): any;
         import(data: any): Position;
-        hit(offet: number);
+        hit(offet: number): boolean;
     }
 
     export class Comment {
