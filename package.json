@@ -26,18 +26,18 @@
   "homepage": "https://github.com/glayzzle/php-reflection#readme",
   "dependencies": {
     "doc-parser": "^0.4.7",
-    "glob-to-regexp": "^0.3.0",
+    "glob-to-regexp": "^0.4.0",
     "grafine": "^2.0.0",
     "php-parser": "^2.1.0"
   },
   "devDependencies": {
-    "coveralls": "^2.11.15",
+    "coveralls": "^3.0.2",
     "grunt": "^1.0.1",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-documentation": "^1.2.1",
-    "grunt-shell": "^2.1.0",
+    "grunt-shell": "^3.0.1",
     "istanbul": "^0.4.5",
-    "mocha": "^3.2.0",
-    "should": "^11.1.1"
+    "should": "^13.2.3",
+    "mocha": "^6.0.2"
   }
 }

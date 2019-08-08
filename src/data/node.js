@@ -160,10 +160,10 @@ node.prototype.consume = function(file, parent, ast) {
  */
 node.import = function(data, graph) {
     var result = node.create(data._t, graph);
-    result_type = data._t;
+    result.type = data._t;
     result.state = data._n[0];
     result.position = data._n[1] ? position.import(data._n[1]) : null;
-    result.doc = data._n[2] ? doc.import(data._n[2]) : null;
+    result.doc = data._n[2] ? comment.import(data._n[2]) : null;
     point.prototype.import.apply(
         result, [data]
     );

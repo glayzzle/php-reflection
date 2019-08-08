@@ -144,7 +144,7 @@ repository.prototype.parse = require('./repository/parse');
  */
 repository.prototype.getByType = function(type) {
     var result = [];
-    this.db.readIndex(type, function(name, items) {
+    this.db.filter(type, function(name, items) {
         if (items.length > 1) {
             result = result.concat(items);
         } else {
@@ -304,7 +304,7 @@ repository.prototype.cleanAll = function() {
  * @return {repository}
  */
 repository.prototype.each = function(type, cb) {
-    this.db.readIndex(type, function(items) {
+    this.db.filter(type, function(items) {
         for(var name in items) {
             var nodes = items[name];
             if (nodes.length !== 1) {

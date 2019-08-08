@@ -102,7 +102,7 @@ Block.prototype.consumeChild = function(ast) {
             var int = this._db.create('interface', this, ast);
             this.add('interfaces', int);
             if (this._type !== 'namespace') {
-                this.getNamespace().add('interfaces', cls);
+                this.getNamespace().add('interfaces', int);
             }
         }
 

@@ -99,7 +99,7 @@ module.exports = function(directory) {
                   }
                 }
                 self.emit('progress', self.counter);
-                done();
+                done(file);
               }, function(e) {
                 self.counter.loading--;
                 self.counter.total--;
