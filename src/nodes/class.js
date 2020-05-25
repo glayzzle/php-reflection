@@ -31,7 +31,10 @@ var Class = Node.extends('class');
  */
 Class.prototype.getExtends = function() {
     if (this.extends) {
-        return this.first('extends');
+        var uuid = this.first('extends');
+        if (uuid) {
+          return this._db.get(uuid);
+        }
     }
     return null;
 };
