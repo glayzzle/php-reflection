@@ -232,9 +232,9 @@ declare module "php-reflection" {
         isFinal: Boolean;
         getExtends(): Class;
         getImplements(): Interface[];
-        getProperties(includeParents?: boolean): Property[];
-        getConstants(includeParents?: boolean): Constant[];
-        getMethods(includeParents?: boolean): Method[];
+        getProperties(includeParents?: boolean): {[name: string]: Property};
+        getConstants(includeParents?: boolean): {[name: string]: Constant};
+        getMethods(includeParents?: boolean): {[name: string]: Method};
     }
 
     export class Trait extends Node {
