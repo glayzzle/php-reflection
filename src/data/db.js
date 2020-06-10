@@ -40,6 +40,9 @@ grafine.graph.prototype.create = function(type, parent, ast) {
     var point = node.create(type, this);
     point = graphCreatePoint.apply(this, [point]);
     point.consume(file, parent, ast);
+    if (point.refreshRelations) {
+      point.refreshRelations();
+    }
     return point;
 };
 
