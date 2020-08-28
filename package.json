@@ -38,6 +38,6 @@
     "grunt-shell": "^3.0.1",
     "istanbul": "^0.4.5",
     "should": "^13.2.3",
-    "mocha": "^6.0.2"
+    "mocha": "^8.1.3"
   }
 }
